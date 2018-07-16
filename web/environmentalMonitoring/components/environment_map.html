@@ -1,0 +1,24 @@
+
+<template id="environment_map">
+		<div id="map">
+			<div class="map_top">
+				<div class="title_label lf">筛选条件 : </div>
+				<select v-show="curr_env_no" name="env_name" id="env_name" v-model="curr_env_no" @change="change_map(curr_env_no)">
+					<option :value="index" v-for="(index,data) in env_list">{{data.name}}</option>
+				</select>
+				<div class="title_label lf" v-show="!curr_env_no">请从左侧环境树中选择环境!</div>
+			</div>
+			<div class="bgContainer">
+				<span class="resetBtn" @click="resetImg"></span>
+				<div class="imgView" @mousewheel="scaleImg" @mousedown="dragStart" style="box-sizing: border-box;">
+					<div class="imgBox" :style="imgStyle" id="imgBox" >
+						<img :src="imgUrl" style="width:100%" v-show="imgUrl" alt="图片无法正常加载...">
+						<div id="mapPoint" v-show="mapPointData&&mapPointData.locate" :style="pointStyle" :data-title="tooltip"></div>
+					</div>
+				</div>
+			</div>
+			<!--<div class="map_container" id="map_bg">-->
+				<!--<div id="map_point" v-show="curr_locate" :data-title="tooltip"></div>-->
+			<!--</div>-->
+		</div>
+</template>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+__inline("/common/header.html")
+__inline("/common/left.html")
+<div id="content" v-cloak>
+    <router-view></router-view>
+</div>
+<!--用户管理模块-->
+__inline("userManagement.html")
+<!--新建用户模块-->
+__inline("addUser.html")
+<!--编辑用户模块-->
+__inline("editUser.html")
+<!--角色设置模块-->
+__inline("roleSetting.html")
+<!--引入页码组件-->
+__inline("../capsule/template/pageList.html")
+<script>
+    require('./index');
+</script>
+</body>
+</html>

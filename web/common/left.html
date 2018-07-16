@@ -1,0 +1,40 @@
+<div id="left">
+    <ul>
+    	<li class="integrated permissionHidden" v-permission="{name:'综合管理'}">
+			<a href="../capsule/#!/integrated">
+				<span></span>
+				<span v-text="language.left_integrated"></span>
+			</a>
+		</li>
+		<li class="capsule permissionHidden"  v-if="capsule=='1'" v-permission="{name:'智能囊匣'}">
+			<a href="../capsule/#!capsule">
+				<span></span>
+				智能囊匣
+			</a>
+		</li>
+		<li class="monitoring permissionHidden" v-permission="{name:'环境监控'}">
+			<a href="../capsule/#!/environment">
+				<span></span>
+				<span v-text="language.left_environmentalMonitor"></span>
+			</a>
+		</li>
+		<li class="vibration permissionHidden" v-if="vibration=='1'" v-permission="{name:'震动监测'}">
+            <a href="../vibration">
+                <span></span>
+                震动监测
+            </a>
+        </li>
+		<li class="relic_ permissionHidden" v-permission="{name:'文物管理'}">
+			<a href="../capsule/#!/relic">
+				<span></span>
+				<span v-text="language.left_relicManagement"></span>
+			</a>
+		</li>
+		<li class="equipment permissionHidden" v-permission="{name:'设备管理'}">
+			<a href="../equipManage">
+				<span></span>
+				<span v-text="language.left_equipManagement"></span>
+			</a>
+		</li>
+    </ul>
+</div>

@@ -1,0 +1,65 @@
+<div class="panel panel-default permissionHidden" id="relic_box" v-permission="{name:'文物管理'}">
+    <div class="panel-heading relic_icon">
+        <div class="img_btn"></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"
+               class="collapsed" aria-expanded="false" v-text="configLanguage.floorHall_relic">文物管理</a>
+        </h4>
+    </div>
+    <div id="collapse2" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+        <div class="panel-body">
+            <div class="relic">
+                <div class="row_name" style="display: none;"><p>文物等级统计</p></div>
+                <div class="information" id="relic_chart" style="display: none;">
+               		<div class="tips">暂无数据</div>
+                </div>
+                <div class="row_name"><p class="relic_title">文物列表</p></div>
+                <form>
+                    <div>
+                        <input type="text" placeholder="请输入你要查找的文物" @keydown.enter.stop.prevent="search" v-model="searchTxt">
+                        <i class="icon iconfont">&#xe614;</i>
+                    </div>
+                    <div>
+                        <div class="filter" :style="styleObject">
+                            <div class="font">材质
+                                <ul>
+                                    <li v-for="name in material" v-text="name" @click.stop="addChooce('material',name)"></li>
+                                </ul>
+                            </div>
+                            <div class="font">年代
+                                <ul>
+                                    <li v-for="name in age" v-text="name" @click.stop="addChooce('age',name)"></li>
+                                </ul>
+                            </div>
+                            <div class="font">类别
+                                <ul>
+                                    <li v-for="name in category" v-text="name" @click.stop="addChooce('category',name)"></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <i class="icon iconfont">&#xe650;</i>
+                    </div>
+                </form>
+                <div class="row_name">
+                    <p class="p_detail">
+                        共 <span v-text="relic_total"></span> 个文物　　
+                        <template v-if="filter_num>=0">
+                            <span v-text="filter_num"></span>个符合筛选
+                        </template>
+                    </p>
+                </div>
+                <p class="fliter_box">
+                    <template v-for="(type,val) in condition">
+                        <span v-for="name in val" v-text="name" @click="removeChooce(type,name)"></span>
+                    </template>
+                </p>
+                <div class="relic_menu">
+                    <div class="relic_data" v-for="item in relic_list">
+                        <img v-bind:src="item.image||'../common/images/relic.png'"/>
+                        <a :href="goRelicUrl(item)" v-bind:data-title="item.name">{{item.name}}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

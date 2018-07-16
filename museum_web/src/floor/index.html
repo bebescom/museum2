@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>博物馆综合管理平台</title>
+</head>
+<body>
+
+__inline("/common/header.html")
+__inline("/common/left.html")
+<div id="nav" class="nav_box">
+    <dl>
+
+    </dl>
+    <a href="javascript:history.back()" class="back">返回</a>
+</div>
+<div class="map_view_mask">
+	<div class="map_view">
+		<div class="color_distinguish" v-show="showDistinguish" v-cloak>
+			<div class="tooltip_fox"></div>
+			<div class="temperatureColor">
+				<div style="background: rgba(173,59,45,1);" index="8"></div>
+				<div style="background: rgba(226,85,66,1);" index="7"></div>
+				<div style="background: rgba(237,118,102,1);" index="6"></div>
+				<div style="background: rgba(236,156,145,1);" index="5"></div>
+				<div style="background: rgba(255,224,220,1);" index="4"></div>
+				<div style="background: rgba(193,222,242,1);" index="3"></div>
+				<div style="background: rgba(136,198,236,1);" index="2"></div>
+				<div style="background: rgba(66,155,210,1);" index="1"></div>
+				<div style="background: rgba(9,105,166,1);" index="0"></div>
+			</div>
+			<div class="humidityColor">
+				<div style="background: rgba(16,78,159,1);" index="8"></div>
+				<div style="background: rgba(78,127,190,1);"  index="7"></div>
+				<div style="background: rgba(98,160,212,1);"  index="6"></div>
+				<div style="background: rgba(142,207,237,1);"  index="5"></div>
+				<div style="background: rgba(188,231,246,1);"  index="4"></div>
+				<div style="background: rgba(249,227,207,1);"  index="3"></div>
+				<div style="background: rgba(218,184,148,1);"  index="2"></div>
+				<div style="background: rgba(184,137,104,1);"  index="1"></div>
+				<div style="background: rgba(161,105,81,1);"  index="0"></div>
+			</div>
+		</div>
+
+	    <div class="btn_view"></div>
+	    <div class="img_box">
+	        <img v-bind:src="floor.map" style="width:100%" id="floor_image" @load="key"/>
+	        <svg id="svg_map" class="svg_Area" width="100%" height="100%">
+	
+	        </svg>
+	        <div id="svg_map_div"></div>
+	    </div>
+	</div>
+</div>
+__inline("/common/floor_hall/index.html")
+
+<script type="text/javascript">
+    require('floor');
+</script>
+</body>
+</html>

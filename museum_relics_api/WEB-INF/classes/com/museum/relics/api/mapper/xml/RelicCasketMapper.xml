@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.relics.api.mapper.RelicCasketMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.museum.relics.api.entity.RelicCasket">
+		<id column="id" property="id" />
+		<result column="casket_no" property="casketNo" />
+		<result column="parent_env_no" property="parentEnvNo" />
+		<result column="name" property="name" />
+		<result column="type" property="type" />
+		<result column="style" property="style" />
+		<result column="spec" property="spec" />
+		<result column="size" property="size" />
+	</resultMap>
+
+</mapper>

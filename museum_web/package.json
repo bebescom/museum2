@@ -1,0 +1,25 @@
+{
+  "name": "museum_web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "gulp": "*",
+    "gulp-clean": "^0.3.2",
+    "gulp-clean-css": "^2.0.6",
+    "gulp-concat": "^2.6.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-watch": "^4.3.5",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@192.168.8.189:Museum/museum_web.git"
+  },
+  "author": "",
+  "license": "ISC"
+}

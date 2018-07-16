@@ -1,0 +1,404 @@
+@charset "UTF-8";
+
+#content {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    background: rgb(236, 241, 245);
+    overflow: hidden;
+}
+
+.header {
+    height: 50px;
+    padding: 0 17px 0 15px;
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    z-index: 12;
+    box-shadow: -1px 1px 3px 1px #ccc;
+    position: relative;
+}
+
+.body {
+    height: calc(100% - 55px);
+    padding: 10px 10px 0 10px;
+
+    position: relative;
+    overflow: auto;
+}
+
+.header .title {
+    font-size: 16px;
+    color: #282a33;
+    font-weight: 800;
+    float: left;
+    padding: 15px 20px 0 0;
+}
+
+.header .componentWrap {
+    float: left;
+    padding-top: 10px;
+}
+
+.header .right_area {
+    position: absolute;
+    right: 20px;
+    top: 0;
+    line-height: 1.5;
+    padding-top: 10px;
+}
+
+.ivu-spin-fix {
+    background-color: rgba(255, 255, 255, .2);
+}
+
+.ivu-page {
+    margin-top: 10px;
+}
+
+.ivu-table-cell .equip-status {
+    padding: 3px 3px;
+    width: 40px;
+    display: inline-block;
+    line-height: 15px;
+    border-radius: 4px;
+}
+
+.equip-status.abnormal {
+    color: #f00;
+    border: 1px solid #f00;
+}
+
+.equip-status.normal {
+    color: #36B087;
+    border: 1px solid #36B087;
+}
+
+.equip-status.disable {
+    color: #ADADAD;
+    border: 1px solid #ADADAD;
+}
+
+.equip-status.standby {
+    color: #169BD5;
+    border: 1px solid #169BD5;
+}
+
+.equip-status.lowElectricity {
+    color: #FFC000;
+    border: 1px solid #FFC000;
+}
+
+.right_area .sel_equip_ul {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.right_area .sel_equip_li {
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+.right_area .sel_equip_li:hover {
+    color: #5cb85c;
+}
+
+.right_area button {
+    margin: 0 2px;
+}
+
+.body .ivu-table {
+    font-size: 14px;
+}
+
+.list_equip_remark {
+    cursor: pointer;
+}
+
+.list_equip_name_cell:hover .list_equip_remark {
+    display: block;
+}
+
+/* 位置 */
+.table-locate {
+    color: #7f8282;
+    position: relative;
+    left: 5px;
+}
+
+.table-locate:hover {
+    color: #1bbc9b;
+    cursor: pointer;
+}
+
+.table-locate-icon:hover {
+    color: #1bbc9b;
+}
+
+/*消息*/
+.table-message {
+    height: 26px;
+    overflow: hidden;
+}
+
+.table-record {
+    display: inline-block;
+    line-height: 26px;
+    border: 1px solid #333;
+    color: #333;
+    border-radius: 5px;
+    text-align: center;
+    position: relative;
+    height: 26px;
+    cursor: pointer;
+    margin: 0 3px;
+    padding: 0 5px;
+    min-width: 90px;
+}
+
+.table-record.传输时间超时, .table-record.数据错误, .table-record.数据突变, .table-record.异常低电 {
+    border: 1px solid #f00;
+    color: #f00;
+}
+
+.table-record.低电 {
+    border: 1px solid #FFC000;
+    color: #FFC000;
+}
+
+.table-record.备用 {
+    border: 1px solid #169BD5;
+    color: #169BD5;
+}
+
+.table-record.停用 {
+    border: 1px solid #ADADAD;
+    color: #ADADAD;
+}
+
+.ivu-tooltip-inner {
+    max-width: initial;
+}
+
+.table-message .record_content {
+    padding-top: 5px;
+}
+
+.table-message .record_title {
+
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.hava-new-message {
+    border: 1px solid #1bbc9b;
+    border-radius: 5px;
+    padding-left: 20px;
+    line-height: 26px;
+    height: 26px;
+    padding-right: 5px;
+    display: inline-block;
+    cursor: pointer;
+    background: url("../../common/images/hava-new-data.png") 4px 6px no-repeat;
+    margin: 0 3px;
+}
+
+.table-new-data {
+    margin: 0 5px;
+    display: inline-block;
+    vertical-align: top;
+    font-size: 14px;
+}
+
+.table-new-data .museum_icon {
+    margin: 0 6px 0 2px;
+}
+
+/*info*/
+
+.info-left {
+
+}
+
+.ivu-card-head {
+    padding: 11px 16px;
+}
+
+.ivu-card-body {
+    padding: 10px 16px;
+}
+
+.info-left .ivu-card {
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.info-right .ivu-card {
+    border-radius: 5px;
+}
+
+.info-right .ivu-tabs-bar {
+    margin-bottom: 15px;
+}
+
+.info-left .p {
+    margin: 5px;
+}
+
+.dataSelect span {
+    position: relative;
+    top: 0px !important;
+}
+
+.dataSelect span i {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    right: -4px;
+    top: -3px;
+}
+
+.dataSelect .active i {
+    background: url(../../capsule/images/checked.png) no-repeat;
+}
+
+.monitor_param {
+    height: 35px;
+}
+
+.monitor_param .curve-param {
+    border: 1px solid #c5c9ce;
+    border-radius: 6px;
+    padding: 5px 10px;
+    height: 25px;
+    line-height: 25px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.monitor_param .curve-param.active {
+    background-color: #d4eae9;
+}
+
+.raw_data .ivu-table table {
+    width: 100%;
+}
+
+.raw_data .componentWrap {
+    margin-bottom: 10px;
+}
+
+.curve-param i {
+    position: absolute;
+    background: rgb(105, 219, 164);
+    border-radius: 10px;
+    padding: 2px 3px;
+    color: #fff;
+    font-size: 12px;
+    top: -5px;
+}
+
+.equip_threshold {
+    margin: 10px 0;
+}
+
+.equip_threshold .ivu-card-head {
+    padding: 10px;
+}
+
+.equip_threshold .ivu-card-body {
+    padding: 0;
+}
+
+.equip_threshold .ivu-table-wrapper {
+    border: none;
+}
+
+/***/
+.set_equip_table .ivu-table-header {
+    display: none;
+}
+
+.set_equip_table .ivu-table-title {
+    line-height: 35px;
+    height: 80px;
+}
+
+.set_equip_table .equip_table_param {
+    height: 43px;
+}
+
+.set_equip_table .equip_table_param th {
+    background: #fff;
+}
+
+.set_equip_table .ivu-param-cell {
+    padding-left: 5px;
+}
+
+/*环境选择再弹窗中*/
+.ivu-select-dropdown {
+    position: fixed;
+}
+
+.ivu-cascader-menu .ivu-cascader-menu-item {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 200px;
+}
+
+.set_history_table .ivu-table-cell {
+    padding: 2px 5px;
+}
+
+.set_history_table td, .set_equip_table td {
+    height: 35px;
+    line-height: 1.5;
+}
+
+.ivu-poptip-body-content {
+    font-size: 13px;
+}
+
+.small_cell .ivu-table-cell {
+    padding: 2px 5px;
+}
+
+.info-left .img {
+    display: inline-block;
+    width: 50%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.info-left .img img {
+    width: 90%;
+    vertical-align: middle;
+}
+
+.info-left .img i {
+    color: #f00;
+    font-size: 20px;
+    vertical-align: top;
+    cursor: pointer;
+    position: absolute;
+    display: none;
+}
+
+.info-left .img:hover i {
+    display: inline-block;
+}
+
+.i-data .map_view {
+    width: 300px;
+    height: 200px;
+    overflow: hidden;
+}
+
+.map_view img {
+    position: relative;
+}
+
+.equipPosition .map_view {
+    position: relative;
+}

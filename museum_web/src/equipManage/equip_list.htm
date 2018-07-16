@@ -1,0 +1,76 @@
+<div class="header">
+    <div class="title">设备管理</div>
+    <div class="componentWrap">
+        <new-filter-component :search="search" v-ref:search placeholder="设备名称、设备ID"></new-filter-component>
+    </div>
+    <div class="right_area">
+
+        <Dropdown placement="bottom-end" v-show="sel_equip_no_list.length">
+            <i-button type="text">
+                已选择设备({{sel_equip_no_list.length}})
+                <Icon type="arrow-down-b"></Icon>
+            </i-button>
+            <Dropdown-menu slot="list" class="sel_equip_ul">
+                <li class="sel_equip_li" v-for="no in sel_equip_no_list" @click.stop="del_sel_equip_no(no)"
+                    title="点击取消选择该设备">
+                    {{no}}
+                    <Icon type="close"></Icon>
+                </li>
+            </Dropdown-menu>
+        </Dropdown>
+
+
+        <i-button class="btn" @click="equip_compare" class="permissionHidden"
+                  v-permission="{name:'对比设备'}">对比设备
+        </i-button>
+        <i-button class="btn" @click="volume_sets" class="permissionHidden"
+                  v-permission="{name:'批量设置'}">设置设备
+        </i-button>
+
+        <equip-down :sel_equip_no_list="sel_equip_no_list"></equip-down>
+
+        <i-button class="btn" @click="export_all_equip">导出概览表</i-button>
+
+        <i-button class="btn" @click="equipWarning">设备报警</i-button>
+
+        <Dropdown placement="bottom-end">
+            <i-button> 更多操作
+                <Icon type="arrow-down-b"></Icon>
+            </i-button>
+            <Dropdown-menu slot="list">
+                <Dropdown-item @click="showTopology" class="permissionHidden" v-permission="{name:'拓扑图'}">拓扑图
+                </Dropdown-item>
+                <Dropdown-item @click="addEquip" class="permissionHidden" v-permission="{name:'添加设备'}">添加设备
+                </Dropdown-item>
+                <Dropdown-item @click="deleteEquip" class="permissionHidden" v-permission="{name:'删除设备'}">
+                    删除设备
+                </Dropdown-item>
+            </Dropdown-menu>
+        </Dropdown>
+    </div>
+</div>
+
+<div class="body">
+    <Spin fix v-show="spinShow">
+        <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+        <div>加载中...</div>
+    </Spin>
+    <i-table class="i-data"
+             stripe ref="selection"
+             :columns="equipListTableColumns" :data="equipListData"
+             @on-selection-change="tableSelect"
+             :loading="loading_table">
+    </i-table>
+    <Page :page-size="pageListLen" :current.sync="currentPage" @on-change='changePage' :total="pageListTotal"
+          show-elevator show-total></Page>
+
+</div>
+
+<add-equip v-ref:add_equip></add-equip>
+
+<set-equip v-ref:set_equip></set-equip>
+
+__inline("/common/components/newFilterComponent.vue")
+__inline("components/downEquipData.vue")
+__inline("components/addEquip.vue")
+__inline("components/setEquip.vue")

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>博物馆综合管理平台</title>
+</head>
+<body>
+__inline("/common/header.html")
+__inline("/common/left.html")
+
+<div class="map_view_mask">
+	<div id="nav" class="nav_box">
+		<dl>
+
+		</dl>
+        <div class="map_view_time">
+			<Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" :options="map_view_options" placement="bottom-end" placeholder="选择日期和时间" @on-change="changeTime" @on-open-change="changeEndTime" confirm clearable :value.sync="map_view_data"></Date-picker>
+            <!--<Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" placeholder="选择日期和时间（不含秒）" @on-change="changeTime"></Date-picker>-->
+        </div>
+        <a href="javascript:history.back()" class="back">返回</a>
+        <!--&lt;!&ndash;<Modal&ndash;&gt;-->
+	<!--&lt;!&ndash;:visible.sync="contrastModal"&ndash;&gt;-->
+	<!--&lt;!&ndash;title="普通的Modal对话框标题"&ndash;&gt;-->
+	<!--&lt;!&ndash;@on-ok="ok"&ndash;&gt;-->
+	<!--&lt;!&ndash;@on-cancel="cancel">&ndash;&gt;-->
+	<!--&lt;!&ndash;<p>对话框内容</p>&ndash;&gt;-->
+	<!--&lt;!&ndash;<p>对话框内容</p>&ndash;&gt;-->
+	<!--&lt;!&ndash;<p>对话框内容</p>&ndash;&gt;-->
+	<!--&lt;!&ndash;</Modal>&ndash;&gt;-->
+	</div>
+	<div class="map_view">
+		<div class="color_distinguish" v-show="showDistinguish" v-cloak>
+			<div class="tooltip_fox"></div>
+			<div class="temperatureColor">
+				<div style="background: rgba(173,59,45,1);" index="8"></div>
+				<div style="background: rgba(226,85,66,1);" index="7"></div>
+				<div style="background: rgba(237,118,102,1);" index="6"></div>
+				<div style="background: rgba(236,156,145,1);" index="5"></div>
+				<div style="background: rgba(255,224,220,1);" index="4"></div>
+				<div style="background: rgba(193,222,242,1);" index="3"></div>
+				<div style="background: rgba(136,198,236,1);" index="2"></div>
+				<div style="background: rgba(66,155,210,1);" index="1"></div>
+				<div style="background: rgba(9,105,166,1);" index="0"></div>
+			</div>
+			<div class="humidityColor">
+				<div style="background: rgba(16,78,159,1);" index="8"></div>
+				<div style="background: rgba(78,127,190,1);"  index="7"></div>
+				<div style="background: rgba(98,160,212,1);"  index="6"></div>
+				<div style="background: rgba(142,207,237,1);"  index="5"></div>
+				<div style="background: rgba(188,231,246,1);"  index="4"></div>
+				<div style="background: rgba(249,227,207,1);"  index="3"></div>
+				<div style="background: rgba(218,184,148,1);"  index="2"></div>
+				<div style="background: rgba(184,137,104,1);"  index="1"></div>
+				<div style="background: rgba(161,105,81,1);"  index="0"></div>
+			</div>
+		</div>
+	    <div class="btn_view"></div>
+	    <div class="img_box">
+	        <img v-bind:src="hall.map" style="width:100%" @load="key"/>
+	        <svg id="svg_map" class="svg_Area" width="100%" height="100%">
+
+	        </svg>
+	        <div id="svg_map_div" v-show="showHotspot"></div>
+			<div id="main"></div>
+	    </div>
+	</div>
+	<div class="switch_div">
+		<div class="switch_box">
+			<ul>
+				<li>相对湿度场</li>
+				<li>温度场</li>
+			</ul>
+		</div>
+		<div class="switch_change_box">
+			<div class="switch_change_top">
+				<div class="switch_change_left">
+					<span id="switch_change_text">时刻：<span></span></span>
+				</div>
+				<div class="switch_change_right">
+					<span>设置：</span>
+					<select class="set_select" id="count_time" @change="interValData">
+						<option value="15" selected>15分钟</option>
+						<option value="30">30分钟</option>
+						<option value="60">1小时</option>
+						<option value="120">2小时</option>
+					</select>
+					<select class="set_select" id="play_time">
+						<option value="100" selected>中速</option>
+						<option value="0">快速</option>
+						<option value="1000">慢速</option>
+					</select>
+					<select class="set_select" id="dot_size" @change="dotSize">
+						<option value="30" selected>一般</option>
+						<!--<option value="10">非常精细</option>-->
+						<option value="10">精细</option>
+						<option value="40">粗略</option>
+						<!--<option value="50">非常粗略</option>-->
+					</select>
+				</div>
+			</div>
+			<div class="switch_change_bottom">
+				<div class="play_box">
+
+					<Tooltip placement="top" content="起始时刻" :disabled="!loadComplete" >
+						<div class="play_btn" @click="startTime">
+							<Icon type="ios-skipbackward" v-show="loadComplete"></Icon>
+							<Icon type="ios-skipbackward" v-show="!loadComplete" color="#e3e8ee" ></Icon>
+						</div>
+					</Tooltip>
+					<Tooltip placement="top" content="暂无数据" :disabled="loadComplete" >
+						<div class="play_btn" @click="playPause" v-show="!(playStatus&&loadComplete)" style="padding-left: 5px;" >
+							<Tooltip placement="top" content="播放" :disabled="!loadComplete" >
+								<Icon type="ios-play"  v-show="!playStatus&&loadComplete"></Icon>
+								<Icon type="ios-play"  v-show="!loadComplete" color="#e3e8ee"></Icon>
+							</Tooltip>
+						</div>
+						<div class="play_btn" @click="playPause" v-show="playStatus&&loadComplete"  >
+							<Tooltip placement="top" content="暂停" :disabled="!loadComplete" >
+								<Icon type="ios-pause"></Icon>
+							</Tooltip>
+						</div>
+					</Tooltip>
+					<Tooltip placement="top" content="终止时刻" :disabled="!loadComplete" >
+						<div class="play_btn" @click="endTime">
+							<Icon type="ios-skipforward" v-show="loadComplete" ></Icon>
+							<Icon type="ios-skipforward" v-show="!loadComplete" color="#e3e8ee" ></Icon>
+						</div>
+					</Tooltip>
+					<div class="slider_box">
+						<Slider :value.sync="time_index" :tip-format="format" :disabled="!loadComplete"  @on-change="sliderVal" :max="maxLength"></Slider>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+__inline("/common/floor_hall/index.html")
+
+<script type="text/javascript">
+    require('hall');
+</script>
+</body>
+</html>

@@ -1,0 +1,661 @@
+#content ::-webkit-scrollbar{
+    background-color:transparent;
+    width:10px;
+    height:10px;
+}
+/*滚动条里面的小方块，能上下左右移动(取决于是垂直滚动条还是水平滚动条)*/
+#content ::-webkit-scrollbar-thumb{
+    background:rgba(90,158,109,.2);
+    width:10px;
+    height:10px;
+    border-radius: 5px;
+}
+.cursor{
+	cursor: pointer;
+}
+.cursor:hover{
+	color: #46ab97;
+}
+.environment .body{
+	margin: 17px 0;
+	position: relative;
+}
+.environment .body>div{
+	height: 100%;
+    box-shadow: -1px 1px 3px 1px #ccc;
+    border-radius: 10px;
+    background: #fff;
+    padding: 7px 0 11px 10px;
+    box-sizing: border-box;
+}
+.environment .left_environment{
+	position: absolute;
+	left: 0;
+	width:225px;
+}
+.environment .left_environment .function{
+    margin-left: 10px;
+}
+.environment .left_environment .floatL.spanShow{
+	position: absolute;
+}
+.environment .left_environment .hidden_function{
+	display: block;
+}
+.environment .hidden_function input{
+	left: 0;
+}
+.environment .left_environment .tree_box{
+    /*max-height: 100%;*/
+    overflow-y: scroll;
+}
+.environment .right_environment{
+	margin-left: 236px;
+	position: relative;
+}
+.environment .right_environment .title{
+	height: 40px;
+	border-bottom: 1px solid #e7e8ea;
+	font-size: 18px;
+	color: #282a33;
+	line-height: 38px;
+	font-weight: normal;
+}
+.right_environment .title span{
+	display: inline-block;
+	height: 100%;
+	padding: 0 13px;
+	margin-right: 30px;
+}
+.right_environment .title span:first-child{
+	margin-left: 14px;
+}
+.right_environment .title span.active{
+	border-bottom: 2px solid #1bbc9b;
+	color:#1bbc9b ;
+}
+.right_environment .title span:hover{
+	border-bottom: 2px solid #1bbc9b;
+	color:#1bbc9b;
+}
+/**
+ * 监测曲线	--start
+ * */
+.filter_box{
+    margin-top: 8px;
+    font-size: 14px;
+	line-height: 45px;
+}
+.filter_box p{
+	float: left;
+}
+.filter_box font{
+	float: left;
+	padding-left: 26px;
+	width:75px;
+	height: 100%;
+	font-size: 16px;
+	color: #5b6273;
+}
+.filter_box>p>span{
+    float: left;
+    padding: 0 13px;
+    position: relative;
+    height: 28px;
+    line-height: 28px;
+    top: 10px;
+    border: 1px solid #c5c9ce;
+    border-radius: 6px;
+    margin-right: 10px;
+	cursor: pointer;
+    margin-bottom: 5px;
+}
+.filter_box span.active{
+	background-color: #d4eae9;
+}
+.filter_box span.active i{
+	background: url('../../capsule/images/checked.png') no-repeat;
+}
+.filter_box>p>span:hover{
+	background: #1bbc9b;
+	color: #fff !important;
+	border-color: #1bbc9b;
+}
+/*.filter_box span.temperature.active{*/
+	/*color: #3db38c;*/
+/*}*/
+/*.filter_box span.humidity.active{*/
+	/*color: #2756FF;*/
+/*}*/
+/*.filter_box span.light.active{*/
+	/*color: #ff9000;*/
+/*}*/
+/*.filter_box span.uv.active{*/
+	/*color: #ff5fdb;	*/
+/*}*/
+/*.filter_box span.co2.active{*/
+	/*color: #99351f;*/
+/*}*/
+/*.filter_box span.voc.active{*/
+	/*color: #ae9a2e;*/
+/*}*/
+/*.filter_box span.organic.active{*/
+	/*color: #677c0e;*/
+/*}*/
+/*.filter_box span.inorganic.active{*/
+	/*color: #94b046;	*/
+/*}*/
+/*.filter_box span.sulfur.active{*/
+	/*color: #b6bf8e;	*/
+/*}*/
+
+/*.filter_box span.soil_conductivity.active{*/
+	/*color: #8c6239;*/
+/*}*/
+/*.filter_box span.soil_humidity.active{*/
+	/*color: #b24d08;	*/
+/*}*/
+/*.filter_box span.soil_temperature.active{*/
+	/*color: #b5733c;	*/
+/*}*/
+
+.filter_box span i{
+	position: absolute;
+	width: 15px;
+	height: 15px;
+	right: -4px;
+	top: -3px;
+}
+.right_environment .filter_box select{
+	border-radius:6px ;
+}
+.right_environment .hintMsg{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -100px;
+    margin-left: -100px;
+    font-size: 20px;
+    font-weight: bold;
+}
+/*
+ *echarts_container
+ */
+.filter_content{
+	position: relative;
+	/*background: rgba(255,255,255,0.3) url('../images/loading.gif') no-repeat center center;*/
+}
+.filter_content .tabContainer{
+    /*border:1px solid red;*/
+    box-sizing: border-box;
+    position: absolute;
+    top:18px;
+    right:393px;
+    left:115px;
+    /*border:1px solid red;*/
+    text-align: center;
+    height:28px;
+    z-index:100;
+    background-color:transparent;
+}
+.filter_content .tabContainer>span{
+    display: inline-block;
+    width:48px;
+    height:28px;
+    line-height: 28px;
+    background-color: transparent;
+    color:#abaeb6;
+    border:1px solid #c5c9ce;
+    font-size: 12px;
+    cursor: pointer;
+}
+.filter_content .tabContainer>span.active{
+    background-color:#8189a0;
+    color: #ffffff;
+    border-color:#8189a0;
+}
+.filter_content .tabContainer>span.img{
+    position: relative;
+    right:-2px;
+    border-right:none;
+    border-radius:5px 0 0 5px;
+}
+.filter_content .tabContainer>span.table{
+    position: relative;
+    left:-2px;
+    border-left:none;
+    border-radius:0 5px 5px 0;
+}
+.echarts_container{
+	height: 100%;
+	margin-right: 278px;
+    background-color: #f0f0f0;
+}
+.table_container{
+    position: absolute;
+    top:0;
+    left:0;
+    right:278px;
+    bottom:0;
+    background-color: #f0f0f0;
+}
+.table_container .tableWarp{
+    position: absolute;
+    top:60px;
+    left:0;
+    right:0;
+    bottom:0;
+    /*border:1px solid deepskyblue;*/
+    overflow:scroll;
+    padding:0 10px 10px 10px;
+}
+.table_container .cardTable{
+    border:1px solid red;
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+.table_container .cardTable thead{
+    background-color:#d7e9e5;
+    height:50px;
+    color:#282a33;
+    font-size:14px;
+}
+.table_container .cardTable tbody tr{
+    height:36px;
+}
+.table_container .cardTable tbody tr:nth-child(odd){
+    background-color:#f0f0f0;
+}
+.table_container .cardTable tbody tr:nth-child(even){
+    background-color:#e6edec;
+}
+.table_container .cardTable th,.table_container .cardTable td{
+    font-weight: normal;
+    border:1px solid #d7d8cc;
+    text-align: center;
+    vertical-align: middle;
+}
+.card_show{
+    height: 100%;
+    width: 247px;
+    position: absolute;
+    right: 20px;
+    top: 0;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+.card_show .envThreshold{
+    /*调试样式*/
+    border-width: 1px 1px 1px 5px;
+    border-style: solid;
+    border-color: #afbcc6;
+    margin: 0 0 10px 0;
+    border-radius:5px;
+    background-color:#f8f8f8;
+}
+.card_show .envThreshold .thresholdHeader h4{
+    font-size:16px;
+    color:#282a33;
+    padding:5px;
+    position: relative;
+    height:24px;
+}
+.card_show .envThreshold .thresholdHeader h4:after{
+    display: block;
+    content:'';
+    clear: both;
+}
+.card_show .envThreshold .thresholdHeader .envName{
+    display: inline-block;
+    white-space: nowrap;
+    width:50%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    position: relative;
+    left:30px;
+}
+.card_show .envThreshold .envThresholdContent{
+    /*min-height:200px;*/
+    /*border:1px solid red;*/
+    padding:5px;
+}
+.card_show .envThreshold .envThresholdContent section{
+    /*max-height: 300px;*/
+    /*overflow-y: scroll;*/
+}
+.card_show .envThreshold .thresholdHeader .ivu-icon{
+    cursor:pointer;
+    font-size: 24px;
+    color:#b0b4bb;
+}
+.center{
+    text-align: center;
+}
+.right{
+    text-align: right;
+}
+.left{
+    text-align: left;
+}
+.ivu-col{
+    height:30px;
+}
+.envThresholdContent .ivu-input-small{
+    width:35px;
+}
+.envThresholdContent div.wide .ivu-input-small {
+    width:50px;
+    padding:0;
+}
+footer.btns{
+    text-align: center;
+    margin-top: 5px;
+}
+/*下来按钮旋转动效*/
+.card_show .envThreshold .thresholdHeader .ivu-icon.ivu-icon-chevron-right{
+    transition: all .2s linear;
+}
+.collapse{
+    transform: rotate(90deg);
+}
+.collapse-transition{
+    transition: all .2s linear;
+    padding: 5px;
+}
+.collapse-enter, .collapse-leave {
+    height: 0;
+    padding: 0 5px;
+    opacity: 0;
+}
+.card_show .envThreshold .thresholdHeader .lockStatus,.card_show .envThreshold .thresholdHeader .editEnvThreshold{
+    position:absolute;
+    /*border:1px solid red;*/
+}
+.card_show .envThreshold .thresholdHeader .lockStatus{
+    bottom:2px;
+    left:10px;
+}
+.card_show .envThreshold .thresholdHeader .editEnvThreshold{
+    bottom:2px;
+    right:10px;
+}
+/*编辑按钮向左侧略位移*/
+.ivu-icon.ivu-icon-edit{
+    position: relative;
+    left: -5px;
+}
+.card_show .envThreshold .thresholdHeader .ivu-icon.disabled{
+    color:#d4d6d9;
+    cursor: not-allowed;
+}
+.card_show .card{
+	box-sizing: border-box !important;
+	width: 99%;
+	border:solid #8189a0;
+	border-width: 1px 1px 1px 5px;
+	/*height: 87px;*/
+	border-radius: 6px;
+   	margin-bottom: 9px;
+}
+.card_show .card:last-child{
+   	margin-bottom: 0px;
+}
+.card_show .card .name_box{
+    float: left;
+    width: 96px;
+    height: 100%;
+    display: table;
+}
+.card_show .card .name{
+    text-align: center;
+    width: 96px;
+    height: auto;
+    color: #777c8a;
+    padding: 0 5px;
+}
+.card_show .card .name{
+    display: table-cell;
+    vertical-align: middle;
+}
+.card_show .card>p{
+	height: 100%;
+}
+.card_show .card .name_detail{
+    line-height: 43px;
+    text-align: left;
+    margin-left: 96px;
+    position: relative;
+    text-align: right;
+    margin-right: 10px;
+}
+.card_show .card.first .name_detail{
+	text-align: left;
+}
+.card_show .card .name_detail span{
+	height: 1px;
+    width: 90%;
+    background: #e7e8ea;
+    position: absolute;
+    left: 0;
+    top: 50%;
+}
+.card_show .card .name_detail font.ellipsis{
+    width: 130px;
+    display: block;
+    color: #282a33;
+}
+.card_show .card .name_detail font{
+	font-size: 14px;
+	color: #6a707f;
+    white-space: nowrap;
+}
+.card_show .card.temperature{
+	border-left-color: #3db38c;
+}
+.card_show .card.humidity{
+	border-left-color:#2756FF;
+}
+.card_show .card.co2{
+	border-left-color: #99351f;
+}
+.card_show .card.voc{
+	border-left-color:#ae9a2e ;
+}
+.card_show .card.light{
+	border-left-color: #ff9000;
+}
+.card_show .card.uv{
+	border-left-color: #ff5fdb;
+}
+.card_show .card.organic{
+	border-left-color:#677c0e ;
+}
+.card_show .card.inorganic{
+	border-left-color:#94b046 ;
+}
+.card_show .card.sulfur{
+	border-left-color:#e6f4ab ;
+}
+/*重置tree样式*/
+.environment ul.env_tree_list li{
+	line-height: 40px;
+}
+.environment .env_tree_list .status_box{
+	height: 40px;
+}
+.environment ul.env_tree_list li input{
+	top: 12px;
+}
+.environment ul.env_tree_list span{
+	top: 13px;
+}
+.environment ul.env_tree_list span.arrow.open{
+    top: 11px;
+}
+.ivu-modal-wrap,.ivu-modal-wrap *{
+    box-sizing: border-box !important;
+}
+/*检测曲线模块,添加自定义Y轴功能*/
+.curve_content .diyButton{
+    position: absolute;
+    top:10px;
+    right:35px;
+}
+.curve_content{
+    position: relative;
+}
+.curve_content .filter_box{
+    margin-right:130px;
+}
+/**
+ * 监测曲线	--end
+ * */
+
+
+/**
+ * 原始数据	--start
+ * */
+.data_content{
+	
+}
+.data_content .fliter_box{
+    margin-left: 27px;
+    margin-top: 8px;
+    font-size: 16px;
+    line-height: 45px;
+    color: #5b6273;
+}
+.original_data{
+    padding-right: 20px;
+    overflow: scroll;
+    position: relative;
+}
+.original_data table{
+    border-collapse: collapse;
+    border: 1px solid #c5c9ce;
+    /*width: 140%;*/
+    text-align: center;
+    font-size: 12px;
+	color: #6a707f;
+}
+.original_data table thead tr{
+	line-height:10px;
+	height: 45px;
+}
+.original_data table tr:nth-child(even){
+    background: #f3fbf9;
+}
+.original_data table thead tr td{
+	font-size: 14px;
+	color: #3d4147;
+	height: 45px;
+	border: 1px solid #cbd6d5!important;
+}
+.original_data table thead p{
+    height: 100%;
+    line-height: 31px;
+}
+.data_content .original_data table thead span{
+    font-size: 12px;
+    color: #acb9bd;
+    cursor: auto;
+    height: 10px;
+    display: inline-block;
+    position: relative;
+    top: 5px;
+}
+.original_data table td{
+	border: 1px solid #e2e4e6;
+}
+.original_data table .dragImg{
+    background-position-y: -77px !important;
+    top: 0 !important;
+}
+.original_data .operation{
+    display: block;
+    min-height: auto;
+    position: absolute;
+    top: 24px;
+    /*border:1px solid red;*/
+}
+.hidden_function .operation{
+    /*border: 1px solid red;*/
+    min-width: 200px;
+    max-height:500px;
+    overflow:auto;
+}
+.original_data .operation li{
+	padding-right: 20px;
+}
+.position{
+    position: absolute;
+    left: 50%;
+    display: inline-block;
+    z-index: 10;
+}
+.original_data .searchKey{
+    position: absolute !important;
+    left: 20px;
+    top: 12px !important;
+    height: 24px !important;
+}
+.ivu-modal-body .ivu-form-item .ivu-input{
+    padding:0 0 0 5px;
+}
+/*自定义Y轴范围容器*/
+.yAreaContainer{
+    max-height: 280px;
+    overflow-y: scroll;
+}
+/**
+ * 原始数据	--end
+ * */
+
+/*报警列表跳转环境详情,超链接样式*/
+td a.navDetail{
+    color:#6a707f;
+}
+td a.navDetail:hover{
+    text-decoration: underline;
+}
+
+/*环境详情返回按钮*/
+.header .title .goBack{
+    font-size: 16px;
+    color:#282a33;
+}
+
+/*时间控件样式*/
+.timePicker{
+    box-sizing: border-box !important;
+}
+.timePicker *{
+    box-sizing: border-box !important;
+}
+
+/*add*/
+div.title{
+    cursor: pointer;
+}
+
+#relic .functionName{
+    color: #657582;
+    font-size: 16px;
+    padding-left: 12px;
+    height: 45px;
+    line-height: 45px;
+    background: #f5f8fd;
+}
+
+.error input{
+    border-color:#ff6600;
+}
+.error+div.errorMessage{
+    color:#ff6600;
+    font-size:10px;
+    white-space: nowrap;
+}
+
+.verticalMiddle{
+    line-height: 30px;
+}

@@ -1,0 +1,31 @@
+<div class="Integrated">
+    <div class="header">
+        <div class="title">
+           <a onclick="history.back();" class="goBack"><Icon type="chevron-left" style="margin-right: 10px;" v-text="equip_name"></Icon>震动监测历史曲线</a>
+		 <!--<b style="font-size: 16px;">震动监测历史曲线</b>-->
+        </div>
+
+        <div class="ability">
+
+            <div>
+                <a href="#/now">震动实时监测</a>
+            </div>
+            <!--<div>
+                <a href="javascript:history.back()" class="back">返回</a>
+            </div>-->
+        </div>
+        <div class="data_select">
+            <Date-picker type="daterange" @on-change="changeTime" :clearable="false" :editable="false" :value.sync="dataTime"
+                         format="yyyy-MM-dd" :options="time_options" placeholder="选择日期" placement="bottom-end"
+                         style="width: 200px"></Date-picker>
+
+        </div>
+    </div>
+    <div id="Integrated">
+        <div class="shadow"></div>
+
+        <div id="my_chart"></div>
+
+    </div>
+
+</div>

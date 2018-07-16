@@ -1,0 +1,529 @@
+#equipment{
+    position: relative;
+}
+img{
+    vertical-align: bottom;
+}
+#equipment .equipment_top{
+    padding:8px 0 0 27px;
+}
+#equipment .equipment_top:after{
+    content:'';
+    display: block;
+    clear: both;
+}
+#equipment .lf{
+    float:left;
+}
+#equipment .rf{
+    float:right;
+}
+#equipment ul li{
+    margin:0;
+    padding:0;
+    list-style: none;
+}
+#equipment .equipment_top .title_label{
+    font-size: 16px;
+    color:#5b6273;
+    margin-right:10px;
+    height:45px;
+    line-height: 45px;
+}
+#equipment .filter_condition_item{
+    float: left;
+    margin:5px 10px 0 0;
+    cursor:pointer;
+    font-size: 14px;
+    color:#282a33;
+    padding:5px 15px 5px 5px;
+    border:1px solid #c5c9ce;
+    border-radius:5px;
+    position: relative;
+}
+#equipment .filter_condition_item:hover{
+    color:#ff6a6a;
+}
+#equipment .filter_condition_item i.cancel_icon{
+    width:11px;
+    height:11px;
+    position: absolute;
+    background: url('../../capsule/images/environment_relic_icons.png') no-repeat -5px -4px;
+    right:3px;
+    top:10px;
+}
+#equipment .table_container .table_dimmer{
+    position: absolute;
+    z-index: 2000;
+    background: rgba(255,255,255,0.3) url('../../capsule/images/loading.gif') no-repeat center center;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+#equipment .table_container{
+    height: auto;
+    padding-right: 10px;
+    /*overflow:hidden;*/
+    position: relative;
+}
+#equipment .equipment_info_table{
+    width:100%;
+    border-collapse: collapse;
+}
+#equipment .equipment_info_table tbody tr:nth-child(odd){
+    background-color:#ffffff;
+}
+#equipment .equipment_info_table tbody tr:nth-child(even){
+    background-color:#f3fbf9;
+}
+#equipment .equipment_info_table td,#equipment .equipment_info_table th{
+    font-weight: normal;
+    border:1px solid #e2e4e6;
+    vertical-align: middle;
+    /*padding: 0 20px 0 20px;*/
+}
+#equipment .equipment_info_table thead{
+    background-color:#e2f4f0;
+}
+#equipment .equipment_info_table th{
+    height:48px;
+    color:#3d4147;
+    cursor:pointer;
+    position: relative;
+}
+#equipment .equipment_info_table th.equipment_new_data{
+    cursor:default;
+}
+#equipment .equipment_info_table th i.arrow_down{
+    display: inline-block;
+    width:14px;
+    height:8px;
+    background: url("../../capsule/images/environment_relic_icons.png") no-repeat -5px -18px;
+}
+#equipment .equipment_info_table th:hover>span{
+    color:#46ab97;
+    font-weight: bold;
+}
+#equipment .equipment_info_table th:hover i.arrow_down{
+    background: url("../../capsule/images/environment_relic_icons.png") no-repeat -21px -18px;
+}
+#equipment .equipment_info_table td{
+    color:#838894;
+    height:40px;
+    text-align: center;
+}
+#equipment .equipment_info_table tbody td,#equipment .equipment_info_table tbody td *{
+    font-size: 12px;
+}
+td span.equipment_status_item{
+    border:1px solid;
+    border-radius:5px;
+    padding:2px 5px 2px 5px;
+    font-size: 12px;
+}
+.status_filter_condition span.equipment_status_item{
+    border:1px solid;
+    border-radius:5px;
+    padding:2px 5px 2px 5px;
+    cursor:pointer;
+    margin: 8px;
+    font-size: 12px;
+    display: inline-block;
+    float:left;
+}
+.normal,.正常{
+    color: #0aa699;
+    border-color:#0aa699;
+}
+#equipment .fault{
+    color: #726086;
+    border-color:#726086;
+    background-color:#fff;
+}
+.overproof_very_low_voltage_abnormal,.异常{
+    color:#f35957;
+    border-color:#f35957;
+}
+.low_voltage{
+    color:#734ca9;
+    border-color:#734ca9;
+}
+.backup,.备用{
+    color:#008fd9;
+    border-color:#008fd9;
+}
+.disable,.停用{
+    color: #6a707f;
+    border-color:#6a707f;
+    background-color:#fff;
+}
+#equipment .equipment_name_no span{
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    position: relative;
+    top:-2px;
+}
+#equipment .equipment_name_no span.equipment_name{
+    padding-left: 5px;
+    padding-right: 5px;
+    border-right :1px solid #6a707f;
+    text-align: left;
+    width:30%;
+}
+#equipment .equipment_name_no span.equipment_no{
+    padding-left: 5px;
+    text-align: left;
+    width:60%;
+}
+#equipment .equipment_name_no span.equipment_name,#equipment .equipment_name_no span.equipment_no{
+    position:relative;
+    top:2px;
+}
+#equipment .nav_icon{
+    display: inline-block;
+    width:16px;
+    height:22px;
+    position: absolute;
+    top:-2px;
+    left: 5px;
+    background:url('../../capsule/images/environment_relic_icons.png') no-repeat -4px -51px;
+    cursor: pointer;
+}
+#equipment .equipment_info_table td.equipment_nav{
+    text-align: left;
+}
+#equipment .equipment_info_table td.equipment_nav p{
+    position: relative;
+    padding-left:25px;
+}
+.table_container thead tr th div:nth-child(2){
+    position: absolute;
+    top:48px;
+    background-color: #fff;
+    z-index:1000;
+    cursor: default;
+    border-radius:5px;
+    box-shadow:-1px 1px 3px 1px #ccc;
+    padding:20px 10px 20px 10px;
+}
+.table_container thead tr th div:nth-child(2).left{
+    left:0;
+}
+.table_container thead tr th div:nth-child(2).right{
+    right:0;
+}
+.status_filter_condition{
+    width:310px;
+}
+.nav_filter_condition{
+    text-align: left;
+}
+.name_filter_condition{
+    right:0;
+}
+.equipment_type_filter_condition{
+    width:400px;
+}
+#equipment .nav_filter_condition ul li{
+    cursor: pointer;
+    margin-bottom:10px;
+}
+#equipment .nav_filter_condition ul li:hover,#equipment .nav_filter_condition ul li.active{
+    color:#46ab97;
+}
+#equipment span.equipment_type_icon{
+    display: inline-block;
+    width:35px;
+    height:35px;
+    /*border-radius:50%;*/
+    background:transparent url('../../common/images/newTypeIcon.png') no-repeat top right;
+    /*border:1px solid red;*/
+}
+.equipment_type_filter_condition li span.equipment_type_icon{
+    position: absolute;
+    left:0;
+    top:0;
+}
+.equipment_equip_type span.equipment_type_icon{
+    position: relative;
+    top:2px;
+}
+/*智能展柜传感器*/
+#equipment  span.equipment_type_icon.智能展柜{
+    background-position: -245px -700px;
+}
+/*湿度传感器*/
+#equipment  span.equipment_type_icon.sensor_temperature_humidity{
+    background-position: 0 -560px;
+}
+/*手持式温湿度检测仪*/
+#equipment span.equipment_type_icon.sensor_offline_temperature_humidity{
+    background-position: 0 -665px;
+}
+/*带屏温湿度传感器*/
+#equipment  span.equipment_type_icon.sensor_temperature_humidity_with_screen{
+    background-position: -35px -560px;
+}
+/*光照紫外传感器*/
+#equipment  span.equipment_type_icon.sensor_light_uv{
+    background-position: -70px -560px;
+}
+/*手持式光照紫外检测仪*/
+#equipment span.equipment_type_icon.sensor_offline_light_uv{
+    background-position: -70px -665px;
+}
+/*二氧化碳传感器*/
+#equipment  span.equipment_type_icon.sensor_co2{
+    background-position: -105px -560px;
+}
+/*手持式二氧化碳检测仪*/
+#equipment span.equipment_type_icon.sensor_offline_co2{
+    background-position: -105px -665px;
+}
+/*离线/手持式甲醛检测仪*/
+#equipment  span.equipment_type_icon.sensor_offline_formaldehyde{
+    background-position: -385px -665px;
+}
+/*有机挥发物传感器*/
+#equipment  span.equipment_type_icon.sensor_voc{
+    background-position: -140px -560px;
+}
+/*手持式有机挥发物检测仪*/
+#equipment  span.equipment_type_icon.sensor_offline_voc{
+    background-position: -140px -665px;
+}
+/*空气质量传感器*/
+#equipment  span.equipment_type_icon.sensor_qcm{
+    background-position: -175px -560px;
+}
+/*土壤温湿度传感器*/
+#equipment  span.equipment_type_icon.sensor_soil_temperature_humidity{
+    background-position: -315px -560px;
+}
+/*安防传感器*/
+#equipment  span.equipment_type_icon.sensor_security{
+    background-position: -350px -560px;
+}
+/*震动传感器*/
+#equipment  span.equipment_type_icon.sensor_shock{
+    background-position: -210px -560px;
+}
+
+/*网关*/
+#equipment  span.equipment_type_icon.network_gateway{
+    background-position: 0 -700px;
+}
+/*中继*/
+#equipment  span.equipment_type_icon.network_relay{
+    background-position: -35px -700px;
+}
+
+/*调湿机*/
+#equipment  span.equipment_type_icon.controller_humidity_machine{
+    background-position: -70px -700px;
+}
+/* 灯光调控终端 */
+#equipment  span.equipment_type_icon.controller_lighting{
+    background-position: -280px -700px;
+}
+/*充氮调湿柜*/
+#equipment  span.equipment_type_icon.controller_humidity_cabinet{
+    background-position: -210px -700px;
+}
+/*调湿剂*/
+#equipment  span.equipment_type_icon.controller_humidity_agent{
+    background-position: -105px -700px;
+}
+/*智能囊匣传感器*/
+#equipment  span.equipment_type_icon.sp_sensor_capsule{
+    background-position: -175px -700px;
+}
+/* #equipment  */
+
+.equipment_type_filter_condition ul.equipment_type_filter_list:not(:last-child){
+    border-bottom: 1px solid #dfdfe1;
+}
+#equipment .equipment_type_filter_condition .equipment_type_filter_list li.equipment_type_filter_item{
+    position: relative;
+    height:35px;
+    line-height:35px;
+    padding-left: 35px;
+    margin:10px;
+    cursor:pointer;
+}
+#equipment .equipment_type_filter_condition .equipment_type_filter_list li.equipment_type_filter_item:hover,#equipment .equipment_type_filter_condition .equipment_type_filter_list li.equipment_type_filter_item.active{
+    color:#46ab97;
+}
+.equipment_type_filter_condition .equipment_type_filter_list:after{
+    content:'';
+    display: block;
+    clear:both;
+}
+.equipment_info_table .temperature{
+    color:#50b895;
+    margin:0 10px 0 10px;
+}
+.equipment_info_table .humidity{
+    color:#2756FF;
+    margin:0 10px 0 10px;
+}
+td.equipment_new_data{
+    position: relative;
+    cursor:default;
+}
+td.equipment_new_data .more_info{
+    position: absolute;
+    /*height:64px;*/
+    overflow-y: scroll;
+    left:0;
+    right:0;
+    bottom:0;
+    top:0;
+    background:#fff;
+    border-radius:5px;
+    box-shadow:-1px 1px 3px 1px #ccc;
+    padding:5px;
+    z-index:1020;
+}
+td.equipment_new_data .more_info p{
+    float:left;
+    margin:4px;
+    height:24px;
+    line-height:24px;
+    padding-left:28px;
+    background:#fff url('../../capsule/images/data.png') no-repeat 500px 500px;
+    min-width:25%;
+    text-align: left;
+}
+td.equipment_new_data .more_info p.temperature{
+    color:#3db38c;
+    background-position: 0 0;
+}
+td.equipment_new_data .more_info p.humidity{
+    color:#2756FF;
+    background-position: 0 -33px;
+}
+td.equipment_new_data .more_info p.light{
+    color:#ff9000;
+    background-position: 0 -66px;
+}
+td.equipment_new_data .more_info p.uv{
+    color:#ff5fdb;
+    background-position: 0 -99px;
+}
+td.equipment_new_data .more_info p.co2{
+    color:#ff3f3f;
+    background-position: 0 -132px;
+}
+td.equipment_new_data .more_info p.voc{
+    color:#ae9a2e;
+    background-position: 0 -165px;
+}
+td.equipment_new_data .more_info p.organic{
+    color:#8ab023;
+    background-position: 0 -198px;
+}
+td.equipment_new_data .more_info p.inorganic{
+    color:#94b046;
+    background-position: 0 -231px;
+}
+td.equipment_new_data .more_info p.sulfur{
+    color:#9db06a;
+    background-position: 0 -264px;
+}
+td.equipment_new_data span.more_new_data{
+    position: absolute;
+    bottom:10px;
+    right:10px;
+}
+#equipment input{
+    font-size: 12px;
+}
+#equipment .wrapper{
+    overflow-y: scroll;
+}
+/*#equipment .equipFooter{*/
+    /*margin-right:25px;*/
+/*}*/
+.new_data_single{
+    margin-right: 10px;
+    display: inline-block;
+    height: 22px;
+    position: relative;
+    padding-left: 35px;
+}
+.api .new_data_single{
+    display: block;
+    margin-bottom: 5px;
+}
+.new_data_single_img{
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    background: url("../../common/images/newTypeIcon.png") no-repeat;
+    position: absolute;
+    left: 0px;
+    top: -2px;
+    margin-left: 0px !important;
+}
+
+.new_data_single_img.humidity{
+    background-position: -808px -242px;
+}
+.new_data_single_img.temperature{
+    background-position: -640px -242px;
+}
+.new_data_single_img.co2{
+    background-position: -688px -242px;
+}
+.new_data_single_img.light{
+    background-position: -448px -242px;
+}
+.new_data_single_img.uv{
+    background-position: -591px -242px;
+}
+.new_data_single_img.organic{
+    background-position: -568px -242px;
+}
+.new_data_single_img.inorganic{
+    background-position: -520px -242px;
+}
+.new_data_single_img.sulfur{
+    background-position: -784px -242px;
+}
+.new_data_single_img.voc{
+    background-position: -736px -242px;
+}
+.new_data_single_img.soil_salt{
+    background-position: -833px -242px;
+}
+.new_data_single_img.broken{
+    background-position: -879px -242px;
+}
+.new_data_single_img.vibration{
+    background-position: -855px -242px;
+}
+.new_data_single_img.multi_wave{
+    background-position: -903px -242px;
+}
+.new_data_single_img.cascophen{
+    background-position: -928px -242px;
+}
+.new_data_single_img.soil_conductivity{
+    background-position: -615px -242px;
+}
+.new_data_single_img.soil_temperature{
+    background-position: -712px -268px;
+}
+.new_data_single_img.soil_humidity{
+    background-position: -735px -268px;
+}
+.new_data_single_img.lighting{
+    background-position: -760px -268px;
+}
+.moduleContainer ul.env_tree_list span{
+    top: 2px !important;
+}

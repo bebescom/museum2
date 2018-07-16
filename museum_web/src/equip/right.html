@@ -1,0 +1,112 @@
+<div class="right">
+    <div class="monitor equip">
+        <div class="title">设备监测数据</div>
+        <div class="gray chooceTime">
+            时间选择：
+            <span class="ower" data-time="24h">24小时</span>
+            <span data-time="yesterday">昨天</span>
+            <span data-time="today">今天</span>
+            <span data-time="week">本周</span>
+            <span data-time="month">本月</span>
+            <span class="diy" data-time="diy">自定义</span>
+
+            <div class="diy_date">
+                自定义
+                <input onclick="laydate()" id="start_date" type="text" value=""/>
+                至
+                <input onclick="laydate()" id="end_date" type="text" value=""/>
+                <button type="button">确定</button>
+            </div>
+        </div>
+
+        <div class="wrapper inline">
+            <div class="view"></div>
+            <div class="inline">
+            	<div class="message">暂无数据</div>
+                <div class="echartsArea"></div>
+            </div>
+        </div>
+
+        <div id="monitor_table" class="inline" v-if="monitor_thead.length">
+            <table class="monitor_table">
+                <thead>
+                <tr>
+                    <td width="160">采集时间</td>
+                    <td width="78" v-for="item in monitor_thead">
+                        <i v-text="item.name"></i>
+                        <br><span>(<i v-text="param_unit[item.key]"></i>)</span>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in monitor_list">
+                    <td v-text="item.equip_time"></td>
+                    <td v-for="item2 in monitor_thead" v-text="item[item2.key]"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+<div class="monitor equip" v-if="sensor_list.length!=0">
+    <div class="title">同柜监测设备</div>
+    <table>
+        <thead v-show="sensor_list.length!=0">
+        <tr>
+            <td>设备名称</td>
+            <td>状态</td>
+            <td>采集时间</td>
+            <td>温度<br><span>(<i v-text="param_unit['temperature']"></i>)</span></td>
+            <td>湿度<br><span>(<i v-text="param_unit['humidity']"></i>)</span></td>
+            <td>VOC<br><span>(<i v-text="param_unit['voc']"></i>)</span></td>
+            <td>CO₂<br><span>(<i v-text="param_unit['co2']"></i>)</span></td>
+            <td>累计光照<br><span>(<i v-text="param_unit['light']"></i>)</span></td>
+            <td>紫外<br><span>(<i v-text="param_unit['uv']"></i>)</span></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in sensor_list">
+            <td><a href="../equip?equip_no={{item.equip_no}}">{{item.equip_type}}-{{item.name}}</a></td>
+            <td v-text="item.status" v-bind:class="[(item.status=='正常')?'status':'noStatus']"></td>
+            <td v-text="item.equip_time"></td>
+            <td v-text="item.temperature"></td>
+            <td v-text="item.humidity"></td>
+            <td v-text="item.voc"></td>
+            <td v-text="item.co2"></td>
+            <td v-text="item.light"></td>
+            <td v-text="item.uv"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="regulation equip" v-if="control_list.length!=0">
+    <div class="title">同柜调控设备</div>
+    <table>
+        <thead v-show="control_list.length!=0">
+        <tr>
+            <td>设备名称</td>
+            <td>状态</td>
+            <td>采集时间</td>
+            <td>调控参数</td>
+            <td>实际值</td>
+            <td>目标值</td>
+            <td>计划更换日期</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in control_list">
+            <td><a href="../equip?equip_no={{item.equip_no}}">{{item.equip_type}}-{{item.name}}</a></td>
+            <td v-text="item.status" v-bind:class="[(item.status=='正常')?'status':'noStatus']"></td>
+            <td v-text="item.equip_time"></td>
+            <td v-text="item.param"></td>
+            <td v-text="item.humidity"></td>
+            <td v-text="item.target"></td>
+            <td v-text="item.replace_time"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</div>

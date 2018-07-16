@@ -1,0 +1,204 @@
+
+<style>
+#relic .scrollWrap .statistical{
+    background:#ffffff;
+}
+
+
+.echartsTotal{
+	height: 363px;
+}
+.totalView{
+    position: relative;
+}
+.totalView>div{
+    height: 272px;
+    margin-top: 46px;
+}
+.totalView .title{
+    width: 80px;
+    color: #6c7177;
+}
+.totalView .num{
+    margin-top: 18px;
+    display: block;
+    font-size: 55px;
+    color: #9fa3ac;
+    margin-left: -4px;
+    margin-bottom: 9px;
+}
+.totalView .footer{
+    font-size: 16px;
+    color: #9fa3ac;
+    margin-left: 10px;
+}
+.totalNum{
+    width: 261px;
+    height: 100%;
+    padding-left: 34px;
+    position: absolute;
+    top: -46px;
+}
+.clear:after{
+	display: block;
+	content: '';
+	clear: both;
+}
+.echartsView{
+    margin-left: 295px;
+}
+.echartsView>div{
+    width: 50%;
+    float: left;
+}
+.echarts_wrap{
+	width: 100%;
+	height: 246px;
+}
+</style>
+
+<!--统计echarts-->
+<template id="statistical_echarts_template">
+	<div class="statistical">
+		<div class="functionName">文物数量</div>
+		<div class="totalView clear">
+			<div class="echartsView">
+				<div class="echartsType">
+					<span class="title">文物类型统计</span>
+					<div class="echarts_wrap"></div>
+				</div>
+				<div class="echartsAge">
+					<span class="title">文物年代统计</span>
+					<div class="echarts_wrap"></div>
+				</div>
+			</div>
+			<div class="totalNum">
+				<span class="title">文物总数</span>
+				<span class="num" v-text="relicTotal"></span>
+				<span class="footer">TOTAL RETURNS</span>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+	Vue.component('statistical-echarts',{
+		template:'#statistical_echarts_template',
+		data:function(){
+			return {
+				relicTotal:0,
+				echartsType:{},
+				echartsAge:{},
+				defaultOption:{},
+				relic_type:{},
+				relic_age:{}
+			}
+		},
+		ready:function(){
+			var This=this;
+			this.echartsType=echarts.init($(this.$el).find('.echarts_wrap')[0]);
+			this.echartsAge=echarts.init($(this.$el).find('.echarts_wrap')[1]);
+			
+			$(window).resize(function(){
+				This.echartsType.resize();
+				This.echartsAge.resize();
+			});
+			this.createOption();
+		},
+		methods:{
+			getData:function(name){
+				(name=='type')?this.echartsTypeData():this.echartsAgeData(); 				
+			},
+			echartsTypeData:function(){
+				this.echartsType.setOption(this.defaultOption);
+				var legendData=[],
+					seriesData=[],
+					relic_type=this.relic_type;
+				for(var i in relic_type){
+					seriesData.push({
+						value:relic_type[i],
+						name:i,
+//						selected:true
+					});
+				}
+				this.echartsType.setOption({
+					series:{data:seriesData}
+				});
+				this.echartsType.resize();
+			},
+			echartsAgeData:function(){
+				this.echartsAge.setOption(this.defaultOption);
+				var legendData=[],
+					seriesData=[],
+					relic_age=this.relic_age;
+				for(var i in relic_age){
+					seriesData.push({
+						value:relic_age[i],
+						name:i,
+//						selected:true
+					});
+				}
+				this.echartsAge.setOption({
+					series:{data:seriesData}
+				});
+				this.echartsAge.resize();
+			},
+			createOption:function(){//创建默认的饼图配置对象
+				this.defaultOption = {
+				    tooltip: {
+				        trigger: 'item',
+				        formatter: "{b}: {c} ({d}%)"
+				    },
+				    series: [
+				        {
+				            type:'pie',
+				            radius: ['30%', '50%'],
+				            center:['50%','50%'],
+				            data:[]
+				        }
+				    ]
+				};
+			}
+		},
+		events:{
+			showLoad:function(){
+				var This=this;
+				setTimeout(function(){
+					showLoading(This.echartsType);
+					showLoading(This.echartsAge);
+				},0);
+			},
+			relic_type:function(data){
+				this.echartsType.hideLoading();
+				this.echartsAge.hideLoading();
+				if(data=='[]'){
+					data=[];
+				}
+				this.relic_type=data;
+				this.getData('type');
+
+				var num=0;
+				for(var i in data){
+					num+=data[i]*1;
+				}
+				this.relicTotal=num;
+			},
+			relic_age:function(data){
+				if(data=='[]'){
+					data=[];
+				}
+				this.relic_age=data;
+				this.getData('age');
+			}
+		}
+	});
+	
+	function showLoading(chart){
+		chart.showLoading('default',{
+		    color:'#5A9E6D',
+		    text:'正在努力加载ing...',
+		    textColor:'#ccc',
+		    maskColor:'rgba(159,163,172,0.2)'
+		});
+	}
+</script>

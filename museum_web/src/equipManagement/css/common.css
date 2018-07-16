@@ -1,0 +1,95 @@
+/*翻页箭头*/
+.pageList li:first-child {
+    background: url(../images/page_arrow.png) no-repeat -11px -237px;
+}
+.pageList li:last-child {
+    background: url(../images/page_arrow.png) no-repeat -11px -276px;
+}
+.contentContainer{
+    position: absolute;
+    left: 94px;
+    top: 83px;
+    bottom:0;
+    right:0;
+    overflow: auto;
+    padding:0 15px 15px 15px;
+    background-color:#ecf1f5;
+}
+.contentContainer .containerTitle{
+    background-color:#fff;
+    height:50px;
+    line-height: 50px;
+    font-size: 16px;
+    color: #282a33;
+    box-shadow: -1px 1px 3px 1px #ccc;
+    position: absolute;
+    left:0;
+    top:0;
+    right:0;
+}
+.containerTitle>p{
+    float: left;
+    padding:0 15px;
+    font-weight: 800;
+    cursor:pointer;
+}
+
+.contentContainer .mainContent{
+    /*border:1px solid red;*/
+    position: absolute;
+    top:50px;
+    right:0;
+    left:0;
+    bottom:0;
+}
+.contentContainer .mainContent .tableContainer{
+    position: absolute;
+    top:10px;
+    left:10px;
+    right:10px;
+    bottom:10px;
+}
+.contentContainer .mainContent .tableContainer .tableWrap{
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:40px;
+    /*border:1px solid red;*/
+    overflow: auto;
+}
+.contentContainer .mainContent .tableContainer footer{
+    position: absolute;
+    bottom:0;
+    left: 0;
+    right: 0;
+}
+.contentContainer .mainContent .tableContainer .loading{
+    position: absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    top:0;
+    z-index: 99999;
+    background:rgba(255,255,255,.5) url(../images/loading.gif) no-repeat center;
+}
+.contentContainer .mainContent .tableWrap table{
+    width:100%;
+    min-width: 1430px;
+    border-collapse: collapse;
+}
+.contentContainer .mainContent .tableWrap table thead{
+    background-color:#d4eae9;
+}
+.contentContainer .mainContent .tableWrap table tbody tr:nth-child(odd){
+    background-color:#fff;
+}
+.contentContainer .mainContent .tableWrap table tbody tr:nth-child(even){
+    background-color:#f3fbf9;
+}
+.contentContainer .mainContent .tableWrap table td,.contentContainer .mainContent .tableWrap table th{
+    /*border:1px solid blue;*/
+    height:40px;
+    font-weight: normal;
+    text-align: center;
+}

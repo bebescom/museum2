@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Museum Loading...</title>
+</head>
+<body>
+
+<script type="text/javascript" src="js/mod.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="js/jquery-1.10.2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="js/underscore-min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="js/store2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript">
+    //依赖
+    // 
+    // 
+    // 
+
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    var op_token = getQueryString('op_token');
+    // 运维登录
+    if (op_token) {
+        $.ajax({
+            type: "POST",
+            url: '/2.2.05_P001/base_api/base/users/op',
+            data: {op_token: op_token},
+            dataType: "json",
+            async: false,//同步获取
+            success: function (data) {
+                if (data && data['error']) {
+                    // console.error(data);
+                    document.write(data.error);
+                    return;
+                }
+                if (data['is_login']) {
+                    store.session('museum_token', data.token);
+                    getParamUnit();
+                }
+            }
+        });
+    } else {
+        location.href = './login';
+    }
+
+    function getParamUnit() {
+        $.get('/2.2.05_P001/base_api/env/equipments/equip_parameters', function (res) {
+            if (res.error) {
+                document.write(res.error);
+                return false;
+            }
+            store('param_unit_name', res);
+            var url = getQueryString('url');
+            window.location.href = url || 'capsule';
+        });
+    }
+
+</script>
+
+</body>
+</html>

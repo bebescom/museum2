@@ -1,0 +1,21 @@
+<template id="equip_template">
+    <div class="equip_index">
+        <div class="header">
+            <div class="title">设备管理</div>
+            <div class="newFilterWrap">
+                <new-filter-component type="equip_manage"></new-filter-component>
+            </div>
+            <div class="ability">
+                <div class="operationWrap" @click="equipWarning">设备报警</div>
+            </div>
+        </div>
+        <div class="body">
+            <Spin fix v-show="spinShow">
+                <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+                <div>加载中...</div>
+            </Spin>
+            <i-table  stripe ref="selection" :columns="equipListTableTitle" :data="equipListTableBody" :loading="loading_table"></i-table>
+            <Page :page-size="pageListLen" :current.sync="currentPage" @on-change = 'changePage' :total="pageListTotal" show-elevator></Page>
+        </div>
+    </div>
+</template>

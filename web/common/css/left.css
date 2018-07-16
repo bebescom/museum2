@@ -1,0 +1,75 @@
+@charset "UTF-8";
+#left{
+    position: fixed;
+    top: 83px;
+    bottom: 0;
+    width: 94px;
+    display: inline-block;
+    font-size: 16px;
+    font-family: '微软雅黑';
+    background: #282a33;
+    z-index: 1000;
+}
+#left ul{
+	width: 100%;
+}
+#left ul li{
+    position: relative;
+    height: 87px;
+    list-style: none;
+    cursor: pointer;
+    border-left:3px solid transparent;
+}
+#left ul li.v-link-active{
+	background: #17181e;
+	/*color: #FFFFFF !important;*/
+    color: #1bbc9b !important;
+    border-left:3px solid #1bbc9b;
+}
+
+#left ul li.v-link-active a{
+    color: #1bbc9b;
+}
+
+/*#left ul li.v-link-active a{*/
+    /*color: #FFFFFF;*/
+/*}*/
+#left ul li.v-link-active span:first-child{
+    color:#ffffff;
+    background-position-x:-62px;
+}
+#left ul li:hover{
+	background: #17181e;
+}
+#left ul li a{
+    color: #ced7fd;
+    height: 87px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    line-height: 15px;
+}
+#left ul li.v-link-active a{
+    color: #1bbc9b;
+}
+#left ul li span:first-child{
+    display: inline-block;
+    height: 52px;
+    width: 100%;
+    background: url('../../capsule/images/left_silder.png') no-repeat 33px 0;
+}
+#left .integrated span:first-child{
+    background-position-y: -217px;
+}
+#left .monitoring span:first-child,#left .vibration span:first-child{
+    background-position-y: -52px;
+}
+#left .relic_ span:first-child{
+    background-position-y: -104px;
+}
+#left .equipment span:first-child{
+    background-position-y: -156px;
+}
+[v-cloak] {
+    display: none;
+  }

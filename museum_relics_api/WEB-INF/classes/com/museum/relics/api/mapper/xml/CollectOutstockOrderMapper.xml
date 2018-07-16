@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.relics.api.mapper.CollectOutstockOrderMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.museum.relics.api.entity.CollectOutstockOrder">
+		<id column="id" property="id" />
+		<result column="serial_no" property="serialNo" />
+		<result column="relic_no" property="relicNo" />
+		<result column="box_no" property="boxNo" />
+		<result column="time" property="time" />
+		<result column="operator_username" property="operatorUsername" />
+		<result column="borrower" property="borrower" />
+		<result column="timestamp" property="timestamp" />
+	</resultMap>
+
+</mapper>

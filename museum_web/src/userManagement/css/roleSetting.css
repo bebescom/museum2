@@ -1,0 +1,88 @@
+#roleSettingT .header{
+    height: 49px;
+    padding: 0 17px 0 15px;
+    margin-left: -15px;
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    line-height: 50px;
+    position: relative;
+    z-index: 12;
+    box-shadow: -1px 1px 3px 1px #ccc;
+}
+#roleSettingT .header .title{
+    font-size: 16px;
+    color: #282a33;
+    margin-right: 36px;
+    font-weight: 500;
+}
+
+#roleSettingT .content{
+    margin-top: 20px;
+    width: 97%;
+    margin-left: 10px;
+    position: relative;
+}
+
+#roleSettingT .header .addRole{
+    position: absolute;
+    top: 10px;
+    right: 50px;
+}
+#roleSettingT .header .saveRole{
+    position: absolute;
+    top: 10px;
+    right: 150px;
+}
+#roleSettingT .ivu-tabs.ivu-tabs-card>.ivu-tabs-bar .ivu-tabs-tab-active{
+    height: 31px;
+}
+#roleSettingT .ivu-tabs.ivu-tabs-card>.ivu-tabs-bar .ivu-tabs-tab{
+    float: left;
+    margin-bottom: 5px;
+    border-bottom:1px solid #d7dde4;
+    border-radius:4px;
+}
+#roleSettingT .ivu-tabs,
+#roleSettingT .ivu-tabs-nav-container,
+#roleSettingT .ivu-tabs-nav-wrap,
+#roleSettingT .ivu-tabs-nav-scroll{
+    overflow: inherit;
+}
+#roleSettingT .ivu-tabs-bar{
+    border-bottom: 0;
+    margin-bottom: 0px;
+}
+#roleSettingT .ivu-tabs.ivu-tabs-card>.ivu-tabs-bar .ivu-tabs-nav-container{
+    height: auto;
+}
+#roleSettingT .ivu-tabs-content{
+    padding-top: 20px;
+    border: 1px solid #efefef;
+    background: #efefef;
+    border-radius: 5px;
+}
+#roleSettingT .permissions label.ivu-checkbox-wrapper.ivu-checkbox-group-item:first-child{
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+#roleSettingT .permissions label.ivu-checkbox-wrapper.ivu-checkbox-group-item:nth-child(2){
+    /*padding-left: 100px;*/
+}
+
+#roleSettingT .headerTitle{
+    cursor: pointer;
+}
+
+/*环境树*/
+#environmentTree{
+    width: 40%;
+    height: 500px;
+    position: absolute;
+    top: 0;
+    right: 10px;
+    overflow: scroll;
+}
+#roleSettingT .ivu-tree li span.ivu-tree-switcher.ivu-tree-switcher-noop{
+    display: inline-block;
+}

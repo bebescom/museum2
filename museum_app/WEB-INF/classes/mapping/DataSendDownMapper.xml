@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.mapper.DataSendDownMapper">
+    <resultMap id="BaseResultMap" type="com.museum.pojo.DataSendDown">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="equip_no" jdbcType="VARCHAR" property="equipNo"/>
+        <result column="instruct" jdbcType="VARCHAR" property="instruct"/>
+        <result column="send_data" jdbcType="VARCHAR" property="sendData"/>
+        <result column="type" jdbcType="BIT" property="type"/>
+        <result column="status" jdbcType="BIT" property="status"/>
+        <result column="create_time" jdbcType="INTEGER" property="createTime"/>
+        <result column="send_time" jdbcType="INTEGER" property="sendTime"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="uid" jdbcType="INTEGER" property="uid"/>
+        <result column="feedback_time" jdbcType="INTEGER" property="feedbackTime"/>
+        <result column="feedback_data" jdbcType="VARCHAR" property="feedbackData"/>
+        <result column="raw_data" jdbcType="VARCHAR" property="rawData"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, equip_no, instruct, send_data, `type`, status, create_time, send_time, remark,
+        uid, feedback_time, feedback_data, raw_data
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from data_send_down
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据设备编号获取最新status为3的参数下发数据 -->
+    <select id="getDataSendDownByEquipNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        equip_no,
+        send_data
+        FROM
+        data_send_down
+        WHERE
+        instruct = '31'
+        AND `status` = 3
+        AND equip_no = #{equipNo,jdbcType=VARCHAR}
+        AND feedback_time = (
+        SELECT
+        MAX(feedback_time)
+        FROM
+        data_send_down
+        WHERE
+        instruct = '31'
+        AND `status` = 3
+        AND equip_no = #{equipNo,jdbcType=VARCHAR}
+        )
+    </select>
+
+    <!-- 根据设备编号查询出所有的设备下发数据 -->
+    <select id="selectDataSendDownByEquipNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from data_send_down
+        where equip_no = #{equipNo,jdbcType=VARCHAR}
+        AND `status` NOT IN (3)
+    </select>
+
+    <!-- 根据设备编号修改参数下发信息 -->
+    <update id="updateByEquipNo" parameterType="com.museum.pojo.DataSendDown">
+        update data_send_down
+        <set>
+            <if test="sendData != null">
+                send_data = #{sendData,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                `type` = #{type,jdbcType=BIT},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=BIT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=INTEGER},
+            </if>
+            <if test="sendTime != null">
+                send_time = #{sendTime,jdbcType=INTEGER},
+            </if>
+            <if test="uid != null">
+                uid = #{uid,jdbcType=INTEGER},
+            </if>
+            remark = null,
+            feedback_time = null,
+            feedback_data = null,
+            raw_data = null
+        </set>
+        where equip_no = #{equipNo,jdbcType=VARCHAR}
+        AND instruct = '31'
+        AND `status` !=3
+        AND send_data LIKE CONCAT('%',#{target,jdbcType=VARCHAR},'%')
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from data_send_down
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.museum.pojo.DataSendDown">
+        insert into data_send_down (id, equip_no, instruct,
+        send_data, type, status, create_time,
+        send_time, remark, uid,
+        feedback_time, feedback_data, raw_data
+        )
+        values (#{id,jdbcType=INTEGER}, #{equipNo,jdbcType=VARCHAR}, #{instruct,jdbcType=VARCHAR},
+        #{sendData,jdbcType=VARCHAR}, #{type,jdbcType=BIT}, #{status,jdbcType=BIT}, #{createTime,jdbcType=INTEGER},
+        #{sendTime,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{uid,jdbcType=INTEGER},
+        #{feedbackTime,jdbcType=INTEGER}, #{feedbackData,jdbcType=VARCHAR}, #{rawData,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.museum.pojo.DataSendDown">
+        insert into data_send_down
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="equipNo != null">
+                equip_no,
+            </if>
+            <if test="instruct != null">
+                instruct,
+            </if>
+            <if test="sendData != null">
+                send_data,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="sendTime != null">
+                send_time,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="uid != null">
+                uid,
+            </if>
+            <if test="feedbackTime != null">
+                feedback_time,
+            </if>
+            <if test="feedbackData != null">
+                feedback_data,
+            </if>
+            <if test="rawData != null">
+                raw_data,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="equipNo != null">
+                #{equipNo,jdbcType=VARCHAR},
+            </if>
+            <if test="instruct != null">
+                #{instruct,jdbcType=VARCHAR},
+            </if>
+            <if test="sendData != null">
+                #{sendData,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=BIT},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=BIT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=INTEGER},
+            </if>
+            <if test="sendTime != null">
+                #{sendTime,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="uid != null">
+                #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="feedbackTime != null">
+                #{feedbackTime,jdbcType=INTEGER},
+            </if>
+            <if test="feedbackData != null">
+                #{feedbackData,jdbcType=VARCHAR},
+            </if>
+            <if test="rawData != null">
+                #{rawData,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.museum.pojo.DataSendDown">
+        update data_send_down
+        <set>
+            <if test="equipNo != null">
+                equip_no = #{equipNo,jdbcType=VARCHAR},
+            </if>
+            <if test="instruct != null">
+                instruct = #{instruct,jdbcType=VARCHAR},
+            </if>
+            <if test="sendData != null">
+                send_data = #{sendData,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=BIT},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=BIT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=INTEGER},
+            </if>
+            <if test="sendTime != null">
+                send_time = #{sendTime,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="uid != null">
+                uid = #{uid,jdbcType=INTEGER},
+            </if>
+            <if test="feedbackTime != null">
+                feedback_time = #{feedbackTime,jdbcType=INTEGER},
+            </if>
+            <if test="feedbackData != null">
+                feedback_data = #{feedbackData,jdbcType=VARCHAR},
+            </if>
+            <if test="rawData != null">
+                raw_data = #{rawData,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.museum.pojo.DataSendDown">
+        update data_send_down
+        set equip_no = #{equipNo,jdbcType=VARCHAR},
+        instruct = #{instruct,jdbcType=VARCHAR},
+        send_data = #{sendData,jdbcType=VARCHAR},
+        type = #{type,jdbcType=BIT},
+        status = #{status,jdbcType=BIT},
+        create_time = #{createTime,jdbcType=INTEGER},
+        send_time = #{sendTime,jdbcType=INTEGER},
+        remark = #{remark,jdbcType=VARCHAR},
+        uid = #{uid,jdbcType=INTEGER},
+        feedback_time = #{feedbackTime,jdbcType=INTEGER},
+        feedback_data = #{feedbackData,jdbcType=VARCHAR},
+        raw_data = #{rawData,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

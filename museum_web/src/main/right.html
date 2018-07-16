@@ -1,0 +1,50 @@
+<div id="main_right">
+
+    <div id="echarts_temper">
+        <div class="button_box" v-on:click="th_change()">
+            <span class="temperature" v-show="th_btn=='temperature'">温度</span>
+
+            <div v-bind:class="['th_btn',{open:th_btn=='humidity'}]"></div>
+            <span class="humidity" v-show="th_btn=='humidity'">湿度</span>
+        </div>
+        <div id="my_chart" v-bind:class="{humidity_bg:th_btn=='humidity'}"></div>
+    </div>
+
+    <div id="area_view">
+        <div id="view_fixed"></div>
+
+        <div id="show_data">
+            <ul id="show_data_ul">
+                <li v-for="item in env_list">
+                    <a :href="'../hall?env_no='+item.env_no"><span class="name" v-text="item.name" :data-title="item.name"></span></a>
+                    <span class="average">
+                        <p v-show="item.temperature!='-'"><span v-text="item.temperature"></span><span>℃</span></p>
+                        <p v-else>暂无数据</p>
+                        <p v-show="item.humidity!='-'"><span v-text="item.humidity"></span><span>%</span></p>
+                        <p v-else>暂无数据</p>
+                    </span>
+                    <span class="standard"><span v-text="item.standard_rate"></span>%</span>
+                </li>
+            </ul>
+        </div>
+        <div id="top_btn"></div>
+        <div id="bom_btn"></div>
+        <div id="drag_area">
+            <div id="drag_area_slider"></div>
+        </div>
+    </div>
+
+    <div id="quick_into">
+        <p class="title">快速进入展厅</p>
+        <ul id="showroom_menu">
+            <li v-for="item in showroom_list">
+                <p><a href="../floor?env_no={{item.env_no}}">{{item.name}}</a></p>
+                <ol>
+                    <li class="aParent" v-for="child in item.children">
+                        <p><a href="../hall?env_no={{child.env_no}}">{{child.name}}</a></p>
+                    </li>
+                </ol>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,91 @@
+<template id="capsule_template">
+	<div>
+		<div class="header">
+			<div class="title" v-text="contentName"></div>
+			<div class="select" @mouseenter="mouseenter_($event)" @mouseleave="mouseleave($event)">
+				<span class="now">全部</span>
+				<ul class="selectBox">
+					<li @click.stop="filter('','全部')"  @mouseenter="mouseenter($event)" @mouseleave="mouseleave($event)">全部</li>
+					<li v-for="floor in filterContent" :key="$index+2" @mouseenter="mouseenter($event)" @mouseleave="mouseleave($event)" @click.stop="filter(floor.env_no,floor.name)">
+						{{floor.name}}
+						<ul class="childList">
+							<li v-for="layer in floor.children" :key="$index+1" @mouseenter="mouseenter($event)" @mouseleave="mouseleave($event)" @click.stop="filter(layer.env_no,layer.name)">
+								{{layer.name}}
+								<ul class="childList">
+									<li v-for="hall in layer.children" @click.stop="filter(hall.env_no,hall.name)">{{hall.name}}</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="overview">
+				<p>当前报警 <span v-text="police"></span></p>
+				<p>智能囊匣 <span v-text="capsule"></span></p>
+			</div>
+		</div>
+		<div class="capsuleBox" @scroll="scroll">
+			<div class="wrap">
+				<equip v-for="data in arrList" :data="data" :show-Key.sync="showKey"></equip>
+			</div>
+			<div class="drag"></div>
+			<div v-show="!arrListLength" class="notData">此环境无数据</div>
+		</div>
+		<div class="contentFooter" v-text="footer" v-show="showfooter"></div>
+		<remove-tooltip v-show="showKey" :show-Key.sync="showKey" ></remove-tooltip>
+		<div class="shadow" v-show="showKey"></div>
+	</div>
+</template>
+
+<!--当前子组件-->
+<template id="equip">
+	<div class="equip" :class="data.env_no">
+		<div class="options"><p class="left"></p><p class="right"><span class="remove" @click="showAdd(data.env_no)" v-show="data.alert"></span></p></div>
+		<div class="equipView">
+			<img :src="data.map||'images/default.png'">
+			<p class="equipName text-nowrap" v-text="data.name"></p>
+			<span class="equipLocation" v-text="(data.nav&&data.nav.length!==0)?data.nav[0].name+'>'+data.nav[1].name:'*'"></span>
+		</div>
+		<div class="footer">
+			<p><span class="humidityTitle">{{data.humidity||'-'}}%</span></p>
+			<p><span class="temperatureTitle">{{data.temperature||'-'}}℃</span></p>
+		</div>
+		<div class="tip move_alert" v-if="data.alert=='异常震动'">
+			<div class="abnormal">异常震动</div>
+		</div><!--振动-->
+		<div class="tip box_open_alert" v-if="data.alert=='非法开盖'">
+			<div class="abnormal">非法开盖</div>
+		</div><!--非法-->
+		<div class="tip temperature" v-if="data.alert=='temperature'">
+			<div class="abnormal">温度超标
+				<p><span v-text="data.temperature+'℃'"></span></br><span v-text="judge+'℃'"></span></p>
+			</div>
+		</div><!--温度超标-->
+		<div class="tip humidity" v-if="data.alert=='humidity'">
+			<div class="abnormal">湿度超标
+				<p><span v-text="data.humidity+'%'"></span></br><span v-text="judge+'%'"></span></p>
+			</div>
+		</div><!--湿度超标-->
+	</div>
+</template>
+
+
+<!--清除时提醒-->
+<template id="removeTooltip">
+	<div class="alertBox remove">
+		<div class="header">清除警报<div class="close" @click="close"></div></div>
+		<div class="alert information">
+			<h6>报警囊匣</h6>
+			<p v-text="data.name"></p>
+			<h6>报警类型</h6>
+			<p v-text="data.alert_param"></p>
+			<h6>报警起始时间</h6>
+			<p v-text="data.alert_time"></p>
+		</div>
+		<div class="alert information">
+			<h6>备注</h6>
+			<textarea v-model="text"></textarea>
+		</div>
+		<div class="over" @click="clearAleart">清除警报</div>
+	</div>
+</template>

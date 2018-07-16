@@ -1,0 +1,772 @@
+html, body {
+	margin-right: 5px;
+    overflow-x: hidden;
+    font-family: '微软雅黑';
+    background: #ecf1f5;
+}
+
+::-webkit-input-placeholder { /* WebKit browsers */
+    color: #cfd0cf;
+}
+
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color: #cfd0cf;
+}
+
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color: #cfd0cf;
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color: #cfd0cf;
+}
+
+/*文物名字-start*/
+#relicName {
+    color: #5a9e6d;
+    font-size: 18px;
+    position: absolute;
+    top: 127px;
+    height: 42px;
+    left: 105px;
+    line-height: 42px;
+    font-weight: 800;
+    cursor: pointer;
+    display: none;
+}
+
+#relicName .star {
+    background: url('images/collect.png') no-repeat 9px 1px;
+    width: 30px;
+    height: 100%;
+    float: right;
+    cursor: pointer;
+}
+#relicName .star.active{
+    background-position: 9px -41px;
+}
+/*文物名字-end*/
+/*文物内容-start*/
+#contentBox {
+    margin: 150px auto 0;
+    display: block;
+}
+
+.left {
+    width: 340px;
+    position: absolute;
+    left: 97px;
+}
+
+.left > div {
+    padding: 0 10px;
+    width: 310px !important;
+    float: right;
+}
+
+.right {
+    margin-left: 450px;
+}
+.right:after{
+	display: block;
+	clear: both;
+	zoom: 1;
+}
+.right > div {
+    width: 98% !important;
+    padding: 0 1%;
+    float: left;
+}
+
+.gray {
+    font-size: 14px;
+    color: #647481;
+}
+
+.left > div, .right > div {
+    display: inline-block;
+    margin-bottom: 10px;
+    position: relative;
+    box-shadow: -1px 1px 3px 1px #ccc;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+
+#contentBox .title {
+    height: 45px;
+    line-height: 45px;
+    font-size: 16px;
+    color: #333333;
+    display: block;
+}
+
+/*文物概况-start*/
+.overview {
+    width: 310px;
+    word-wrap: break-word;
+    word-break: normal;
+    float: left;
+}
+
+.overview ul.surround {
+    display: inline-block;
+    border-bottom: 1px solid #d7d8cc;
+    padding-bottom: 10px;
+}
+
+.surround li {
+    list-style: none;
+    float: left;
+    color: #66747f;
+    padding-left: 28px;
+    font-size: 12px;
+    width: 50%;
+    box-sizing: border-box;
+    height: 32px;
+    line-height: 32px;
+    background: url('images/small.png') no-repeat;
+    white-space: nowrap;
+}
+
+.surround li.temperature,.surround li.temperature_range {
+    background-position: 0 -30px;
+}
+
+.surround li.light,.surround li.total_light {
+    background-position: 0 -64px;
+}
+
+.surround li.uv {
+    background-position: 0 -95px;
+}
+
+.surround li.voc {
+    background-position: 0 -127px;
+}
+
+.surround li.co2 {
+    /*width: 79px;*/
+    background-position: 0 -160px;
+}
+
+.surround li.organic {
+    /*width: 79px;*/
+    background-position: 0 -374px;
+}
+
+.surround li.inorganic {
+    /*width: 79px;*/
+    background-position: 0 -403px;
+}
+
+.surround li.sulfur {
+    /*width: 79px;*/
+    background-position: 0 -430px;
+}
+.surround li.soil_temperature {
+    /*width: 79px;*/
+    background-position: 0 -459px;
+}
+
+.surround li.soil_humidity {
+    /*width: 79px;*/
+    background-position: 0 -487px;
+}
+
+.surround li.soil_conductivity {
+    /*width: 79px;*/
+    background-position: 0 -515px;
+}
+/*
+1.湿度
+7.玻破传感器
+8.震动传感器
+*/
+
+/*文物概况-end*/
+/*基本信息-start*/
+#contentBox .basic {
+    width: 892px;
+    float: right;
+    background: url('images/relic.jpg') no-repeat;
+}
+
+/*基本信息-end*/
+/*柜内文物-start*/
+/*#contentBox .relic_equip {
+    width: 310px;
+    height: 138px;
+}*/
+
+.relic_equip .totle, p.title {
+    display: inline-block;
+    font-size: 14px;
+    color: #9fa6ac;
+    margin-left: 5px;
+}
+
+.relic_equip form {
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+    top: 12px;
+}
+
+.relic_equip form .icon {
+    top: -1px;
+    font-size: 21px;
+    padding: 0 6px;
+}
+
+.relic_equip form input {
+    outline: 0px;
+    width: 128px;
+    height: 18px;
+    padding-left: 6px;
+    line-height: 18px;
+    font-size: 12px;
+    color: black;
+    position: absolute;
+    right: 37px;
+    top: 1px;
+    border: 0px;
+    background-color: #f5f2de;
+}
+
+.relic_equip form span {
+    width: 36px;
+    height: 20px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: url('images/search_bar.png') no-repeat center;
+    cursor: pointer;
+}
+
+.relic_equip form > div {
+    border-left: 1px solid #c9cbcd;
+    border-right: 1px solid #c9cbcd;
+    height: 20px;
+    float: right;
+    width: 35px;
+    position: relative;
+    margin-right: -1px;
+    overflow: hidden;
+}
+
+.relic_equip form > div.flow {
+    overflow: visible;
+}
+
+.relic_equip form div:last-child span {
+    background: url('images/filter_bar.png') no-repeat center;
+}
+
+.relic_equip .nameList {
+    list-style: none;
+}
+
+.nameList li {
+    display: inline-block;
+    width: 147px;
+    height: 24px;
+    line-height: 24px;
+    margin-right: 5px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+.nameList li a{
+    color: #647481;
+}
+
+.relic_equip .drag {
+    position: absolute;
+    bottom: 0;
+    background: #f5f2de url('images/drag_btn.png') no-repeat center;
+    width: 100%;
+    height: 18px;
+    margin-left: -10px;
+    cursor: pointer;
+    display: none;
+}
+
+.filter {
+    position: absolute;
+    right: 38px;
+    top: 1px;
+}
+
+.filter .font {
+    height: 18px;
+    float: left;
+    font-size: 12px;
+    color: #63727f;
+    width: 39px;
+    padding-left: 11px;
+    background: url('images/pointer.png') no-repeat 0 4px;
+    cursor: pointer;
+}
+
+.filter .font:hover {
+    background: url('images/pointer_ok.png') no-repeat 0 4px;
+}
+
+.filter .font ul {
+    line-height: 23px;
+    list-style: none;
+    white-space: nowrap;
+    background: #fff;
+    position: absolute;
+    z-index: 5;
+    height: 0;
+    display: none;
+    overflow: hidden;
+    border: 1px solid #9fa6ae;
+    box-shadow: 0 0 22px 3px #ccc;
+}
+
+.filter .font ul.hover {
+    display: block;
+    height: 0;
+}
+
+.filter .font li {
+    display: block;
+    padding: 0 22px 0 14px;
+    height: 23px;
+    line-height: 23px;
+    list-style: none;
+    white-space: nowrap;
+}
+
+.filter .font li:hover {
+    background: #ccc;
+    color: #fff;
+}
+.fliter_box span{
+    position: relative;
+    color: #63727f;
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+    padding: 0 20px 0 3px;
+    cursor: pointer;
+    display: inline-block;
+    border: 1px solid #D7D8CC;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    background: url('images/shut.png') no-repeat right -21px;
+}
+.fliter_box span:hover{
+    background-position:right 0px;
+    color: #35af86;
+}
+.relic_menu a,.equip_menu a{
+    display: inline-block;
+    width: 147px;
+    height: 24px;
+    line-height: 24px;
+    margin-right: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #333333;
+    font-size: 12px;
+}
+.equip_menu{
+    width: 50%;
+    float: left;
+}
+.equip_menu h4{
+    font-weight: normal;
+}
+.equip_menu .sensor{
+    float: right;
+}
+/*柜内文物-end*/
+.shadow {
+    width: 100%;
+    height: 10px;
+    background: #ecf1f5;
+    position: absolute;
+    bottom: -11px;
+    margin-left: -10px;
+}
+
+/*柜内设备-start*/
+p.title {
+    margin: 0;
+    position: relative;
+    top: -6px;
+}
+
+.two .filter {
+    width: 116px;
+}
+
+.two form input {
+    width: 128px;
+}
+
+.two .filter .font {
+    margin-right: 10px;
+}
+
+.section {
+    display: inline-block;
+}
+
+.section p {
+    color: #9fa6ac;
+    font-size: 14px;
+}
+
+.section p span:first-child {
+    margin-right: 92px;
+}
+
+.section ul {
+    width: 152px;
+    float: left;
+    list-style: none;
+}
+
+/*柜内设备-end*/
+/*微环境监控-start*/
+#contentBox .monitor {
+    float: right;
+}
+
+.monitor > div.inline {
+    display: inline-block;
+    position: relative;
+}
+
+.monitor .gray {
+    height: 38px;
+    border-bottom: 1px solid #d7d8cc;
+}
+
+.gray span {
+    /*width: 58px;*/
+    /*height: 20px;
+    border: 1px solid #9fa6ae;
+    color: #637685;
+    display: inline-block;
+    line-height: 20px;
+    text-align: center;
+    margin-right: 9px;
+    cursor: pointer;
+    padding: 0 10px;*/
+}
+
+.monitor .gray span.ower {
+    background-color: #5a9e6d;
+    color: #fff;
+}
+
+.diy_date {
+    position: absolute;
+    display: none;
+    background-color: #5a9e6d;
+    color: #fff;
+    height: 20px;
+    border: 1px solid #9fa6ae;
+    line-height: 20px;
+    text-align: center;
+    margin-right: 9px;
+    cursor: pointer;
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+.diy_date input {
+    width: 82px;
+    height: 16px;
+    margin: 0 5px;
+    border: none;
+    font-size: 12px;
+}
+
+.wrapper {
+    width: 100%;
+}
+
+.wrapper .view {
+    line-height: 30px;
+    padding-top: 26px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width:200px;
+    overflow: scroll;
+}
+.wrapper .view.active{
+    overflow-y: scroll;
+}
+.wrapper .view input {
+    margin: 0 5px;
+    position: relative;
+    top: 10px;
+    float: left;
+}
+
+.wrapper .view p {
+    font-size: 14px;
+    color: #474744;
+    margin-left: 24px;
+}
+
+.wrapper .view p span {
+    font-size: 12px;
+    color: #627383;
+}
+.wrapper.inline{
+    height:255px;
+}
+.wrapper .inline {
+    position: absolute;
+    top:0;
+    right:0;
+    left:200px;
+    bottom:0;
+}
+.wrapper .inline .message{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    line-height: 240px;
+    text-align: center;
+    color: #627383;
+    display: none;
+}
+.monitor .echartsArea {
+    width: 100%;
+    height: 100%;
+    float: left;
+    background: url('../images/loading.gif') center no-repeat;
+}
+
+.monitor .echartsGauge {
+    width: 33%;
+    height: 254px;
+    background: url('../images/loading.gif') center no-repeat;
+}
+
+.monitor .echartsRadar {
+    width: 33%;
+    height: 253px;
+    background: url('../images/loading.gif') center no-repeat;
+}
+
+.monitor .diyLine {
+    width: 29%;
+    height: 218px;
+    float: right;
+    position: relative;
+    padding-left: 4%;
+}
+
+.diyLine .topBtn {
+    float: right;
+    display: none;
+    margin-right: 43px;
+}
+
+.topBtn p {
+    float: right;
+    width: 62px;
+    height: 22px;
+    margin-left: 12px;
+    line-height: 22px;
+}
+
+.topBtn p span {
+    display: inline-block;
+    width: 30px;
+    height: 22px;
+    background: url('images/chooce.png') no-repeat 0 center;
+}
+
+.topBtn p:last-child span {
+    background-position: -30px center;
+}
+
+.topBtn p font {
+    float: right;
+}
+
+.dataView {
+    position: absolute;
+    top: 80px;
+    width: 78%;
+}
+
+.dataView .lineView {
+    margin-right: 80px;
+}
+
+.dataView .lineView div {
+    width: 98%;
+    height: 53px;
+    padding: 0 1%;
+}
+
+.lineView .wrap {
+    height: 7px;
+    border-radius: 3px;
+    background: #dad9d1;
+}
+
+.lineView .wrap span {
+    height: 7px;
+    float: left;
+    background: #2b9bff;
+    border-radius: 3px;
+}
+
+.lineView .wrap span.last {
+    background: #3db48c;
+}
+
+.dataView .word {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 80px;
+    height: 160px;
+}
+
+.dataView .word p {
+    font-size: 12px;
+    color: #647481;
+    height: 41px;
+    padding-top: 13px;
+    padding-left: 20px;
+    line-height: 66px;
+}
+
+/*微环境监控-end*/
+
+/*展柜位置图-start*/
+#contentBox .position {
+    /*height: 258px;*/
+}
+
+.position img {
+    width: 100%;
+}
+
+/*展柜位置图-end*/
+
+/*展柜内部位置图-start*/
+.roomView {
+    width: 290px;
+    height: 275px;
+    position: relative;
+    overflow: hidden;
+}
+
+.barnar {
+    height: 222px;
+    position: absolute;
+    left: 0;
+}
+
+.barnar img {
+    background: #ccc;
+    width: 310px;
+    height: 100%;
+    float: left;
+    margin: 0 10px;
+}
+
+.roomView i {
+    width: 44px;
+    display: inline-block;
+    position: absolute;
+    top: 50%;
+    margin-top: -6px;
+    /* left: 10px; */
+    display: inline-block;
+    padding: 0;
+    /*color: yellow;*/
+    font-size: 45px;
+}
+
+.roomView .leftNav {
+    left: 10px;
+}
+
+.roomView .rightNav {
+    right: 10px;
+}
+
+/*展柜内部位置图-end*/
+/*监测设备-start*/
+.equip {
+    padding-bottom: 10px !important;
+    width: 892px;
+}
+
+.equip table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+}
+
+.equip table td {
+    border: 1px solid #d7d8cc;
+    font-size: 12px;
+    height: 35px;
+}
+.equip table td a{
+    color: #7d888d;
+}
+.equip table td a:hover{
+    text-decoration: underline;
+}
+.equip table td.no_border {
+    border: 0;
+}
+
+.equip table thead td {
+    height: 47px;
+    line-height: 0px;
+}
+
+/*监测设备-end*/
+.equip table td.status {
+    color: #31af31 !important;
+}
+
+.equip table td.noStatus {
+    color: #ff4f4f;
+}
+
+/*调控设备-start*/
+#contentBox .regulation {
+    float: right;
+}
+
+.equip thead td {
+    font-size: 14px;
+    color: #333333;
+}
+
+.equip td span {
+    font-size: 12px;
+    color: #b6baba;
+    position: relative;
+    top: 13px;
+}
+
+.equip i {
+    font-style: normal;
+}
+
+/*调控设备-end*/
+/*文物内容-end*/

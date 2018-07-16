@@ -1,0 +1,142 @@
+<template id="environment_equipment">
+	<div id="equipment">
+		<div class="equipment_top">
+			<div class="title_label lf">筛选条件 : </div>
+			<ul class="filter_condition_list lf" v-for="(key,condition_type) in filter_list">
+				<li class="filter_condition_item" v-for="condition in condition_type" @click="change_filter(condition,key)">
+					{{condition}}
+					<i class="cancel_icon"></i>
+				</li>
+			</ul>
+		</div>
+		<div class="table_container">
+			<div class="table_dimmer" v-show="equipment_table_data_index!=0">
+				<!-- 为table添加一个遮罩层，背景图中心Loading-->
+			</div>
+			<div class="nav_pic" v-show="big_nav_status" @mouseleave="hide_big_nav" @mouseenter="in_big_nav">
+				<!--<p>这里显示地理位置信息</p>-->
+				<div class="view">
+					<div class="point" :data-title="nav_name"></div>
+					<img :src="nav_map" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+				</div>
+			</div>
+			<div class="wrapper">
+				<table class="equipment_info_table">
+					<thead>
+					<tr>
+						<th class="equipment_status" @mouseenter="show_filter_condition('equipment_status')" @mouseleave="hide_filter_condition('equipment_status')" width="10%">
+							<span>状态<i class="arrow_down"></i></span>
+							<div class="status_filter_condition left" v-show="status.equipment_status" @mouseleave="hide_filter_condition('equipment_status')">
+								<!--<span class="equipment_status_item normal" @click="change_filter('正常','status')">正常</span>-->
+								<!--<span class="equipment_status_item fault" @click="change_filter('故障','status')">故障</span>-->
+								<!--<span class="equipment_status_item overproof_very_low_voltage_abnormal" @click="change_filter('超标','status')">超标</span>-->
+								<!--<span class="equipment_status_item low_voltage" @click="change_filter('低电','status')">低电</span>-->
+								<!--<span class="equipment_status_item overproof_very_low_voltage_abnormal" @click="change_filter('超低电','status')">超低电</span>-->
+								<!--<span class="equipment_status_item backup" @click="change_filter('备用','status')">备用</span>-->
+								<!--<span class="equipment_status_item disable" @click="change_filter('停用','status')">停用</span>-->
+								<!--<span class="equipment_status_item overproof_very_low_voltage_abnormal" @click="change_filter('异常','status')">异常</span>-->
+
+								<span v-for="status in equip_status" :class="['equipment_status_item',status.name]" @click="change_filter(status.name,'status')">
+									{{status.name}}
+								</span>
+							</div>
+						</th>
+						<th class="equipment_name" width="30%" @mouseenter="show_filter_condition('equipment_name')" @mouseleave="hide_filter_condition('equipment_name')">
+							<span>设备名称|设备ID<i class="arrow_down"></i></span>
+							<div class="name_filter_condition left" @mouseleave="hide_filter_condition('equipment_name')" v-show="status.equipment_name">
+								<div>
+									<input type="text" v-model="search_equipment_name" placeholder="输入设备名称或设备ID" @keyup.enter="exact_search(search_equipment_name)"/>
+									<span class="search_icon"></span>
+									<span class="clear_icon" @click="clear_search_equipment_name"></span>
+								</div>
+							</div>
+						</th>
+						<th class="equipment_nav" width="30%" @mouseenter="show_filter_condition('equipment_nav')" @mouseleave="hide_filter_condition('equipment_nav')">
+							<span>位置<i class="arrow_down" v-show="env_name.length!=0"></i></span>
+							<div class="nav_filter_condition left right" @mouseleave="hide_filter_condition('equipment_nav')" v-show="status.equipment_nav&&env_name.length!=0">
+								<ul>
+									<li v-for="nav in env_name" track-by="$index" @click="change_filter(nav,'position')" :class="{active:filter_list.position.indexOf(nav)!=-1}">
+										{{nav}}
+									</li>
+								</ul>
+							</div>
+						</th>
+						<th class="equipment_type" width="10%" @mouseenter="show_filter_condition('equipment_type')" @mouseleave="hide_filter_condition('equipment_type')">
+							<span>类型<i class="arrow_down"></i></span>
+							<div class="equipment_type_filter_condition right" v-show="status.equipment_type">
+								<ul class="equipment_type_filter_list">
+									<template v-if='equip_type.sensor&&equip_type.sensor.length!=0'>
+										<li  v-for="data in equip_type.sensor" class="equipment_type_filter_item sensor rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{sensor_temperature_humidity:data=='温湿度监测终端',sensor_temperature_humidity_with_screen:data=='带屏温湿度监测终端',sensor_light_uv:data=='光照紫外监测终端',sensor_co2:data=='二氧化碳监测终端',sensor_voc:data=='有机挥发物监测终端',sensor_qcm:data=='空气质量监测终端',sensor_soil_temperature_humidity:data=='土壤温湿度监测终端',sensor_security:data=='安防监测终端',sensor_shock:data=='震动监测终端'}"></span>{{data}}</li>
+									</template>
+								</ul>
+								<ul class="equipment_type_filter_list">
+									<li v-if='equip_type.network&&equip_type.network.length!=0' v-for="data in equip_type.network" class="equipment_type_filter_item network rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{network_gateway:data=='网关',network_relay:data=='中继'}"></span>{{data}}</li>
+								</ul>
+								<ul class="equipment_type_filter_list">
+									<li v-if='equip_type.controller&&equip_type.controller.length!=0' v-for="data in equip_type.controller" class="equipment_type_filter_item controller rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{controller_humidity_machine:data=='调湿机',controller_lighting:data=='灯光调控终端',controller_humidity_cabinet:data=='充氮调湿柜',controller_humidity_agent:data=='调湿剂',智能展柜:data=='智能展柜'}"></span>{{data}}</li>
+								</ul>
+								<ul class="equipment_type_filter_list">
+									<li v-if='equip_type.offline&&equip_type.offline.length!=0' v-for="data in equip_type.offline" class="equipment_type_filter_item sp_sensor rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{sensor_offline_temperature_humidity:data=='手持式温湿度检测仪'||data=='固定式温湿度检测仪',sensor_offline_light_uv:data=='手持式光照紫外检测仪',sensor_offline_co2:data=='手持式二氧化碳检测仪'||data=='固定式二氧化碳检测仪',sensor_offline_formaldehyde:data=='手持式甲醛检测仪',sensor_offline_voc:data=='手持式有机挥发物检测仪'}"></span>{{data}}</li>
+								</ul>
+								<ul class="equipment_type_filter_list">
+									<li v-if='equip_type.box&&equip_type.box.length!=0' v-for="data in equip_type.box" class="equipment_type_filter_item sp_sensor rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{sp_sensor_capsule:data=='智能囊匣'}"></span>{{data}}</li>
+								</ul>
+							</div>
+						</th>
+						<th class="equipment_new_data" width="20%">
+							最新数据
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr v-for="(index,data) in equipment_rows">
+						<td class="equipment_status_item">
+						<span class="equipment_status_item" :class="{normal:data.status=='正常',fault:data.status=='故障',overproof_very_low_voltage_abnormal:data.status=='超标'||data.status=='超低电'||data.status=='异常',low_voltage:data.status=='低电',backup:data.status=='备用',disable:data.status=='停用'}">
+							{{data.status||'无状态信息'}}
+						</span>
+						</td>
+						<td class="equipment_name_no">
+							<p style="cursor: pointer" @click="go_equipment_detail(data.equip_no)">
+								<span class="equipment_name">{{data.name}}</span><span class="equipment_no">{{data.equip_no}}</span>
+							</p>
+						</td>
+						<td class="equipment_nav">
+							<p><span v-if="data.map&&data.locate" class="nav_icon" @mouseenter.stop="show_big_nav($event,data.map,data.locate,data)" @mouseleave="hide_big_nav"></span>{{nav_info(data.nav)||'暂无位置信息'}}</p>
+						</td>
+						<td class="equipment_equip_type">
+							<span class="equipment_type_icon" :class="{sensor_temperature_humidity:data.equip_type=='温湿度监测终端',sensor_offline_temperature_humidity:data.equip_type=='手持式温湿度检测仪'||data.equip_type=='固定式温湿度检测仪',sensor_temperature_humidity_with_screen:data.equip_type=='带屏温湿度监测终端',sensor_light_uv:data.equip_type=='光照紫外监测终端',sensor_offline_light_uv:data.equip_type=='手持式光照紫外检测仪',sensor_co2:data.equip_type=='二氧化碳监测终端',sensor_offline_co2:data.equip_type=='手持式二氧化碳检测仪',sensor_offline_formaldehyde:data.equip_type=='手持式甲醛检测仪',sensor_voc:data.equip_type=='有机挥发物监测终端',sensor_offline_voc:data.equip_type=='手持式有机挥发物检测仪',sensor_qcm:data.equip_type=='空气质量监测终端',sensor_soil_temperature_humidity:data.equip_type=='土壤温湿度监测终端',sensor_security:data.equip_type=='安防监测终端',sensor_shock:data.equip_type=='震动监测终端',network_gateway:data.equip_type=='网关',network_relay:data.equip_type=='中继',controller_humidity_machine:data.equip_type=='调湿机',controller_lighting:data.equip_type=='灯光调控终端',controller_humidity_cabinet:data.equip_type=='充氮调湿柜',controller_humidity_agent:data.equip_type=='调湿剂',sp_sensor_capsule:data.equip_type=='智能囊匣监测终端',智能展柜:data.equip_type=='智能展柜'}" :data-title="data.equip_type"></span>
+							<!--{{data.equip_type}}-->
+						</td>
+						<td class="equipment_new_data" @mouseenter="show_more(data.equip_no)" @mouseleave="hide_more(data.equip_no)">
+							<Poptip trigger="hover" placement="left">
+								<div class="newDataEnd">{{{newDataEnd(data)}}}</div>
+								<div class="api" slot="content">
+									{{{allNewDataEnd(data)}}}
+								</div>
+							</Poptip>
+							<!--<span class="temperature">-->
+								<!--{{data.new_data.temperature||'-'}}{{unit.temperature}}-->
+							<!--</span>-->
+							<!--<span class="humidity">-->
+								<!--{{data.new_data.humidity||'-'}}{{unit.humidity}}-->
+							<!--</span>-->
+								<!--<span class="more_new_data" v-show="has_other_key(data.new_data,data.equip_no)">-->
+								<!--<b>. . .</b>-->
+							<!--</span>-->
+								<!--<div v-if="has_other_key(data.new_data,data.equip_no)" v-show="more_status[data.equip_no]" class="more_info">-->
+									<!--<p v-for="(index,value) in data.new_data" :class="index">-->
+										<!--<span v-if="index!='broken'&&index!='vibration'&&index!='multi_wave'">{{value||'-'}}{{unit[index]}}</span>-->
+										<!--<span v-if="index=='broken'">玻破警报</span>-->
+										<!--<span v-if="index=='vibration'">震动警报</span>-->
+										<!--<span v-if="index=='multi_wave'">驻波警报</span>-->
+									<!--</p>-->
+								<!--</div>-->
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<page-list :page.sync="curr_page" :allpage="page_num" :count="total"></page-list>
+	</div>
+</template>

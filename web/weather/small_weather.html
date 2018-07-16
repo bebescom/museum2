@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>小型气象站数据</title>
+  <link rel="stylesheet" href="../js/iview/iview.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/css/header.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="weather.css?v=2.2.05_P001" />
+</head>
+<body>
+    <div class="shadow"></div>
+    <div id="header" v-cloak>
+
+    <a class="logo" href="../capsule">
+        <div v-text="web_config.app_name"></div>
+    </a>
+
+    <div class="right_top_box">
+
+
+        <header-down v-ref:down></header-down>
+
+        <div class="warning_logo">
+            <Badge :count="all_num" overflow-count="99">
+                    <img src="../common/images/warning_logo.png" width="24" height="24" alt="" @click="warningList" />
+            </Badge>
+        </div>
+
+        <!--<div class="feedback">-->
+            <!--<a href="http://wpa.qq.com/msgrd?v=3&uin=3356346419&site=qq&menu=yes" target="_blank"></a>-->
+        <!--</div>-->
+
+        <!--<div class="user_logo">-->
+            <!--<img src="../common/images/man.png">-->
+
+        <!--</div>-->
+
+        <div class="user_drop">
+            <Dropdown placement="bottom-end">
+                <div class="user_name" v-text="web_config.user.real_name"></div>
+                <Dropdown-menu slot="list">
+
+                    <Dropdown placement="left-start" class="hide">
+                        <Dropdown-item class="view">
+                            切换视图
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item>地图视图</Dropdown-item>
+                            <Dropdown-item>数据视图</Dropdown-item>
+                            <Dropdown-item>工作视图</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="user_set hide">账户设置</Dropdown-item>
+                    <Dropdown-item class="system_set hide">系统设置</Dropdown-item>
+                    <Dropdown-item class="help hide">帮助中心</Dropdown-item>
+                    <Dropdown-item class="paramSetting" @click="paramSetting">平台参数设置</Dropdown-item>
+                    <Dropdown-item class="user_set permissionHidden" @click="userManagement(user)"
+                                   v-permission="{name:'用户管理'}">用户管理
+                    </Dropdown-item>
+                    <Dropdown placement="left-start">
+                        <Dropdown-item class="view">
+                            切换语言
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item @click="change_language('chinese')">汉语</Dropdown-item>
+                            <Dropdown-item @click="change_language('tibetan')">藏语</Dropdown-item>
+                            <Dropdown-item @click="change_language('english')">英语</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="logout" @click.stop="exit">退出登录</Dropdown-item>
+
+                </Dropdown-menu>
+            </Dropdown>
+        </div>
+    </div>
+</div>
+
+<template id="header_down">
+    <div class="equip_down" >
+
+        <Dropdown trigger="custom" :visible="show_list_key">
+            <Badge :count="downLoadingLen">
+                <img src="../common/images/loading_img.png" alt="下载loading" @click.stop="show_list">
+            </Badge>
+            <!--<i class="loadingNumber" v-text="downLoadingLen"></i>-->
+            <Dropdown-menu slot="list" style="width: 350px;">
+                <li class="loading_div" v-for="(index,item) in downLoadList">
+                    <div class="singleDown" :classno="item.noClass">
+                        <i :class="item.down_status"></i>
+                        <Poptip trigger="hover" :content="item.file_name">
+                            <span v-text="item.file_name"></span>
+                        </Poptip>
+                        <Icon v-show="item.url" type="ios-download-outline" @click.stop="down_file(item.url)"
+                              class="download_file" data-title="下载文件" size="24"></Icon>
+                        <i class="reloading" @click.stop="re_down(item.msg_id)"
+                           v-show="item.down_status === 'singleDown_reloading'"></i>
+                        <i class="singleDown_clear" @click.stop="del_down(item.msg_id)"></i>
+                    </div>
+                </li>
+
+            </Dropdown-menu>
+        </Dropdown>
+
+        <Progress :percent="45" :stroke-width="5" status="active" v-show="downLoadingLen" hide-info></Progress>
+
+    </div>
+
+</template>
+<script type="text/javascript" src="../js/mod.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/socket.io.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/underscore-min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/jquery-1.10.2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/vue.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/iview/iview.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/tooltip.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/store2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/socket.io.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/permission.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/echarts.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/laydate/laydate.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/highcharts.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/highcharts-more.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/data.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/header.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="small_weather.js?v=2.2.05_P001" ></script>
+<script type="text/javascript">
+    Vue.component('header-down', {
+        template: '#header_down',
+        data: function () {
+            return {
+                show_loading_key: true,//是否显示下载
+                show_list_key: false,//是否显示下拉列表
+                downLoadList: {},//设备下载传输数据
+            }
+        },
+        computed: {
+            downLoadListLength: function () {
+                return _.size(this.downLoadList);
+            },
+            downLoadingLen: function () {
+                var _len = 0;
+                for (var i in this.downLoadList) {
+                    if (this.downLoadList[i].down_status === 'singleDown_status_change') {
+                        ++_len;
+                    }
+                }
+                return _len;
+            }
+        },
+        ready: function () {
+            var _this = this;
+            _this.downLoadList = my_store('downloadEquipData') || {};
+            if (_this.downLoadListLength) {
+                _this.show_loading_key = true;
+            }
+            //下载完成后的通知
+            window.socket.on("downEquipDataEnd", function (json) {
+                console.log(json);
+                setTimeout(function () {
+                    if (_this.downLoadList[json.msg_id]) {
+                        window.socket.emit("downEquipDataAck", json);//确认收到消息
+                        _this.end_down(json);//下载完成
+                    }
+                }, 0);
+            });
+
+            window.new_down = _this.new_down;//新建下载队列
+
+        },
+        methods: {
+            show_list: function () {
+                // console.log(this.downLoadingLen)
+                // if(!this.downLoadingLen){//当下载数据为0时，不执行下载
+                //     return
+                // }
+                this.show_list_key = !this.show_list_key;
+            },
+            re_down: function (msg_id) {//重新下载
+                var _this = this;
+                if (!msg_id || !_this.downLoadList[msg_id]) {
+                    return;
+                }
+                setTimeout(function () {
+                    _this.new_down(_this.downLoadList[msg_id]);
+                }, 0);
+            },
+            del_down: function (item_id) {//删除某个下载任务
+                console.log('del_down', item_id);
+                var _this = this;
+                var _list = my_store('downloadEquipData') || {};
+                delete _list[item_id];
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _this.downLoadList);
+
+                if (_this.downLoadListLength === 0) {
+                    _this.show_loading_key = false;
+                    _this.show_list_key = false;
+                }
+            },
+            down_file: function (url) {//下载文件
+                if (url) {
+                    window.location.href = ('/2.2.05_P001/base_api' + url.slice(1));
+                }
+            },
+            new_down: function (msg) {//新建下载任务
+                var _this = this;
+                msg.msg_id = msg.msg_id || 'down_' + new Date().getTime() + '_' + Math.random();
+                msg.down_status = 'singleDown_status_change';
+                msg.access_token = window.web_config.token;
+                var _list = my_store('downloadEquipData') || {};
+                _list[msg.msg_id] = msg;
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _this.downLoadList);
+                _this.show_loading_key = true;
+                window.socket.emit('downEquipData', msg);
+
+            },
+            end_down: function (json) {//下载队列完成
+                var _this = this;
+                if (!json.result) {
+                    _this.$Message.error('下载失败');
+                }
+                var _list = my_store('downloadEquipData') || {};
+                _list[json.msg_id].down_status = json.result ? 'singleDown_status' : 'singleDown_reloading';
+                if (json.url) {
+                    _list[json.msg_id].url = json.url;
+                }
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _list);
+                setTimeout(function () {
+                    _this.show_list_key = true;
+                    if (json.result && json.url) {
+                        var url = json.url.slice(1);
+                        var a = window.open('/2.2.05_P001/base_api' + url);
+                        console.log(a);
+                    }
+                }, 200);
+            }
+        },
+        events: {
+            hideOverlay: function () {
+                if (this.show_loading_key) {
+                    this.show_loading_key = false;
+                }
+            }
+        }
+    });
+</script>
+
+
+
+
+    <div id="content">
+        <time-box @time-change="timeChange" :time.sync="time"></time-box>
+        <div class="comeBack" @click="camBack">返回</div>
+
+        <template id="small_weather_CO2">
+	<div class="data_box" id="small_weather_CO2_data"></div>
+</template>
+
+<script>
+    Vue.component('small-co2',{
+        template:'#small_weather_CO2',
+        data:function(){
+            return {
+                default_option:null,
+                myChart:null,
+                param_unit_name:''
+            }
+        },
+        ready:function(){
+            //获取参数单位名称
+            this.param_unit_name = window.web_config.param_unit_name.sensor;
+            console.log(this.param_unit_name)
+            this.default_option=this.create_chart_CO2();
+            this.myChart=echarts.init($('#small_weather_CO2_data')[0]);
+            this.myChart.setOption(this.default_option);
+            var vm=this;
+
+            $(window).resize(function(){
+                vm.myChart.resize();
+            });
+        },
+        methods:{
+            local:function(data){
+                this.localEcharts_CO2.call(this,data);
+            },
+            online:function(data){
+
+            },
+            localEcharts_CO2:function (data) {
+                var This=this;
+                var yAxis=[],series=[],key=0,position='left';
+                for(var i in data){
+                    if(key!=0){
+                        position='right';
+                    }
+                    series.push({
+                        showSymbol: false,
+                        smooth: true,
+                        data:data[i],
+                        name:i,
+                        type:'line',
+                        yAxisIndex:key
+                    });
+                    yAxis.push({
+                        min:'dataMin',
+                        name:This.param_unit_name[i].name+'\n('+This.param_unit_name[i].unit+')',
+                        type:'value',
+                        position:position,
+                        offset:(key!=0)?50*(key-1):0,
+                        splitLine:{show:(key!=0)?false:true}
+                    });
+
+                    key++;
+                }
+                This.myChart.setOption({
+                    series:series,
+                    yAxis:yAxis
+                });
+            },
+            timeFormat_CO2:function (time) {
+                var This=this;
+                var timeStr = '',
+                    date = null;
+                if(time){
+                    date = new Date(time);
+                    timeStr += This.appendZero_CO2(date.getHours())+':'+This.appendZero_CO2(date.getMinutes())+' '+ This.appendZero_CO2(date.getMonth()+1)+'月' + This.appendZero_CO2(date.getDate())+'日';
+                }
+                return timeStr||'--:-- XX月XX日';
+            },
+            appendZero_CO2:function (val) {
+                if(val<10){
+                    return '0'+val;
+                }
+                return val;
+            },
+            create_chart_CO2:function () {
+                var This=this;
+                return {
+                    title:{
+                        text:'二氧化碳趋势图'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter:function(params){
+                            var showStr = '';
+                            if(params&&params.length!==0){
+                                for(var i=0,len=params.length;i<len;i++){
+                                    if(params[i]&&params[i].data){
+                                        showStr += This.timeFormat_CO2(params[i].data[0])+'<br />';
+                                        break;
+                                    }else{
+                                        continue;
+                                    }
+                                }
+                                params.forEach(function(point,index){
+                                    showStr += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:'+ point.color +'"></span>'+ This.param_unit_name[point.seriesName].name + ' : ' + ((point&&point.data&&point.data[1])?(point.data[1]):' - ') + This.param_unit_name[point.seriesName].unit + '<br />';
+                                });
+                            }
+                            return showStr;
+                        }
+                    },
+                    legend: {
+                        show: false
+                    },
+                    dataZoom: [
+                        {
+                            show: true,
+                            realtime: true,
+                            xAxisIndex: [0]
+                        },
+                        {
+                            type: 'inside',
+                            realtime: true,
+                            xAxisIndex: [0]
+                        }
+                    ],
+                    grid: {
+                        left: 50,
+                        right: 100,
+                        top: '30%',
+                        bottom: '17%'
+                    },
+                    xAxis: {
+                        show: false,
+                        type: 'time',
+                        boundaryGap: false,
+                        axisLabel: {
+                            textStyle: {
+                                color: "#9fa6ac",
+                                fontFamily: "微软雅黑"
+                            }
+                        }
+                    },
+                    yAxis: {},
+                    series: []
+                };
+            }
+        },
+        events:{
+            small_CO2:function(data,from){
+				this.local(data);
+            }
+        }
+    });
+    // function localEcharts_CO2(data){
+    //     var yAxis=[],series=[],key=0,position='left';
+    //
+    //     for(var i in data){
+    //         console.log(data[i]);
+    //         if(key!=0){
+    //             position='right';
+    //         }
+    //         series.push({
+    //             showSymbol: false,
+    //             smooth: true,
+    //             data:data[i],
+    //             name:i,
+    //             type:'line',
+    //             yAxisIndex:key
+    //         });
+    //         yAxis.push({
+    //             min:'dataMin',
+    //             name:this.param_unit_name[i].name,
+    //             type:'value',
+    //             position:position,
+    //             offset:(key!=0)?50*(key-1):0,
+    //             splitLine:{show:(key!=0)?false:true}
+    //         });
+    //
+    //         key++;
+    //     }
+    //     this.myChart.setOption({
+    //         series:series,
+    //         yAxis:yAxis
+    //     });
+    // }
+    //
+    // function timeFormat_CO2(time){
+    //     var timeStr = '',
+    //         date = null;
+    //     if(time){
+    //         date = new Date(time);
+    //         timeStr += appendZero_CO2(date.getHours())+':'+appendZero_CO2(date.getMinutes())+' '+ appendZero_CO2(date.getMonth()+1)+'月' + appendZero_CO2(date.getDate())+'日';
+    //     }
+    //     return timeStr||'--:-- XX月XX日';
+    // }
+    //
+    // function appendZero_CO2(val){
+    //     if(val<10){
+    //         return '0'+val;
+    //     }
+    //     return val;
+    // }
+    //
+    // function create_chart_CO2() {
+    //     return {
+    //         title:{
+    //             text:'二氧化碳趋势图'
+    //         },
+    //         tooltip: {
+    //             trigger: 'axis',
+    //             formatter:function(params){
+    //                 console.log(params);
+    //                 var showStr = '';
+    //                 if(params&&params.length!==0){
+    //                     for(var i=0,len=params.length;i<len;i++){
+    //                         if(params[i]&&params[i].data){
+    //                             showStr += timeFormat_CO2(params[i].data[0])+'<br />';
+    //                             break;
+    //                         }else{
+    //                             continue;
+    //                         }
+    //                     }
+    //
+    //                     params.forEach(function(point,index){
+    //                         // console.log(point);
+    //                         showStr += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:'+ point.color +'"></span>'+ this.param_unit_name[point.seriesName].name + ' : ' + ((point&&point.data&&point.data[1])?(point.data[1]):' - ') + this.param_unit_name[point.seriesName].unit + '<br />';
+    //                     });
+    //                 }
+    //                 return showStr;
+    //             }
+    //         },
+    //         legend: {
+    //             show: false
+    //         },
+    //         dataZoom: [
+    //             {
+    //                 show: true,
+    //                 realtime: true,
+    //                 xAxisIndex: [0]
+    //             },
+    //             {
+    //                 type: 'inside',
+    //                 realtime: true,
+    //                 xAxisIndex: [0]
+    //             }
+    //         ],
+    //         grid: {
+    //             left: 50,
+    //             right: 100,
+    //             top: '25%',
+    //             bottom: '17%'
+    //         },
+    //         xAxis: {
+    //             show: false,
+    //             type: 'time',
+    //             boundaryGap: false,
+    //             axisLabel: {
+    //                 textStyle: {
+    //                     color: "#9fa6ac",
+    //                     fontFamily: "微软雅黑"
+    //                 }
+    //             }
+    //         },
+    //         yAxis: {},
+    //         series: []
+    //     };
+    // }
+</script>
+
+<style scoped>
+
+</style>
+
+        <template id="small_weather_SO2">
+    <div class="data_box" id="small_weather_SO2_data"></div>
+</template>
+
+<script>
+
+    Vue.component('small-so2',{
+        template:'#small_weather_SO2',
+        data:function(){
+            return {
+                default_option:null,
+                myChart:null,
+                param_unit_name:''
+            }
+        },
+        ready:function(){
+            //获取参数单位名称
+            this.param_unit_name = window.web_config.param_unit_name.sensor;
+            this.default_option=this.create_chart_SO2();
+            this.myChart=echarts.init($('#small_weather_SO2_data')[0]);
+            this.myChart.setOption(this.default_option);
+            var vm=this;
+
+            $(window).resize(function(){
+                vm.myChart.resize();
+            });
+        },
+        methods:{
+            local:function(data){
+                this.localEcharts_SO2.call(this,data);
+            },
+            online:function(data){
+
+            },
+            localEcharts_SO2:function (data) {
+                var This=this;
+                var yAxis=[],series=[],key=0,position='left';
+                for(var i in data){
+                    if(key!=0){
+                        position='right';
+                    }
+                    series.push({
+                        showSymbol: false,
+                        smooth: true,
+                        data:data[i],
+                        name:i,
+                        type:'line',
+                        yAxisIndex:key
+                    });
+                    yAxis.push({
+                        min:'dataMin',
+                        name:this.param_unit_name[i].name+'\n('+This.param_unit_name[i].unit+')',
+                        type:'value',
+                        position:position,
+                        offset:(key!=0)?50*(key-1):0,
+                        splitLine:{show:(key!=0)?false:true}
+                    });
+
+                    key++;
+                }
+                This.myChart.setOption({
+                    series:series,
+                    yAxis:yAxis
+                });
+            },
+            timeFormat_SO2:function (time) {
+                var timeStr = '',
+                    date = null;
+                if(time){
+                    date = new Date(time);
+                    timeStr += this.appendZero_SO2(date.getHours())+':'+this.appendZero_SO2(date.getMinutes())+' '+ this.appendZero_SO2(date.getMonth()+1)+'月' + this.appendZero_SO2(date.getDate())+'日';
+                }
+                return timeStr||'--:-- XX月XX日';
+            },
+            appendZero_SO2:function (val) {
+                if(val<10){
+                    return '0'+val;
+                }
+                return val;
+            },
+            create_chart_SO2:function () {
+                var This=this;
+                return {
+                    title:{
+                        text:'二氧化硫趋势图'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter:function(params){
+                            // console.log(params);
+                            var showStr = '';
+                            if(params&&params.length!==0){
+                                for(var i=0,len=params.length;i<len;i++){
+                                    if(params[i]&&params[i].data){
+                                        showStr += This.timeFormat_SO2(params[i].data[0])+'<br />';
+                                        break;
+                                    }else{
+                                        continue;
+                                    }
+                                }
+                                params.forEach(function(point,index){
+                                    // console.log(point);
+                                    showStr += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:'+ point.color +'"></span>'+ This.param_unit_name[point.seriesName].name + ' : ' + ((point&&point.data&&point.data[1])?(point.data[1]):' - ') + This.param_unit_name[point.seriesName].unit + '<br />';
+                                });
+                            }
+                            return showStr;
+                        }
+                    },
+                    legend: {
+                        show: false
+                    },
+                    dataZoom: [
+                        {
+                            show: true,
+                            realtime: true,
+                            xAxisIndex: [0]
+                        },
+                        {
+                            type: 'inside',
+                            realtime: true,
+                            xAxisIndex: [0]
+                        }
+                    ],
+                    grid: {
+                        left: 50,
+                        right: 100,
+                        top: '30%',
+                        bottom: '17%'
+                    },
+                    xAxis: {
+                        show: false,
+                        type: 'time',
+                        boundaryGap: false,
+                        axisLabel: {
+                            textStyle: {
+                                color: "#9fa6ac",
+                                fontFamily: "微软雅黑"
+                            }
+                        }
+                    },
+                    yAxis: {},
+                    series: []
+                };
+            }
+        },
+        events:{
+            small_SO2:function(data,from){
+                    this.local(data);
+            }
+        }
+    });
+    // function localEcharts_SO2(data){
+    //     var yAxis=[],series=[],key=0,position='left';
+    //
+    //     for(var i in data){
+    //         console.log(data[i]);
+    //         if(key!=0){
+    //             position='right';
+    //         }
+    //         series.push({
+    //             showSymbol: false,
+    //             smooth: true,
+    //             data:data[i],
+    //             name:i,
+    //             type:'line',
+    //             yAxisIndex:key
+    //         });
+    //         yAxis.push({
+    //             min:'dataMin',
+    //             name:param_unit_name[i].name,
+    //             type:'value',
+    //             position:position,
+    //             offset:(key!=0)?50*(key-1):0,
+    //             splitLine:{show:(key!=0)?false:true}
+    //         });
+    //
+    //         key++;
+    //     }
+    //     this.myChart.setOption({
+    //         series:series,
+    //         yAxis:yAxis
+    //     });
+    // }
+    //
+    // function timeFormat_SO2(time){
+    //     var timeStr = '',
+    //         date = null;
+    //     if(time){
+    //         date = new Date(time);
+    //         timeStr += appendZero_SO2(date.getHours())+':'+appendZero_SO2(date.getMinutes())+' '+ appendZero_SO2(date.getMonth()+1)+'月' + appendZero_SO2(date.getDate())+'日';
+    //     }
+    //     return timeStr||'--:-- XX月XX日';
+    // }
+    //
+    // function appendZero_SO2(val){
+    //     if(val<10){
+    //         return '0'+val;
+    //     }
+    //     return val;
+    // }
+    //
+    // function create_chart_SO2() {
+    //     return {
+    //         title:{
+    //             text:'二氧化硫势图'
+    //         },
+    //         tooltip: {
+    //             trigger: 'axis',
+    //             formatter:function(params){
+    //                 // console.log(params);
+    //                 var showStr = '';
+    //                 if(params&&params.length!==0){
+    //                     for(var i=0,len=params.length;i<len;i++){
+    //                         if(params[i]&&params[i].data){
+    //                             showStr += timeFormat_SO2(params[i].data[0])+'<br />';
+    //                             break;
+    //                         }else{
+    //                             continue;
+    //                         }
+    //                     }
+    //
+    //                     params.forEach(function(point,index){
+    //                         // console.log(point);
+    //                         showStr += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:'+ point.color +'"></span>'+ param_unit_name[point.seriesName].name + ' : ' + ((point&&point.data&&point.data[1])?(point.data[1]):' - ') + param_unit_name[point.seriesName].unit + '<br />';
+    //                     });
+    //                 }
+    //                 return showStr;
+    //             }
+    //         },
+    //         legend: {
+    //             show: false
+    //         },
+    //         dataZoom: [
+    //             {
+    //                 show: true,
+    //                 realtime: true,
+    //                 xAxisIndex: [0]
+    //             },
+    //             {
+    //                 type: 'inside',
+    //                 realtime: true,
+    //                 xAxisIndex: [0]
+    //             }
+    //         ],
+    //         grid: {
+    //             left: 50,
+    //             right: 100,
+    //             top: '25%',
+    //             bottom: '17%'
+    //         },
+    //         xAxis: {
+    //             show: false,
+    //             type: 'time',
+    //             boundaryGap: false,
+    //             axisLabel: {
+    //                 textStyle: {
+    //                     color: "#9fa6ac",
+    //                     fontFamily: "微软雅黑"
+    //                 }
+    //             }
+    //         },
+    //         yAxis: {},
+    //         series: []
+    //     };
+    // }
+</script>
+
+<style scoped>
+
+</style>
+
+        <template id="small_weather_NO">
+    <div class="data_box" id="small_weather_NO_data"></div>
+</template>
+
+<script>
+    Vue.component('small-no',{
+        template:'#small_weather_NO',
+        data:function(){
+            return {
+                default_option:null,
+                myChart:null,
+                param_unit_name:''
+            }
+        },
+        ready:function(){
+            //获取参数单位名称
+            this.param_unit_name = window.web_config.param_unit_name.sensor;
+            this.default_option=this.create_chart_NO();
+            this.myChart=echarts.init($('#small_weather_NO_data')[0]);
+            this.myChart.setOption(this.default_option);
+            var vm=this;
+
+            $(window).resize(function(){
+                vm.myChart.resize();
+            });
+        },
+        methods:{
+            local:function(data){
+                this.localEcharts_NO.call(this,data);
+            },
+            online:function(data){
+
+            },
+            localEcharts_NO:function (data) {
+                var This=this;
+                var yAxis=[],series=[],key=0,position='left';
+                for(var i in data){
+                    if(key!=0){
+                        position='right';
+                    }
+                    series.push({
+                        showSymbol: false,
+                        smooth: true,
+                        data:data[i],
+                        name:i,
+                        type:'line',
+                        yAxisIndex:key
+                    });
+                    yAxis.push({
+                        min:'dataMin',
+                        name:This.param_unit_name[i].name+'\n('+This.param_unit_name[i].unit+')',
+                        type:'value',
+                        position:position,
+                        offset:(key!=0)?50*(key-1):0,
+                        splitLine:{show:(key!=0)?false:true}
+                    });
+
+                    key++;
+                }
+                this.myChart.setOption({
+                    series:series,
+                    yAxis:yAxis
+                });
+            },
+            timeFormat_NO:function (time) {
+                var timeStr = '',
+                    date = null;
+                if(time){
+                    date = new Date(time);
+                    timeStr += this.appendZero_NO(date.getHours())+':'+this.appendZero_NO(date.getMinutes())+' '+ this.appendZero_NO(date.getMonth()+1)+'月' + this.appendZero_NO(date.getDate())+'日';
+                }
+                return timeStr||'--:-- XX月XX日';
+            },
+            appendZero_NO:function (val) {
+                if(val<10){
+                    return '0'+val;
+                }
+                return val;
+            },
+            create_chart_NO:function () {
+                var This=this;
+                return {
+                    title:{
+                        text:'氮氧化物趋势图'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter:function(params){
+                            // console.log(params);
+                            var showStr = '';
+                            if(params&&params.length!==0){
+                                for(var i=0,len=params.length;i<len;i++){
+                                    if(params[i]&&params[i].data){
+                                        showStr += This.timeFormat_NO(params[i].data[0])+'<br />';
+                                        break;
+                                    }else{
+                                        continue;
+                                    }
+                                }
+
+                                params.forEach(function(point,index){
+                                    // console.log(point);
+                                    showStr += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:'+ point.color +'"></span>'+ This.param_unit_name[point.seriesName].name + ' : ' + ((point&&point.data&&point.data[1])?(point.data[1]):' - ') + This.param_unit_name[point.seriesName].unit + '<br />';
+                                });
+                            }
+                            return showStr;
+                        }
+                    },
+                    legend: {
+                        show: false
+                    },
+                    dataZoom: [
+                        {
+                            show: true,
+                            realtime: true,
+                            xAxisIndex: [0]
+                        },
+                        {
+                            type: 'inside',
+                            realtime: true,
+                            xAxisIndex: [0]
+                        }
+                    ],
+                    grid: {
+                        left: 50,
+                        right: 100,
+                        top: '30%',
+                        bottom: '17%'
+                    },
+                    xAxis: {
+                        show: false,
+                        type: 'time',
+                        boundaryGap: false,
+                        axisLabel: {
+                            textStyle: {
+                                color: "#9fa6ac",
+                                fontFamily: "微软雅黑"
+                            }
+                        }
+                    },
+                    yAxis: {},
+                    series: []
+                };
+            }
+        },
+        events:{
+            small_NO:function(data,from){
+                    this.local(data);
+            }
+        }
+    });
+    // function localEcharts_NO(data){
+    //     var yAxis=[],series=[],key=0,position='left';
+    //
+    //     for(var i in data){
+    //         console.log(data[i]);
+    //         if(key!=0){
+    //             position='right';
+    //         }
+    //         series.push({
+    //             showSymbol: false,
+    //             smooth: true,
+    //             data:data[i],
+    //             name:i,
+    //             type:'line',
+    //             yAxisIndex:key
+    //         });
+    //         yAxis.push({
+    //             min:'dataMin',
+    //             name:param_unit_name[i].name,
+    //             type:'value',
+    //             position:position,
+    //             offset:(key!=0)?50*(key-1):0,
+    //             splitLine:{show:(key!=0)?false:true}
+    //         });
+    //
+    //         key++;
+    //     }
+    //     this.myChart.setOption({
+    //         series:series,
+    //         yAxis:yAxis
+    //     });
+    // }
+    //
+    // function timeFormat_NO(time){
+    //     var timeStr = '',
+    //         date = null;
+    //     if(time){
+    //         date = new Date(time);
+    //         timeStr += appendZero_NO(date.getHours())+':'+appendZero_NO(date.getMinutes())+' '+ appendZero_NO(date.getMonth()+1)+'月' + appendZero_NO(date.getDate())+'日';
+    //     }
+    //     return timeStr||'--:-- XX月XX日';
+    // }
+    //
+    // function appendZero_NO(val){
+    //     if(val<10){
+    //         return '0'+val;
+    //     }
+    //     return val;
+    // }
+    //
+    // function create_chart_NO() {
+    //     return {
+    //         title:{
+    //             text:'氮氧化物趋势图'
+    //         },
+    //         tooltip: {
+    //             trigger: 'axis',
+    //             formatter:function(params){
+    //                 // console.log(params);
+    //                 var showStr = '';
+    //                 if(params&&params.length!==0){
+    //                     for(var i=0,len=params.length;i<len;i++){
+    //                         if(params[i]&&params[i].data){
+    //                             showStr += timeFormat_NO(params[i].data[0])+'<br />';
+    //                             break;
+    //                         }else{
+    //                             continue;
+    //                         }
+    //                     }
+    //
+    //                     params.forEach(function(point,index){
+    //                         // console.log(point);
+    //                         showStr += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:'+ point.color +'"></span>'+ param_unit_name[point.seriesName].name + ' : ' + ((point&&point.data&&point.data[1])?(point.data[1]):' - ') + param_unit_name[point.seriesName].unit + '<br />';
+    //                     });
+    //                 }
+    //                 return showStr;
+    //             }
+    //         },
+    //         legend: {
+    //             show: false
+    //         },
+    //         dataZoom: [
+    //             {
+    //                 show: true,
+    //                 realtime: true,
+    //                 xAxisIndex: [0]
+    //             },
+    //             {
+    //                 type: 'inside',
+    //                 realtime: true,
+    //                 xAxisIndex: [0]
+    //             }
+    //         ],
+    //         grid: {
+    //             left: 50,
+    //             right: 100,
+    //             top: '25%',
+    //             bottom: '17%'
+    //         },
+    //         xAxis: {
+    //             show: false,
+    //             type: 'time',
+    //             boundaryGap: false,
+    //             axisLabel: {
+    //                 textStyle: {
+    //                     color: "#9fa6ac",
+    //                     fontFamily: "微软雅黑"
+    //                 }
+    //             }
+    //         },
+    //         yAxis: {},
+    //         series: []
+    //     };
+    // }
+</script>
+
+<style scoped>
+
+</style>
+
+        <template id="small_weather_O3">
+    <div class="data_box" id="small_weather_O3_data"></div>
+</template>
+
+<script>
+    Vue.component('small-o3',{
+        template:'#small_weather_O3',
+        data:function(){
+            return {
+                default_option:null,
+                myChart:null,
+                param_unit_name:''
+            }
+        },
+        ready:function(){
+            //获取参数单位名称
+            this.param_unit_name = window.web_config.param_unit_name.sensor;
+            this.default_option=this.create_chart_O3();
+            this.myChart=echarts.init($('#small_weather_O3_data')[0]);
+            this.myChart.setOption(this.default_option);
+            var vm=this;
+
+            $(window).resize(function(){
+                vm.myChart.resize();
+            });
+        },
+        methods:{
+            local:function(data){
+                this.localEcharts_O3.call(this,data);
+            },
+            online:function(data){
+
+            },
+            localEcharts_O3:function (data) {
+                var This=this;
+                var yAxis=[],series=[],key=0,position='left';
+                for(var i in data){
+                    if(key!=0){
+                        position='right';
+                    }
+                    series.push({
+                        showSymbol: false,
+                        smooth: true,
+                        data:data[i],
+                        name:i,
+                        type:'line',
+                        yAxisIndex:key
+                    });
+                    yAxis.push({
+                        min:'dataMin',
+                        name:This.param_unit_name[i].name+'\n('+This.param_unit_name[i].unit+')',
+                        type:'value',
+                        position:position,
+                        offset:(key!=0)?50*(key-1):0,
+                        splitLine:{show:(key!=0)?false:true}
+                    });
+
+                    key++;
+                }
+                this.myChart.setOption({
+                    series:series,
+                    yAxis:yAxis
+                });
+            },
+            timeFormat_O3:function (time) {
+                var timeStr = '',
+                    date = null;
+                if(time){
+                    date = new Date(time);
+                    timeStr += this.appendZero_O3(date.getHours())+':'+this.appendZero_O3(date.getMinutes())+' '+ this.appendZero_O3(date.getMonth()+1)+'月' + this.appendZero_O3(date.getDate())+'日';
+                }
+                return timeStr||'--:-- XX月XX日';
+            },
+            appendZero_O3:function (val) {
+                if(val<10){
+                    return '0'+val;
+                }
+                return val;
+            },
+            create_chart_O3:function () {
+                var This=this;
+                return {
+                    title:{
+                        text:'臭氧趋势图'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter:function(params){
+                            // console.log(params);
+                            var showStr = '';
+                            if(params&&params.length!==0){
+                                for(var i=0,len=params.length;i<len;i++){
+                                    if(params[i]&&params[i].data){
+                                        showStr += This.timeFormat_O3(params[i].data[0])+'<br />';
+                                        break;
+                                    }else{
+                                        continue;
+                                    }
+                                }
+
+                                params.forEach(function(point,index){
+                                    // console.log(point);
+                                    showStr += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:'+ point.color +'"></span>'+ This.param_unit_name[point.seriesName].name + ' : ' + ((point&&point.data&&point.data[1])?(point.data[1]):' - ') + This.param_unit_name[point.seriesName].unit + '<br />';
+                                });
+                            }
+                            return showStr;
+                        }
+                    },
+                    legend: {
+                        show: false
+                    },
+                    dataZoom: [
+                        {
+                            show: true,
+                            realtime: true,
+                            xAxisIndex: [0]
+                        },
+                        {
+                            type: 'inside',
+                            realtime: true,
+                            xAxisIndex: [0]
+                        }
+                    ],
+                    grid: {
+                        left: 50,
+                        right: 100,
+                        top: '30%',
+                        bottom: '17%'
+                    },
+                    xAxis: {
+                        show: false,
+                        type: 'time',
+                        boundaryGap: false,
+                        axisLabel: {
+                            textStyle: {
+                                color: "#9fa6ac",
+                                fontFamily: "微软雅黑"
+                            }
+                        }
+                    },
+                    yAxis: {},
+                    series: []
+                };
+            }
+        },
+        events:{
+            small_O3:function(data,from){
+                    this.local(data);
+            }
+        }
+    });
+    // function localEcharts_O3(data){
+    //     var yAxis=[],series=[],key=0,position='left';
+    //
+    //     for(var i in data){
+    //         console.log(data[i]);
+    //         if(key!=0){
+    //             position='right';
+    //         }
+    //         series.push({
+    //             showSymbol: false,
+    //             smooth: true,
+    //             data:data[i],
+    //             name:i,
+    //             type:'line',
+    //             yAxisIndex:key
+    //         });
+    //         yAxis.push({
+    //             min:'dataMin',
+    //             name:this.param_unit_name[i].name,
+    //             type:'value',
+    //             position:position,
+    //             offset:(key!=0)?50*(key-1):0,
+    //             splitLine:{show:(key!=0)?false:true}
+    //         });
+    //
+    //         key++;
+    //     }
+    //     this.myChart.setOption({
+    //         series:series,
+    //         yAxis:yAxis
+    //     });
+    // }
+    //
+    // function timeFormat_O3(time){
+    //     var timeStr = '',
+    //         date = null;
+    //     if(time){
+    //         date = new Date(time);
+    //         timeStr += appendZero_O3(date.getHours())+':'+appendZero_O3(date.getMinutes())+' '+ appendZero_O3(date.getMonth()+1)+'月' + appendZero_O3(date.getDate())+'日';
+    //     }
+    //     return timeStr||'--:-- XX月XX日';
+    // }
+    //
+    // function appendZero_O3(val){
+    //     if(val<10){
+    //         return '0'+val;
+    //     }
+    //     return val;
+    // }
+    //
+    // function create_chart_O3() {
+    //     return {
+    //         title:{
+    //             text:'臭氧趋势图'
+    //         },
+    //         tooltip: {
+    //             trigger: 'axis',
+    //             formatter:function(params){
+    //                 // console.log(params);
+    //                 var showStr = '';
+    //                 if(params&&params.length!==0){
+    //                     for(var i=0,len=params.length;i<len;i++){
+    //                         if(params[i]&&params[i].data){
+    //                             showStr += timeFormat_O3(params[i].data[0])+'<br />';
+    //                             break;
+    //                         }else{
+    //                             continue;
+    //                         }
+    //                     }
+    //
+    //                     params.forEach(function(point,index){
+    //                         // console.log(point);
+    //                         showStr += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:'+ point.color +'"></span>'+ this.param_unit_name[point.seriesName].name + ' : ' + ((point&&point.data&&point.data[1])?(point.data[1]):' - ') + this.param_unit_name[point.seriesName].unit + '<br />';
+    //                     });
+    //                 }
+    //                 return showStr;
+    //             }
+    //         },
+    //         legend: {
+    //             show: false
+    //         },
+    //         dataZoom: [
+    //             {
+    //                 show: true,
+    //                 realtime: true,
+    //                 xAxisIndex: [0]
+    //             },
+    //             {
+    //                 type: 'inside',
+    //                 realtime: true,
+    //                 xAxisIndex: [0]
+    //             }
+    //         ],
+    //         grid: {
+    //             left: 50,
+    //             right: 100,
+    //             top: '25%',
+    //             bottom: '17%'
+    //         },
+    //         xAxis: {
+    //             show: false,
+    //             type: 'time',
+    //             boundaryGap: false,
+    //             axisLabel: {
+    //                 textStyle: {
+    //                     color: "#9fa6ac",
+    //                     fontFamily: "微软雅黑"
+    //                 }
+    //             }
+    //         },
+    //         yAxis: {},
+    //         series: []
+    //     };
+    // }
+</script>
+
+<style scoped>
+
+</style>
+
+        <template id="The_wind_rose">
+    <div class="data_box" id="the_wind_rose_data" style="width: 97.2%;height: 400px;">
+
+        <div id="container" style="min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+        <div style="display:none">
+            <!-- Source: http://or.water.usgs.gov/cgi-bin/grapher/graph_windrose.pl -->
+            <table id="freq" border="0" cellspacing="0" cellpadding="0">
+                <tr nowrap bgcolor="#CCCCFF">
+                    <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+                </tr>
+                <tr nowrap bgcolor="#CCCCFF">
+                    <th class="freq">Direction</th>
+                    <th class="freq">零级</th>
+                    <th class="freq">一级</th>
+                    <th class="freq">二级</th>
+                    <th class="freq">三级</th>
+                    <th class="freq">四级</th>
+                    <th class="freq">五级</th>
+                    <th class="freq">>五级</th>
+                </tr>
+
+                <tr nowrap v-for="(name,key) in data">
+                    <td class="dir" v-text="name"></td>
+                    <td class="data" v-for="n in key" v-text="n" track-by="$index"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</template>
+
+<script>
+
+    Vue.component('wind-rose',{
+        template:'#The_wind_rose',
+        data:function(){
+            return {
+                data:[]
+            }
+        },
+        methods:{
+            local:function(data){
+                data=deleteTotal(data.wind);
+                this.data=data;
+                setTimeout(function(){
+                    key();
+                },0);
+            },
+            online:function(data){
+
+            }
+        },
+        events:{
+            small_wind:function(data,from){
+                    this.local(data);
+            }
+        }
+    });
+
+    function deleteTotal(obj){
+        var arr={};
+        for(var i in obj){
+            if(i=='Total'){
+                continue;
+            }
+            arr[i]=obj[i];
+        }
+        return arr;
+    }
+
+    function key(){
+        $(function () {
+            // Parse the data from an inline table using the Highcharts Data plugin
+            $('#container').highcharts({
+                data: {
+                    table: 'freq',
+                    startRow: 1,
+                    endRow: 17,
+                    endColumn: 7
+                },
+                chart: {
+                    polar: true,
+                    type: 'column'
+                },
+                title: {
+                    text: '风向风力图'
+                },
+                pane: {
+                    size: '85%'
+                },
+                legend: {
+                    align: 'right',
+                    verticalAlign: 'top',
+                    y: 100,
+                    layout: 'vertical'
+                },
+                xAxis: {
+                    tickmarkPlacement: 'on'
+                },
+                yAxis: {
+                    min: 0,
+                    endOnTick: false,
+                    showLastLabel: true,
+                    // title: {
+                    //     text: 'Frequency (%)'
+                    // },
+                    labels: {
+                        formatter: function () {
+                            return this.value + '%';
+                        }
+                    },
+                    reversedStacks: false
+                },
+                tooltip: {
+                    valueSuffix: '%'
+                },
+                plotOptions: {
+                    series: {
+                        stacking: 'normal',
+                        shadow: false,
+                        groupPadding: 0,
+                        pointPlacement: 'on'
+                    }
+                }
+            });
+        });
+
+    }
+</script>
+
+<style scoped>
+
+</style>
+
+
+
+        <small-co2></small-co2>
+        <small-so2></small-so2>
+        <small-no></small-no>
+        <small-o3></small-o3>
+        <wind-rose></wind-rose>
+
+    </div>
+
+    <style>
+	.time_box{
+        line-height: 66px;
+	    padding-top: 14px;
+	    padding-bottom: 14px;	
+	}
+	.time_box span,.time_box p,.typeBox>span{
+        color: #888d92;
+	    font-size: 14px;
+	    padding: 0 10px;
+		margin: 0 5px;
+	    height: 29px;
+	    border: 1px solid #9a9ea2;
+	    line-height: 29px;
+	    text-align: center;
+	    float: left;
+	    cursor: pointer;
+	    margin-right: -1px;
+	    border-radius: 5px;
+	}
+	.time_box p{
+	    border: 0;
+	    margin-right: 27px;
+	    color: #6c7177;
+	}
+	.time_box span:hover,.time_box span.active{
+		color: #ffffff;
+		background: #59bfaa;
+	}
+	.diy{
+        margin-left: -63px;
+	    height: 29px;
+	    background: #fff;
+	    border: 1px solid #9a9ea2;
+	    line-height: 29px;
+	    float: left;
+		border-radius: 5px;
+		padding-left: 3px;
+	}
+</style>
+
+<!--时间选择-->
+<template id="time_box">
+	<div class="time_box clear">
+		<p>时间选择</p>
+		<span @click="change('24h',$event)" class="24h" :class="{'active':time=='24h'}">24h</span><span @click="change('today',$event)" class="today" :class="{'active':time=='today'}">今天</span><span @click="change('week',$event)" class="week" :class="{'active':time=='week'}">本周</span><span @click="change('month',$event)" class="month" :class="{'active':time=='month'}">本月</span><span @click.stop="change('diy',$event)" class="+" :class="{'active':time!='24h'&&time!='today'&&time!='week'&&time!='month'}">自定义</span>
+		<div class="diy" v-show="showHide">
+			<input placeholder="请输入日期" id="start_time" class="laydate-icon" onclick="laydate()">
+			<input placeholder="请输入日期" id="end_time" class="laydate-icon" onclick="laydate()">
+			<div class="button" @click="diyTimePost">确定</div>
+		</div>
+	</div>
+</template>
+
+<script>
+	/*
+	* 2016-9-23 by:曾竞
+	*
+	* 对时间控件进行了调整:增加判断自定义时间区间条件下,时间起始和终止的判断
+	* 对时间控件进行了调整:将active样式的添加调整为Vue样式绑定方式,弃用了jquery查找元素方式
+	*
+	* */
+	Vue.component('time-box',{
+		template:'#time_box',
+		props:{
+			time:'time',
+		},
+		data:function(){
+			return {
+				showHide:false
+			}
+		},
+		methods:{
+			change:function(time){
+				this.time=time;
+				if(time=='diy'){
+					this.diyShowHide();
+				}else{
+					this.timeChange(time);
+					this.showHide=false;
+				}
+			},
+			timeChange:function(time){
+				var This=this;
+				this.$dispatch('time-change',time);
+			},
+			diyShowHide:function(){
+				this.showHide=!this.showHide;
+			},
+			diyTimePost:function(e){
+				var correct = false,//标识时间选择是否正常
+				element=e.target||e.srcElement,$input=$(element).siblings('input'),time='',start_time = $input.filter('#start_time').val(),
+				end_time = $input.filter('#end_time').val();
+				if(start_time==''){
+					this.$Message.warning('请选择时间起点!');
+				}else if(end_time==''){
+					this.$Message.warning('请选择时间终点!');
+				}else{
+					start_time=start_time.split('-');
+					end_time=end_time.split('-');
+					if(start_time[0]<end_time[0]){//比较年份
+						correct = true;
+					}else if(start_time[0]==end_time[0]){
+						if(start_time[1]<end_time[1]){//比较月份
+							correct = true;
+						}else if(start_time[1]==end_time[1]){
+							if(start_time[2]<end_time[2]){//比较日期
+								correct = true;
+							}
+						}
+					}
+					if(correct){
+						$input.each(function(){
+							time+=$(this).val()+','
+						});
+						time=time.slice(0,time.length-1);
+						this.timeChange(time);
+					}else{
+						this.$Message.warning('时间终点必须在时间起点之后!');
+					}
+				}
+			}
+		}
+	});
+
+</script>
+
+
+    <script type="text/javascript">
+        require('weather/small_weather');
+    </script>
+</body>
+</html>

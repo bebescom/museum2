@@ -1,0 +1,162 @@
+<template id="environment_relic">
+	<div id="relic">
+		<div class="relic_top">
+			<div class="title_label lf">筛选条件 : </div>
+			<ul class="filter_condition_list lf" v-for="(key,condition_type) in filter_list">
+				<li class="filter_condition_item" v-for="condition in condition_type" @click="change_filter(condition,key)">
+					{{condition}}
+					<i class="cancel_icon"></i>
+				</li>
+			</ul>
+		</div>
+		<div class="table_container">
+			<div class="table_dimmer" v-show="relic_table_data_index!=0">
+				<!-- 为table添加一个遮罩层，背景图中心Loading-->
+			</div>
+			<div class="relic_pic" v-show="big_img_status" @mouseleave="hide_big_img">
+				<!--<p>这里显示文物图片</p>-->
+				<img :src="img_src" :alt="img_src"/>
+			</div>
+			<div class="nav_pic" v-show="big_nav_status" @mouseleave="hide_big_nav" @mouseenter="in_big_nav">
+				<!--<p>这里显示地理位置信息</p>-->
+				<div class="view">
+					<div class="point" :data-title="nav_name"></div>
+					<img :src="nav_map" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+				</div>
+			</div>
+			<div class="wrapper">
+				<table class="relic_info_table">
+					<thead>
+					<tr>
+						<th class="relic_status" @mouseenter="show_filter_condition('relic_status')" @mouseleave="hide_filter_condition('relic_status')" width="10%">
+							<span>状态<i class="arrow_down"></i></span>
+							<div class="status_filter_condition left" v-show="status.relic_status" @mouseleave="hide_filter_condition('relic_status')">
+								<span v-for="status in status_list" v-show="status.name" :class="['relic_status_item',status.name]" @click="change_filter(status.name,'status')">{{status.name}}</span>
+								<!--<p>-->
+									<!--<span class="label">库藏文物</span>-->
+									<!--<span class="relic_status_item 不需修复" @click="change_filter('不需修复','status')">不需修复</span>-->
+									<!--<span class="relic_status_item 需要修复" @click="change_filter('需要修复','status')">需要修复</span>-->
+									<!--<span class="relic_status_item 亟需修复" @click="change_filter('亟需修复','status')">亟需修复</span>-->
+								<!--</p>-->
+								<!--<p>-->
+									<!--<span class="label">离库文物</span>-->
+									<!--<span class="relic_status_item 展陈 show" @click="change_filter('展陈','status')">展陈</span>-->
+									<!--<span class="relic_status_item 修复 repair" @click="change_filter('修复','status')">修复</span>-->
+									<!--<span class="relic_status_item 修复 research" @click="change_filter('科研','status')">科研</span>-->
+									<!--<span class="relic_status_item 借调 borrow_out" @click="change_filter('借调','status')">借调</span>-->
+								<!--</p>-->
+								<!--<p>-->
+									<!--<span class="label">它馆借调</span>-->
+									<!--<span class="relic_status_item 已归还 return" @click="change_filter('已归还','status')">已归还</span>-->
+									<!--<span class="relic_status_item 借入 borrow_in" @click="change_filter('借入','status')">借入</span>-->
+								<!--</p>-->
+							</div>
+						</th>
+						<th class="relic_name" @mouseenter="show_filter_condition('relic_name')" @mouseleave="hide_filter_condition('relic_name')" width="30%">
+							<span>藏品名称|总登记号<i class="arrow_down"></i></span>
+							<div class="name_filter_condition left" @mouseleave="hide_filter_condition('relic_name')" v-show="status.relic_name">
+								<div>
+									<input type="text" v-model="search_relic_name" placeholder="输入藏品名称或总登记号" @keyup.enter="exact_search(search_relic_name)"/>
+									<span class="search_icon"></span>
+									<span class="clear_icon" @click="clear_search_relic_name"></span>
+								</div>
+								<!--<p>-->
+								<!--排序: <span :class="{order:order_type=='A-Z'}" @click="change_order_type('A-Z')">A-Z</span><span :class="{order:order_type=='Z-A'}" @click="change_order_type('Z-A')">Z-A</span>-->
+								<!--</p>-->
+							</div>
+						</th>
+						<th class="relic_material" @mouseenter="show_filter_condition('relic_material')" @mouseleave="hide_filter_condition('relic_material')" width="10%">
+							<span>材质<i class="arrow_down"></i></span>
+							<div class="material_filter_condition left" @mouseleave="hide_filter_condition('relic_material')" v-show="status.relic_material">
+								<!-- 模拟材质列表 -->
+								<!--<ul class="_header">-->
+								<!--<li @click="sel_material_first_word('全部')" :class="{active:material_first_word=='全部'}" class="all_material">全部</li>-->
+								<!--<li v-for="data in material_first_word_list" @click="sel_material_first_word(data)" :class="{active:material_first_word==data}" class="_first_word">-->
+								<!--{{data}}-->
+								<!--</li>-->
+								<!--</ul>-->
+								<ul class="_body">
+									<li v-for="data in material_list" @click="change_filter(data.name,'material')" class="filtered_relic_item" v-show='data.name' :class="{active:filter_list.material.indexOf(data.name)!=-1}">
+										{{data.name}}
+									</li>
+								</ul>
+							</div>
+						</th>
+						<th class="relic_category" width="10%" @mouseenter="show_filter_condition('relic_category')" @mouseleave="hide_filter_condition('relic_category')">
+							<span>类别<i class="arrow_down"></i></span>
+							<div class="category_filter_condition right" @mouseleave="hide_filter_condition('relic_category')" v-show="status.relic_category">
+								<!-- 模拟类别列表 -->
+								<!--<ul class="_header">-->
+								<!--<li @click="sel_category_first_word('全部')" :class="{active:category_first_word=='全部'}" class="all_material">全部</li>-->
+								<!--<li v-for="data in category_first_word_list" @click="sel_category_first_word(data)" :class="{active:category_first_word==data}" class="_first_word">-->
+								<!--{{data}}-->
+								<!--</li>-->
+								<!--</ul>-->
+								<ul class="_body">
+									<li v-for="data in category_list" @click="change_filter(data.name,'category')" class="filtered_relic_item" v-show='data.name' :class="{active:filter_list.category.indexOf(data.name)!=-1}">
+										{{data.name}}
+									</li>
+								</ul>
+							</div>
+						</th>
+						<th class="relic_age" width="10%" @mouseenter="show_filter_condition('relic_age')" @mouseleave="hide_filter_condition('relic_age')">
+							<span>年代<i class="arrow_down"></i></span>
+							<div class="age_filter_condition right" @mouseleave="hide_filter_condition('relic_age')" v-show="status.relic_age">
+								<!-- 模拟年代列表 -->
+								<!--<ul class="_header">-->
+								<!--<li @click="sel_age_first_word('全部')" :class="{active:age_first_word=='全部'}" class="all_material">全部</li>-->
+								<!--<li v-for="data in age_first_word_list" @click="sel_age_first_word(data)" :class="{active:age_first_word==data}" class="_first_word">-->
+								<!--{{data}}-->
+								<!--</li>-->
+								<!--</ul>-->
+								<ul class="_body">
+									<li v-for="data in age_list" @click="change_filter(data.name,'age')" class="filtered_relic_item" v-show='data.name' :class="{active:filter_list.age.indexOf(data.name)!=-1}">
+										{{data.name}}
+									</li>
+								</ul>
+							</div>
+						</th>
+						<th class="relic_nav" width="30%" @mouseenter="show_filter_condition('relic_nav')" @mouseleave="hide_filter_condition('relic_nav')">
+							<span>位置<i class="arrow_down" v-show="env_name.length!=0"></i></span>
+							<div class="nav_filter_condition left right" @mouseleave="hide_filter_condition('relic_nav')" v-show="status.relic_nav&&env_name.length!=0">
+								<ul>
+									<li v-for="nav in env_name" track-by="$index" @click="change_filter(nav,'position')" :class="{active:filter_list.position.indexOf(nav)!=-1}">
+										{{nav}}
+									</li>
+								</ul>
+							</div>
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<!--<tr v-for="(index,data) in filtered_relic_name">-->
+					<tr v-for="(index,data) in relic_rows">
+						<td class="relic_status">
+							<!--:class="{no_need_repair:data.status=='不需修复'||data.status=='无需修复',need_repair:data.status=='需要修复',need_repair_asap:data.status=='亟需修复'||data.status=='亟待修复',in:data.status=='展出'||data.status=='修复中'||data.status=='修复'||data.status=='研究中'||data.status=='研究'||data.status=='已归还',out:data.status=='借出'||data.status=='借入'}"-->
+							<span class="relic_status_item" :class="data.status">{{data.status||'无状态信息'}}</span>
+						</td>
+						<td class="relic_name_no">
+							<p style="cursor: pointer;padding-left: 30px" @click="go_relic_detail(data.relic_no)">
+								<img v-if="data.image" :src="data.image" :alt="" @mouseenter.stop="show_big_img($event,data.image)" @mouseleave="hide_big_img"/><span class="relic_name">{{data.name}}</span><span class="relic_no">{{data.relic_no}}</span>
+							</p>
+						</td>
+						<td class="relic_material">
+							{{data.material}}
+						</td>
+						<td class="relic_category">
+							{{data.category}}
+						</td>
+						<td class="relic_age">
+							{{data.age}}
+						</td>
+						<td class="relic_nav">
+							<p><span v-if="data.map&&data.locate" class="nav_icon" @mouseenter.stop="show_big_nav($event,data.map,data.locate,data)" @mouseleave="hide_big_nav"></span>{{nav_info(data.nav)||'暂无位置信息'}}</p>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<page-list :page.sync="curr_page" :allpage="page_num" :count="total"></page-list>
+	</div>
+</template>

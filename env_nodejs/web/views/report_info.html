@@ -1,0 +1,17 @@
+<div id="reportTool" style="padding: 5px;">
+    <form action="" onsubmit="searchReport();return false;">
+        <input type="hidden" name="report_id" id="report_id">
+        类型数据：
+        <select class="easyui-combobox" name="table" id="table">
+            <option value="content">文本</option>
+            <option value="images">图片</option>
+            <option value="table_data_desc">数据描述性统计量</option>
+            <option value="table_rang_std_day">日波动及标准差统计表</option>
+            <option value="table_rang_std_date">日波动、标准差极值发生的日期列表</option>
+        </select>
+        关键字key:<input class="easyui-textbox" style="width:250px;" name="key" id="key" value=""/>
+        <button type="submit" class="easyui-linkbutton">查询</button>
+    </form>
+</div>
+
+<div id="reportDataGrid"></div>

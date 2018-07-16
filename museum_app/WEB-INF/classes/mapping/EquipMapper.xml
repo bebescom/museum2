@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.museum.mapper.EquipMapper">
+    <resultMap id="BaseResultMap" type="com.museum.pojo.Equip">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="equip_no" property="equipNo" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="equip_type" property="equipType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="usage" property="usage" jdbcType="VARCHAR"/>
+        <result column="env_no" property="envNo" jdbcType="VARCHAR"/>
+        <result column="sleep" property="sleep" jdbcType="INTEGER"/>
+        <result column="monitor_type" property="monitorType" jdbcType="VARCHAR"/>
+        <result column="ip_port" property="ipPort" jdbcType="VARCHAR"/>
+        <result column="parameter" property="parameter" jdbcType="VARCHAR"/>
+        <result column="locate" property="locate" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 根据设备状态获取设备的Map -->
+    <resultMap id="EquipStatusMap" type="com.museum.pojo.json.EquipInfo">
+        <result column="equip_no" property="equipNo" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="equip_type" property="equipType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="env_no" property="envNo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 获取囊匣传感器的基本信息 -->
+    <resultMap id="GetBoxSensorInfoMap" type="com.museum.pojo.json.GetBoxSensorInfo">
+        <result column="equip_no" property="equipNo" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="env_no" property="envNo" jdbcType="VARCHAR"/>
+        <result column="env_no" property="position" jdbcType="VARCHAR"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        id, equip_no, `name`, equip_type, status, `usage`, env_no, sleep, monitor_type, ip_port
+    </sql>
+    <sql id="Blob_Column_List">
+        parameter, locate
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from equip
+        where equip_no = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据设备状态获取设备 -->
+    <select id="findEquipsByStatus" resultMap="EquipStatusMap" parameterType="java.lang.String">
+        select
+        equip_no, `name`, equip_type, status, env_no
+        from equip
+        where status = #{status,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 根据环境编号从museum_env的equip表中获取此编号下所有的设备的编号、名称、类型 -->
+    <select id="findEquipsByEnvNoAndType" resultMap="BaseResultMap">
+        SELECT
+        equip.*
+        FROM
+        equip,
+        equip_type
+        WHERE
+        <if test="envNos!= null">
+            env_no  IN
+            <foreach item="item" index="index" collection="envNos" open="("
+                               separator="," close=")">
+              #{item}
+            </foreach>
+            AND
+        </if>
+        equip.equip_type = equip_type.equip_type
+        <if test="equipType!= null">
+            AND equip_type.type LIKE CONCAT('%',#{equipType},'%' )
+        </if>
+        <if test="equipNo!= null">
+            AND equip.equip_no LIKE CONCAT('%',#{equipNo},'%' )
+        </if>
+        <if test="status!= null and status!=''">
+            AND equip.status IN
+            <foreach item="item" index="index" collection="status" open="(" separator="," close=")" >
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY equip.equip_type,equip.env_no
+    </select>
+
+    <!-- 根据环境编号从museum_env的equip表中获取此编号下所有的设备的编号、名称、类型 -->
+    <select id="getEquipNoByEnvNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        equip_no
+        FROM
+        equip
+        WHERE
+            env_no = #{envNo,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 根据设备类型查询设备属性信息 -->
+    <select id="findEquipsByParameter" resultMap="BaseResultMap">
+        SELECT
+        equip.equip_no equip_no,
+        equip.env_no env_no,
+        equip.`name` `name`,
+        eqtype.equip_type equip_type
+        FROM
+        equip equip
+        JOIN equip_type eqtype ON equip.equip_type = eqtype.id
+        WHERE
+        eqtype.type = '离线设备'
+        AND eqtype.equip_type LIKE CONCAT('%',#{parameter},'%')
+    </select>
+
+    <!-- 设置设备的使用环境 -->
+    <update id="updateEquipEnv" parameterType="com.museum.pojo.Equip">
+        update equip
+        <set>
+            <if test="envNo != null">
+                env_no = #{equipNo,jdbcType=VARCHAR}
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR}
+            </if>
+        </set>
+        where equip_no = #{equipNo,jdbcType=VARCHAR}
+    </update>
+
+    <!-- 获取囊匣传感器的基本信息 -->
+    <select id="selectBoxEquips" resultMap="GetBoxSensorInfoMap">
+        SELECT
+        equip.equip_no equip_no,
+        equip.`name` `name`,
+        equip.env_no env_no
+        FROM
+        equip equip
+        WHERE
+        equip.equip_type = '智能囊匣传感器'
+    </select>
+
+    <!-- 根据设备编号查询设备属性信息 -->
+    <select id="findEquipsByEmployNo" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from equip
+        where equip_no = #{equipNo,jdbcType=VARCHAR}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from equip
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.museum.pojo.Equip">
+        insert into equip (id, equip_no, `name`,
+        equip_type, status, `usage`,
+        env_no, sleep, monitor_type,
+        ip_port, parameter, locate
+        )
+        values (#{id,jdbcType=INTEGER}, #{equipNo,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+        #{equipType,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{usage,jdbcType=VARCHAR},
+        #{envNo,jdbcType=VARCHAR}, #{sleep,jdbcType=INTEGER}, #{monitorType,jdbcType=VARCHAR},
+        #{ipPort,jdbcType=VARCHAR}, #{parameter,jdbcType=LONGVARCHAR}, #{locate,jdbcType=LONGVARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.museum.pojo.Equip">
+        insert into equip
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="equipNo != null">
+                equip_no,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="equipType != null">
+                equip_type,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="usage != null">
+                usage,
+            </if>
+            <if test="envNo != null">
+                env_no,
+            </if>
+            <if test="sleep != null">
+                sleep,
+            </if>
+            <if test="monitorType != null">
+                monitor_type,
+            </if>
+            <if test="ipPort != null">
+                ip_port,
+            </if>
+            <if test="parameter != null">
+                parameter,
+            </if>
+            <if test="locate != null">
+                locate,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="equipNo != null">
+                #{equipNo,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="equipType != null">
+                #{equipType,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="usage != null">
+                #{usage,jdbcType=VARCHAR},
+            </if>
+            <if test="envNo != null">
+                #{envNo,jdbcType=VARCHAR},
+            </if>
+            <if test="sleep != null">
+                #{sleep,jdbcType=INTEGER},
+            </if>
+            <if test="monitorType != null">
+                #{monitorType,jdbcType=VARCHAR},
+            </if>
+            <if test="ipPort != null">
+                #{ipPort,jdbcType=VARCHAR},
+            </if>
+            <if test="parameter != null">
+                #{parameter,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="locate != null">
+                #{locate,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.museum.pojo.Equip">
+        update equip
+        <set>
+            <if test="equipNo != null">
+                equip_no = #{equipNo,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="equipType != null">
+                equip_type = #{equipType,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="usage != null">
+                usage = #{usage,jdbcType=VARCHAR},
+            </if>
+            <if test="envNo != null">
+                env_no = #{envNo,jdbcType=VARCHAR},
+            </if>
+            <if test="sleep != null">
+                sleep = #{sleep,jdbcType=INTEGER},
+            </if>
+            <if test="monitorType != null">
+                monitor_type = #{monitorType,jdbcType=VARCHAR},
+            </if>
+            <if test="ipPort != null">
+                ip_port = #{ipPort,jdbcType=VARCHAR},
+            </if>
+            <if test="parameter != null">
+                parameter = #{parameter,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="locate != null">
+                locate = #{locate,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- 修改设备信息 -->
+    <update id="updateEquipInfo" parameterType="com.museum.pojo.Equip">
+        update equip
+        <set>
+            <if test="status != null">
+                status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="envNo != null">
+                env_no = #{envNo,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where equip_no = #{equipNo,jdbcType=VARCHAR}
+    </update>
+
+    <!-- 清除就旧设备中的环境编号 -->
+    <update id="clearEnvNo" parameterType="java.lang.String">
+        update equip
+        <set>
+            env_no = null
+        </set>
+        where equip_no = #{equipNo,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.museum.pojo.Equip">
+        update equip
+        set equip_no = #{equipNo,jdbcType=VARCHAR},
+        name = #{name,jdbcType=VARCHAR},
+        equip_type = #{equipType,jdbcType=VARCHAR},
+        status = #{status,jdbcType=VARCHAR},
+        usage = #{usage,jdbcType=VARCHAR},
+        env_no = #{envNo,jdbcType=VARCHAR},
+        sleep = #{sleep,jdbcType=INTEGER},
+        monitor_type = #{monitorType,jdbcType=VARCHAR},
+        ip_port = #{ipPort,jdbcType=VARCHAR},
+        parameter = #{parameter,jdbcType=LONGVARCHAR},
+        locate = #{locate,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.museum.pojo.Equip">
+        update equip
+        set equip_no = #{equipNo,jdbcType=VARCHAR},
+        name = #{name,jdbcType=VARCHAR},
+        equip_type = #{equipType,jdbcType=VARCHAR},
+        status = #{status,jdbcType=VARCHAR},
+        usage = #{usage,jdbcType=VARCHAR},
+        env_no = #{envNo,jdbcType=VARCHAR},
+        sleep = #{sleep,jdbcType=INTEGER},
+        monitor_type = #{monitorType,jdbcType=VARCHAR},
+        ip_port = #{ipPort,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

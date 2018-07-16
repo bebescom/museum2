@@ -1,0 +1,77 @@
+<style type="text/css">
+    #param {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    #param li {
+        margin: 5px 0;
+        line-height: 25px;
+        display: none;
+    }
+
+    #param li:first-child {
+        display: block;
+    }
+
+    #param input[name=setting] {
+        vertical-align: text-bottom;
+        margin-right: 5px;
+    }
+
+    .red {
+        color: red;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .text {
+        width: 150px;
+        height: 19px;
+    }
+
+    .select {
+        width: 156px;
+        height: 25px;
+    }
+
+    .w50 {
+        width: 50px;
+    }
+
+    .w20 {
+        width: 20px;
+    }
+
+    .w100 {
+        width: 100px;
+    }
+</style>
+<table>
+    <tr height="5"></tr>
+    <tr height="30">
+        <td width="100" align="right">目标IP:Port：</td>
+        <td><input type="text" class="text" id="send_ip_port" readonly="readonly"/> 确认tcp连接在线</td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div id="send_tab">
+                <div title="原始hex数据">
+                    <table>
+                        <tr height="160">
+                            <td width="100" align="right">下发数据(HEX)：</td>
+                            <td>
+                                <textarea id="send_hex" style="width: 400px;height:150px;"></textarea>
+                                <br/>如：55 aa 10 或 55aa10
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <input type="hidden" id="send_type"/>
+        </td>
+    </tr>
+</table>

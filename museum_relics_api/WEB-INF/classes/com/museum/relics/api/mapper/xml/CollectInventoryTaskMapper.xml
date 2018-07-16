@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.relics.api.mapper.CollectInventoryTaskMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.museum.relics.api.entity.CollectInventoryTask">
+		<id column="id" property="id" />
+		<result column="type" property="type" />
+		<result column="task_id" property="taskId" />
+		<result column="name" property="name" />
+		<result column="total_num" property="totalNum" />
+		<result column="initiator_username" property="initiatorUsername" />
+		<result column="operator_username" property="operatorUsername" />
+		<result column="start_time" property="startTime" />
+		<result column="end_time" property="endTime" />
+		<result column="desc" property="desc" />
+		<result column="result" property="result" />
+		<result column="status" property="status" />
+		<result column="timestamp" property="timestamp" />
+	</resultMap>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into inventory_task(type,`name`,task_id, total_num,initiator_username,operator_username,start_time,end_time,`desc`,result,`status`,`timestamp`)
+		values(#{type}, #{name}, #{taskId}, #{totalNum}, #{initiatorUsername}, #{operatorUsername}, #{startTime}, #{endTime}, #{desc}, #{result}, #{status}, #{timestamp})
+	</insert>
+</mapper>

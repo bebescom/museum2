@@ -1,0 +1,52 @@
+.vertical-center-modal{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.vertical-center-modal .ivu-modal{
+    top: 0;
+}
+.modalTabelContainer{
+    /*border:1px solid red;*/
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: scroll;
+}
+.modalTabelContainer table{
+    width:100%;
+    border-collapse: collapse;
+}
+.modalTabelContainer table tr{
+    height:40px;
+}
+.modalTabelContainer table tbody tr td{
+    text-align: center;
+}
+.modalTabelContainer table thead tr{
+    background-color:#D4EAE9;
+}
+.modalTabelContainer table tbody tr:nth-child(even){
+    background-color:#FFFFFF;
+}
+.modalTabelContainer table tbody tr:nth-child(odd){
+    background-color:#F3FBF9;
+}
+.topFunction button:not(:last-child){
+    margin-right: 10px;
+}
+.Management_information .treeSelect {
+    max-height: 265px;
+    /* overflow-y: scroll; */
+    /* margin-right: 13px; */
+    border: 1px solid #ccc;
+    overflow-y: scroll;
+    position: absolute;
+    width: 90%;
+    /* display: none; */
+    z-index: 999;
+    background: #fff;
+    color: #73797f;
+}
+.communicationInfo input,.communicationInfo select{
+    padding-left:5px;
+}

@@ -1,0 +1,198 @@
+.contentContainer{
+    position: absolute;
+    left: 94px;
+    top: 83px;
+    bottom:0;
+    right:0;
+    overflow: auto;
+    padding:0 15px 15px 15px;
+    background-color:#ecf1f5;
+}
+.contentContainer .containerTitle{
+    background-color:#fff;
+    height:50px;
+    line-height: 50px;
+    font-weight: 800;
+    box-shadow: -1px 1px 3px 1px #ccc;
+    position: absolute;
+    left:0;
+    top:0;
+    right:0;
+    z-index:20;
+}
+.containerTitle>p{
+    float: left;
+    padding:0 15px;
+    cursor:pointer;
+    font-size: 16px;
+    color: #282a33;
+}
+.containerTitle ._btn{
+    display: inline-block;
+    text-align: center;
+    width:70px;
+    height:32px;
+    line-height: 32px;
+    border:1px solid #c5c9ce;
+    border-radius:5px;
+    font-size:14px;
+    color:#6a707f;
+    cursor:pointer;
+    font-weight: normal;
+}
+.containerTitle ._btn:hover{
+    background: #d4eae9;
+    border-color: #d4eae9;
+    color: #31bfa1;
+}
+.containerTitle ._btn.saveBtn{
+    float: right;
+    position: absolute;
+    right:30px;
+    top:9px;
+}
+.containerTitle ._btn.saveBtn._disabled{
+    cursor: not-allowed;
+    background: #ddd;
+    border-color: #ddd;
+    color:#6a707f;
+}
+.contentContainer .mainContent{
+    /*border:1px solid red;*/
+    position: absolute;
+    top:50px;
+    right:0;
+    left:0;
+    bottom:0;
+    overflow: auto;
+}
+.contentContainer .mainContent .loading{
+    position: fixed;
+    z-index:9999;
+    top:83px;
+    bottom:0;
+    left:94px;
+    right:0;
+    background: rgba(255,255,255,.5) url("../common/images/loading.gif") no-repeat center center;
+}
+.contentContainer .mainContent .panelWrap{
+    margin:15px;
+}
+.contentContainer .mainContent .panelWrap ._panel{
+    box-shadow: -1px 1px 3px 1px #ccc;
+    padding:20px;
+    background-color:#fff;
+    border-radius:5px;
+}
+.contentContainer .mainContent .panelWrap ._panel:not(:last-child){
+    margin-bottom:10px;
+}
+.contentContainer .mainContent .panelWrap ._panel ._panelTitle{
+    font-size:16px;
+    color:#282a33;
+    font-weight: normal;
+    position: relative;
+    padding-left:15px;
+    margin-bottom:10px;
+}
+.contentContainer .mainContent .panelWrap ._panel ._panelTitle ._panelTitleBorder{
+    display: inline-block;
+    height:16px;
+    width:1px;
+    position: absolute;
+    left:0;
+    top:4px;
+    border:1px solid #1bbc9b;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form{
+
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem{
+    box-sizing: border-box;
+    height:40px;
+    line-height:40px;
+    font-size: 14px;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem .ivu-switch-checked{
+    /*border-color: #1bbc9b;*/
+    /*background-color: #1bbc9b;*/
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._label{
+    width:100px;
+    padding-left:15px;
+    line-height: normal;
+    color:#6a707f;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._inputWrap{
+    padding-left:10px;
+    position: relative;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._inputWrap ._icon{
+    display: inline-block;
+    width:16px;
+    height:16px;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._inputWrap ._icon._city{
+    background:url('../common/images/navIcon.png') no-repeat 0 0;
+    position: absolute;
+    right:5px;
+    top:11px;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._input{
+    border:1px solid #c5c9ce;
+    line-height:32px;
+    height:32px;
+    border-radius:5px;
+    padding:0 10px;
+    outline: none;
+    width:290px;
+    color:#6a707f;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._input._error{
+    color:#ff5151;
+    border-color:#ff5151;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._message{
+    color:#6acfb6;
+    box-sizing: border-box;
+    padding-left:10px;
+    line-height: normal;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._message._error{
+    color:#ff5151;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem ._input::placeholder{
+    color:#c7c9cd;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem .warning_switch{
+    float: left;
+    margin: 10px 0;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem .warning_selectbox{
+    position: relative;
+    float: left;
+    margin: 0 5px 0 10px;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem .warning_date{
+    float: left;
+    margin: 2px 5px;
+}
+.contentContainer .mainContent .panelWrap ._panel ._form ._formItem .warning_font{
+    white-space: nowrap;
+    /*float: left;*/
+    /*margin: 12px 5px;*/
+}
+.changeLine{
+    display: none;
+}
+@media only screen and (min-width:768px) and (max-width: 1280px) {
+    .changeLine{
+        display: block;
+    }
+    .contentContainer .mainContent .panelWrap ._panel ._form ._formItem .change_line_switch{
+        margin: 28px 0;
+    }
+    .param_o{
+        padding-left: 6px;
+    }
+}

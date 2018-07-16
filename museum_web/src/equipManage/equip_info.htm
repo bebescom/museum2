@@ -1,0 +1,81 @@
+<div class="header">
+    <div class="title cursor_pointer" @click="goBack">
+        <Icon type="chevron-left"></Icon>
+        {{equip_info.name}}
+    </div>
+    <div class="componentWrap">
+        <Date-picker
+                type="datetimerange"
+                placeholder="选择日期和时间"
+                :options="dateOpitons"
+                confirm
+                format="yyyy-MM-dd HH:mm"
+                :value.sync="dateTime"
+                @on-ok="ok_time"
+                @on-change="change_time"
+                style="width: 300px">
+        </Date-picker>
+    </div>
+    <div class="right_area">
+        <i-button @click="exportData">导出数据</i-button>
+        <i-button @click="set_equip">设置设备</i-button>
+    </div>
+</div>
+
+<div class="body">
+
+    <Row :gutter="8">
+
+        <i-col span="5" class="info-left">
+
+            <equip-left v-ref:equip_left :edit_equip="set_equip"></equip-left>
+
+        </i-col>
+
+        <i-col span="19" class="info-right">
+            <Card dis-hover>
+                <Tabs :animated="false" v-if="equip_info.monitor_type !== '网络设备'">
+                    <Tab-pane label="监测曲线" key="monitorCurve">
+                        <monitor-curve v-ref:echart></monitor-curve>
+                    </Tab-pane>
+                    <Tab-pane label="原始数据" key="originalData">
+                        <original-data v-ref:raw_data></original-data>
+                    </Tab-pane>
+                    <Tab-pane label="历史信息" key="historyInfo">
+                        <history-info v-ref:history></history-info>
+                    </Tab-pane>
+                    <Tab-pane label="设备位置" key="equipPosition">
+                        <equip-position v-ref:position></equip-position>
+                    </Tab-pane>
+                </Tabs>
+                <Tabs :animated="false" v-if="equip_info.monitor_type === '网络设备'">
+                    <Tab-pane label="路由信息" key="routerInfo">
+                        <router-info v-ref:router_info></router-info>
+                    </Tab-pane>
+                    <Tab-pane label="历史信息" key="historyInfo">
+                        <history-info v-ref:history></history-info>
+                    </Tab-pane>
+                    <Tab-pane label="设备位置" key="equipPosition">
+                        <equip-position v-ref:position></equip-position>
+                    </Tab-pane>
+                </Tabs>
+            </Card>
+        </i-col>
+
+    </Row>
+</div>
+<set-equip v-ref:set_equip></set-equip>
+
+__inline("components/equip_left.vue")
+
+__inline("components/monitorCurve.vue")
+
+__inline("components/originalData.vue")
+__inline("components/historyInfo.vue")
+__inline("components/equipPosition.vue")
+__inline("components/setEquip.vue")
+
+__inline("components/router.vue")
+
+__inline("/common/components/newFilterComponent.vue")
+

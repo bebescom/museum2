@@ -1,0 +1,29 @@
+<template id="The_wind_rose">
+	<div class="data_box" id="the_wind_rose">
+		
+	<div id="container" style="min-width: 420px; max-width: 600px; height: 400px; margin: 0 auto"></div>
+		<div style="display:none">
+		    <!-- Source: http://or.water.usgs.gov/cgi-bin/grapher/graph_windrose.pl -->
+		    <table id="freq" border="0" cellspacing="0" cellpadding="0">
+		        <tr nowrap bgcolor="#CCCCFF">
+		            <th colspan="9" class="hdr">Table of Frequencies (percent)</th>
+		        </tr>
+		        <tr nowrap bgcolor="#CCCCFF">
+		            <th class="freq">Direction</th>
+		            <th class="freq">零级</th>
+		            <th class="freq">一级</th>
+		            <th class="freq">二级</th>
+		            <th class="freq">三级</th>
+		            <th class="freq">四级</th>
+		            <th class="freq">五级</th>
+		            <th class="freq">>五级</th>
+		        </tr>
+
+		        <tr nowrap v-for="(name,key) in data">
+		        	<td class="dir" v-text="name"></td>
+		        	<td class="data" v-for="n in key" v-text="n" track-by="$index"></td>
+		        </tr>
+		    </table>
+		</div>
+	</div>
+</template>

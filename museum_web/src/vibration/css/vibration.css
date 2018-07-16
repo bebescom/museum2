@@ -1,0 +1,22 @@
+
+#Integrated {
+    padding: 10px 10px 10px 0;
+}
+
+#my_chart {
+    height: 400px;
+    background: #fff;
+}
+
+.header>div.data_select {
+    position: absolute;
+    top: 10px;
+    right: 300px;
+}
+.data_select .ivu-date-picker .ivu-input{
+    height: 22px;
+}
+
+.data_select .ivu-input-icon+.ivu-input {
+     padding-right: 0;
+}

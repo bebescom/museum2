@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.mapper.EnvMapper">
+    <resultMap id="BaseResultMap" type="com.museum.pojo.Env">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="env_no" jdbcType="VARCHAR" property="envNo"/>
+        <result column="parent_env_no" jdbcType="VARCHAR" property="parentEnvNo"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="map" jdbcType="VARCHAR" property="map"/>
+        <result column="locate" jdbcType="VARCHAR" property="locate"/>
+        <result column="sort" jdbcType="INTEGER" property="sort"/>
+        <result column="size" jdbcType="VARCHAR" property="size"/>
+        <result column="volume" jdbcType="VARCHAR" property="volume"/>
+    </resultMap>
+    <!--查询所以环境map-->
+    <resultMap id="findAllEnvironsMap" type="com.museum.pojo.json.AllEnviron">
+        <result column="f_env_no" property="envNo" jdbcType="VARCHAR"/>
+        <result column="f_env_name" property="envName" jdbcType="VARCHAR"/>
+        <collection property="envs" ofType="com.museum.pojo.json.EnvHall">
+            <result column="h_env_no" property="envNo" jdbcType="VARCHAR"/>
+            <result column="h_env_name" property="envName" jdbcType="VARCHAR"/>
+            <collection property="envs" ofType="com.museum.pojo.json.EnvShowCase">
+                <result column="c_env_no" property="envNo" jdbcType="VARCHAR"/>
+                <result column="c_env_name" property="envName" jdbcType="VARCHAR"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <resultMap id="findAllSmallEnvironsMap" type="com.museum.pojo.json.SmallEnviron">
+        <result column="h_env_no" property="envNo" jdbcType="VARCHAR"/>
+        <result column="h_env_name" property="envName" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="searchEnvInfoMap" type="com.museum.pojo.json.SearchEnv">
+        <result column="env_no" property="envNo" jdbcType="VARCHAR"/>
+        <result column="env_name" property="envName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, env_no, parent_env_no, `name`, `type`, map, locate, sort, `size`, volume
+    </sql>
+
+    <!-- 获取所有环境信息 -->
+    <select id="findAllEnvirons" resultMap="findAllEnvironsMap">
+       SELECT
+            envf.env_no f_env_no,
+            envf.`name` f_env_name,
+            envh.env_no h_env_no,
+            envh.`name` h_env_name,
+            envc.env_no c_env_no,
+            envc.`name` c_env_name
+        FROM
+            env envf
+        LEFT JOIN env envh ON envf.env_no = envh.parent_env_no
+        LEFT JOIN env envc ON envc.parent_env_no = envh.env_no
+        WHERE
+            envf.type = '楼层'
+        ORDER BY
+            envf.parent_env_no,
+            envf.sort DESC,
+            envf.id ASC,
+            envh.sort DESC,
+            envh.id ASC
+    </select>
+    <select id="selectEnvNo" resultType="java.lang.String">
+        select env_no from env where parent_env_no=#{parentNo}
+    </select>
+    <!-- 通过token值获取到用户的Id -->
+    <select id="getUserIdByToken" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        user_id
+        FROM
+        app_token
+        WHERE
+        token = #{token,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 小环境的搜索 -->
+    <select id="searchSmallEnv" resultMap="searchEnvInfoMap">
+        SELECT
+        envh.env_no env_no,
+        envh.`name` env_name
+        FROM
+        env envf
+        RIGHT JOIN env envh ON envf.env_no = envh.parent_env_no
+        WHERE
+        envf.type = '楼层'
+        AND envh.`name` LIKE CONCAT(
+        '%',
+        #{envName},'%')
+        ORDER BY
+            envf.parent_env_no,
+            envf.sort DESC,
+            envf.id ASC,
+            envh.sort DESC,
+            envh.id ASC
+    </select>
+
+    <!-- 微环境的搜索 -->
+    <select id="searchMiniEnv" resultMap="searchEnvInfoMap">
+        SELECT
+        envc.env_no env_no,
+        envc.`name` env_name
+        FROM
+        env envf
+        RIGHT JOIN env envh ON envf.env_no = envh.parent_env_no
+        RIGHT JOIN env envc ON envh.env_no = envc.parent_env_no
+        WHERE
+        envf.type = '楼层'
+        AND envc.`name` LIKE CONCAT('%',#{envName},'%')
+        ORDER BY
+            envf.parent_env_no,
+            envf.sort DESC,
+            envf.id ASC,
+            envh.sort DESC,
+            envh.id ASC
+    </select>
+
+    <!-- 获取环境的编号、名称 -->
+    <select id="getEnvByKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        env
+        WHERE
+        env_no = #{key,jdbcType=VARCHAR}
+    </select>
+
+    <select id="findAllSmallEnvirons" resultMap="findAllSmallEnvironsMap">
+        SELECT
+            envh.env_no h_env_no,
+            envh.`name` h_env_name
+        FROM
+            env envf
+        RIGHT JOIN env envh ON envf.env_no = envh.parent_env_no
+        WHERE
+            envf.type = '楼层'
+        ORDER BY
+            envf.parent_env_no,
+            envf.sort DESC,
+            envf.id ASC,
+            envh.sort DESC,
+            envh.id ASC
+    </select>
+    <select id="findAllSmallEnvironsByBuildingNo" resultMap="findAllSmallEnvironsMap">
+        SELECT
+        envh.env_no h_env_no,
+        envh.`name` h_env_name
+        FROM
+        env envf
+        RIGHT JOIN env envh ON envf.env_no = envh.parent_env_no
+        RIGHT JOIN env envb ON envb.env_no = envf.parent_env_no
+        WHERE
+        envf.type = '楼层'
+        AND envb.env_no =#{buildingNo}
+        ORDER BY
+            envf.parent_env_no,
+            envf.sort DESC,
+            envf.id ASC,
+            envh.sort DESC,
+            envh.id ASC
+    </select>
+    <select id="findSmallEnvironByEnvNo" resultMap="findAllSmallEnvironsMap">
+        SELECT
+        envh.env_no h_env_no,
+        envh.`name` h_env_name
+        FROM
+        env envf
+        RIGHT JOIN env envh ON envf.env_no = envh.parent_env_no
+        WHERE
+        envf.type = '楼层'
+        AND envh.env_no=#{envNo}
+        ORDER BY
+            envf.parent_env_no,
+            envf.sort DESC,
+            envf.id ASC,
+            envh.sort DESC,
+            envh.id ASC
+    </select>
+    <!-- 根据环境编号从museum_base的env表中获取此编号的position -->
+    <select id="getPositionByEnvNo" parameterType="java.lang.String" resultMap="findAllEnvironsMap">
+        SELECT
+        envf.env_no f_env_no,
+        envf.`name` f_env_name,
+        envh.env_no h_env_no,
+        envh.`name` h_env_name,
+        envc.env_no c_env_no,
+        envc.`name` c_env_name
+        FROM
+        env envc
+        LEFT JOIN env envh ON envh.env_no = envc.parent_env_no
+        LEFT JOIN env envf ON envh.parent_env_no = envf.env_no
+        WHERE
+        envc.env_no = #{envNo,jdbcType=VARCHAR}
+    </select>
+
+
+    <!-- 根据环境名称模糊查询出符合要求的环境信息 -->
+    <select id="findPositionByParam" parameterType="java.lang.String" resultMap="findAllEnvironsMap">
+        SELECT
+        envf.env_no f_env_no,
+        envf.`name` f_env_name,
+        envh.env_no h_env_no,
+        envh.`name` h_env_name,
+        envc.env_no c_env_no,
+        envc.`name` c_env_name
+        FROM
+        env envc
+        LEFT JOIN env envh ON envh.env_no = envc.parent_env_no
+        LEFT JOIN env envf ON envh.parent_env_no = envf.env_no
+        WHERE
+        envc.`name` LIKE CONCAT('%',#{parameter},'%')
+    </select>
+
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from env
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByEnvNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from env
+        where env_no = #{envNo,jdbcType=VARCHAR}
+    </select>
+    <!-- 获取全部楼栋信息 -->
+    <select id="findBuildings" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from env
+        where type = '楼栋'
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from env
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.museum.pojo.Env">
+        insert into env (id, env_no, parent_env_no,
+        name, type, map, locate,
+        sort, size, volume)
+        values (#{id,jdbcType=INTEGER}, #{envNo,jdbcType=VARCHAR}, #{parentEnvNo,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{map,jdbcType=VARCHAR}, #{locate,jdbcType=VARCHAR},
+        #{sort,jdbcType=INTEGER}, #{size,jdbcType=VARCHAR}, #{volume,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.museum.pojo.Env">
+        insert into env
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="envNo != null">
+                env_no,
+            </if>
+            <if test="parentEnvNo != null">
+                parent_env_no,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="map != null">
+                map,
+            </if>
+            <if test="locate != null">
+                locate,
+            </if>
+            <if test="sort != null">
+                sort,
+            </if>
+            <if test="size != null">
+                size,
+            </if>
+            <if test="volume != null">
+                volume,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="envNo != null">
+                #{envNo,jdbcType=VARCHAR},
+            </if>
+            <if test="parentEnvNo != null">
+                #{parentEnvNo,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="map != null">
+                #{map,jdbcType=VARCHAR},
+            </if>
+            <if test="locate != null">
+                #{locate,jdbcType=VARCHAR},
+            </if>
+            <if test="sort != null">
+                #{sort,jdbcType=INTEGER},
+            </if>
+            <if test="size != null">
+                #{size,jdbcType=VARCHAR},
+            </if>
+            <if test="volume != null">
+                #{volume,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 根据envNo修改环境的名称 -->
+    <update id="updateNameByEnvNo" parameterType="com.museum.pojo.Env">
+        update env
+        <set>
+            <if test="name != null ">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where env_no = #{envNo,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.museum.pojo.Env">
+        update env
+        set env_no = #{envNo,jdbcType=VARCHAR},
+        parent_env_no = #{parentEnvNo,jdbcType=VARCHAR},
+        name = #{name,jdbcType=VARCHAR},
+        type = #{type,jdbcType=VARCHAR},
+        map = #{map,jdbcType=VARCHAR},
+        locate = #{locate,jdbcType=VARCHAR},
+        sort = #{sort,jdbcType=INTEGER},
+        size = #{size,jdbcType=VARCHAR},
+        volume = #{volume,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

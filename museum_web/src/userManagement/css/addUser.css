@@ -1,0 +1,48 @@
+#addUserT .header{
+    height: 49px;
+    padding: 0 17px 0 15px;
+    margin-left: -15px;
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    line-height: 50px;
+    position: relative;
+    z-index: 12;
+    box-shadow: -1px 1px 3px 1px #ccc;
+}
+#addUserT .header .reset,
+#addUserT .header .save{
+    position: absolute;
+    top: 10px;
+}
+#addUserT .header .reset{
+    right: 130px;
+}
+#addUserT .header .save{
+    right: 50px;
+}
+#addUserT .content form{
+    margin:auto;
+    width: 98%;
+    max-height: 575px;
+    overflow-y: scroll;
+    /*padding-top: 40px;*/
+    /*border: 1px solid #ddd;*/
+    /*border-radius: 5px;*/
+    /*box-shadow: -1px 0 1px #ddd, !*左边阴影*!*/
+                /*1px 0 1px #ddd, !*右边阴影*!*/
+                /*0 -1px 1px #ddd, !*顶部阴影*!*/
+                /*0 1px 1px #ddd;*/
+    /*background-color: #f5f7f9;*/
+}
+#addUserT .content {
+    margin-top: 20px;
+}
+#addUserT .header .title{
+    font-size: 16px;
+    color: #282a33;
+    margin-right: 36px;
+    font-weight: 500;
+}
+#addUserT .headerTitle{
+    cursor: pointer;
+}

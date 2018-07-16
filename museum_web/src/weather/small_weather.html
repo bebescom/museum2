@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>小型气象站数据</title>
+</head>
+<body>
+    <div class="shadow"></div>
+    __inline("../common/header.html")
+
+    <div id="content">
+        <time-box @time-change="timeChange" :time.sync="time"></time-box>
+        <div class="comeBack" @click="camBack">返回</div>
+
+        __inline('./components/small_weather_CO2.vue')
+        __inline('./components/small_weather_SO2.vue')
+        __inline('./components/small_weather_NO.vue')
+        __inline('./components/small_weather_O3.vue')
+        __inline('./components/small_weather_The_wind_rose.vue')
+
+
+        <small-co2></small-co2>
+        <small-so2></small-so2>
+        <small-no></small-no>
+        <small-o3></small-o3>
+        <wind-rose></wind-rose>
+
+    </div>
+
+    __inline('./timeBox.html')
+
+    <script type="text/javascript">
+        require('./small_weather');
+    </script>
+</body>
+</html>

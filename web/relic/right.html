@@ -1,0 +1,133 @@
+<div class="right" v-cloak>
+    <div class="monitor">
+
+        <div class="title" v-text="configLanguage.microEnvMonitor"></div>
+        <div class="gray chooceTime">
+            <h4 class="timePickerLabel">时间选择：</h4>
+            <!--<span class="ower" data-time="24h">24小时</span>
+            <span data-time="yesterday">昨天</span>
+            <span data-time="today">今天</span>
+            <span data-time="week">本周</span>
+            <span data-time="month">本月</span>
+            <span class="diy" data-time="diy">自定义</span>
+
+            <div class="diy_date">
+                自定义
+                <input onclick="laydate()" id="start_date" type="text" value=""/>
+                至
+                <input onclick="laydate()" id="end_date" type="text" value=""/>
+                <button type="button">确定</button>
+            </div>-->
+            <div class="diy">
+                <Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" class="timePicker" :value="timeArr" placeholder="选择日期和时间" :clearable="false" :options="timePickerOption" style="width: 300px" @on-change="changeTime" placement="bottom-start" :editable="false" @on-clear="resetTime" @on-ok="requireData" @on-open-change="saveOldTime"></Date-picker>
+            </div>
+        </div>
+            <div class="wrapper inline">
+                <div class="view" v-if="paramsList">
+                    <label v-for="item in paramsList">
+                        <input v-model="checkList" data-key type="checkbox" :data-key="item.param" :value="item.param"/>
+                        <p>
+                            {{item.name}}: <span>{{item.value}}{{item.unit}}</span>
+                        </p>
+                    </label>
+                </div>
+                <div class="inline">
+                    <!--<div class="message">暂无数据</div>-->
+                    <div class="echartsArea" id="echartsArea"></div>
+                </div>
+            </div>
+
+            <div class="echartsGauge inline" id="echartsGauge"></div>
+            <div class="echartsRadar inline" id="echartsRadar"></div>
+
+            <div class="diyLine inline" v-show="relicView.parent_env_no">
+                <div class="topBtn">
+                    <p><span></span><font>湿度</font></p>
+                    <p><span></span><font>温度</font></p>
+                </div>
+                <div class="dataView">
+                    <div class="lineView">
+                        <div>
+                            <p class="title">湿度稳定性</p>
+                            <p class="wrap humidity"><span></span></p>
+                        </div>
+                        <div>
+                            <p class="title">温度稳定性</p>
+                            <p class="wrap temperature"><span class="last"></span></p>
+                        </div>
+                    </div>
+                    <div class="word">
+                        <p class="humidity"></p>
+                        <p class="temperature"></p>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+<div class="monitor equip" v-if="sensor_list.length!=0">
+    <span class="title" v-text="configLanguage.withArkMonitorEquip"></span>
+    <table>
+        <thead v-show="sensor_list.length!=0">
+        <tr>
+            <td>设备名称</td>
+            <td>状态</td>
+            <td>采集时间</td>
+            <td>温度<br><span>(℃)</span></td>
+            <td>湿度<br><span>(%)</span></td>
+            <td>VOC<br><span>(ppb)</span></td>
+            <td>CO₂<br><span>(ppm)</span></td>
+            <td>累计光照<br><span>(lx)</span></td>
+            <td>紫外<br><span>(μw/cm²)</span></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in sensor_list">
+            <!--../capsule/#!/components/equip_details/{{item.equip_no}}-->
+            <td><a :href="goEquipUrl(item)">{{item.equip_type}}-{{item.name}}</a></td>
+            <td v-text="item.status" v-bind:class="[(item.status=='正常')?'status':'noStatus']"></td>
+            <td v-text="item.equip_time"></td>
+            <td v-text="item.temperature"></td>
+            <td v-text="item.humidity"></td>
+            <td v-text="item.voc"></td>
+            <td v-text="item.co2"></td>
+            <td v-text="item.light"></td>
+            <td v-text="item.uv"></td>
+        </tr>
+        <tr v-show="sensor_list.length==0">
+            <td class="no_border" colspan="9">该柜无其他监测设备</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="regulation equip" v-if="control_list.length!=0">
+    <div class="title">同柜调控设备</div>
+    <table>
+        <thead v-show="control_list.length!=0">
+        <tr>
+            <td>设备名称</td>
+            <td>状态</td>
+            <td>采集时间</td>
+            <td>调控参数</td>
+            <td>实际值</td>
+            <td>目标值</td>
+            <td>计划更换日期</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in control_list">
+            <td><a href="../equip?equip_no={{item.equip_no}}">{{item.equip_type}}-{{item.name}}</a></td>
+            <td v-text="item.status" v-bind:class="[(item.status=='正常')?'status':'noStatus']"></td>
+            <td v-text="item.equip_time"></td>
+            <td v-text="item.param"></td>
+            <td v-text="item.humidity"></td>
+            <td v-text="item.target"></td>
+            <td v-text="item.replace_time"></td>
+        </tr>
+        <tr v-show="control_list.length==0">
+            <td class="no_border" colspan="7">该柜无其他调控设备</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</div>

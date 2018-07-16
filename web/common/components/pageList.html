@@ -1,0 +1,198 @@
+<style>
+	/*footer*/
+	.clear:after{
+		clear: both;
+		content: '';
+		zoom: 1;
+		display: block;
+	}
+	.equipFooter:after{
+		clear: both;
+		content: '';
+		display: block;
+		zoom:1;
+		height: 2px;
+	}
+	.pageList{
+	    position: relative;
+    	/*left: -50%;*/
+		/*页码数字改为居左*/
+		left:0;
+	}
+	.pageList li {
+	    list-style: none;
+	    padding: 0 8px !important;
+	    height: 31px;
+		line-height: 31px;
+	    float: left;
+	    text-align: center;
+	    font-size: 16px;
+	    color: #9fa3ac;
+	    cursor: pointer;
+	}
+	.pageList li.active {
+	    color: #1bbc9b;
+	    cursor: pointer;
+	}
+	.relative{
+	    position: relative;
+	    display: inline-block;
+	    /*left: 50%;*/
+		/*页码数字改为居左*/
+		left:0;
+	}
+	.count{
+        float: right;
+		font-size: 16px;
+		color: #9fa3ac;
+        height:31px;
+        line-height: 31px;;
+	}
+</style>
+<!-- 分页 页码 模板 -->
+<template id="pageList">
+	<div class="equipFooter">
+		<div class="relative" v-show="count!=0">
+			<ul @click="changePage" class="pageList clear">
+				<li class="back" @click="back"></li>
+				<li :class="{'active':page==1}">1</li>
+				<li class="omit" v-show="key.left">...</li>
+				<li v-for="num in pages" :class="{'active':page==num}" v-text="num"></li>
+				<li class="omit" v-show="key.right">...</li>
+				<li v-text="allpage" v-show="allpage>1" :class="{'active':page==allpage}"></li>
+				<li class="next" @click="next"></li>
+			</ul>
+		</div>
+		<span class="count" style="margin-right:20px;">数据总数：{{count||0}}</span>
+	</div>
+</template>
+
+
+<script>
+	Vue.component('page-list',{
+		template:'#pageList',
+		props:['page','allpage','count'],
+		computed:{
+			pages:function(){
+				var obj=fn_each(this.page,this.allpage);
+				this.key.left=obj.left;
+				this.key.right=obj.right;
+				return obj.arr;
+			}
+		},
+		data:function(){
+			return {
+				key:{
+					left:false,
+					right:false
+				}
+			}
+		},
+		methods:{
+			changePage:function(e){
+				var element=e.target||e.srcElement,
+					newPage=parseInt($(element).html());
+				if(isNaN(newPage)){
+					return false;
+				}
+				this.page=newPage;
+				this.changeActive();
+			},
+			back:function(){
+				this.page--;
+				if(this.page<1){
+					this.page=1;
+				}
+				this.changeActive();
+			},
+			next:function(){
+				this.page++;
+				if(this.page>this.allpage){
+					this.page=this.allpage||1;
+				}
+				this.changeActive();
+			},
+			changeActive:function(){
+				this.$dispatch('turn-page');
+			}
+		},
+		events:{
+			'resetPage':function(page){
+//			    console.log(page);
+				this.page=page||1;
+				this.changeActive();
+			}
+		}
+	});
+	
+	var fn_each=each(isAllPage_10,isPage_between,isPage_1_4,isPage_Max_4);
+	
+	function each(){
+		var fn_list=Array.prototype.slice.call(arguments);
+		return function(){
+			for(var i=0,len=fn_list.length;i<len;i++){
+				var key=fn_list[i].apply(this,arguments);
+				if(key!==false){
+					return key;
+				}
+			}
+		}
+	}
+	function isAllPage_10(page,allPage){		//页码总数9个及9个以内
+		var arr=[];
+		if(allPage<=10){
+			for(var i=2;i<allPage;i++){
+				arr.push(i);
+			}
+			return {
+				arr:arr,
+				left:false,
+				right:false
+			};
+		}
+		return false;
+	}
+	function isPage_1_4(page,allPage){			//页码在1到其后面4个
+		var arr=[];
+		if(page<=5){
+			for(var i=2;i<=6;i++){
+				arr.push(i);
+			}
+			return {
+				arr:arr,
+				left:false,
+				right:true
+			};
+		}
+		return false;
+	}
+	function isPage_Max_4(page,allPage){			//页码在MAX页到其前面4个
+		var arr=[];
+		if(page>=(allPage-4)){
+			for(var i=allPage-1;i>=allPage-5;i--){
+				arr.push(i);
+			}
+			return {
+				arr:arr.reverse(),
+				left:true,
+				right:false
+			};
+		}
+		return false;
+	}
+	function isPage_between(page,allPage){			//页码同时不满足前两种条件
+		var arr=[];
+		if(page>5&&page<(allPage-4)){
+			for(var i=page-2;i<=page+2;i++){
+				arr.push(i);
+			}
+			return {
+				arr:arr,
+				left:true,
+				right:true
+			};
+		}
+		return false;
+	}
+
+</script>

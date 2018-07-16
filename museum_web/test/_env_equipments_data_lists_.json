@@ -1,0 +1,31 @@
+{
+  "total": 5,
+  "rows": [
+    {
+      "equip_no": "6250000001100100090",
+      "equip_time": "2016-06-11 23:50:11",
+      "temperature": "26.46",
+      "humidity": "0.57",
+      "voc": null,
+      "co2": null,
+      "light": "58",
+      "uv": "55.80",
+      "organic": null,
+      "inorganic": null,
+      "sulfur": null
+    },
+    {
+      "equip_no": "6250000001100100090",
+      "equip_time": "2016-06-11 23:50:11",
+      "temperature": "26.46",
+      "humidity": "0.57",
+      "voc": null,
+      "co2": null,
+      "light": "58",
+      "uv": "55.80",
+      "organic": null,
+      "inorganic": null,
+      "sulfur": null
+    }
+  ]
+}

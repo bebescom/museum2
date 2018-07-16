@@ -1,0 +1,196 @@
+<template id="relicsOutStorage">
+    <div class="moduleContainer">
+        <header>
+            <div @click="goBack" class="topTitle">
+                <Icon type="chevron-left"></Icon>藏品出库
+            </div>
+            <div class="filterWrap">
+                <filter-component type="relic_manage" hide-type="out"></filter-component>
+            </div>
+            <div class="topFunction">
+                <i-button type="ghost" @click="okHandler">出库</i-button>
+            </div>
+        </header>
+        <section>
+            <!--&lt;!&ndash;藏品筛选&ndash;&gt;-->
+            <!--<cultural-relics @new-data="resetOption" :relic_filter="relic_filter" :hide_filter="hideFilter"></cultural-relics>-->
+
+            <div class="relicTableContainer">
+                <div class="relic_pic" v-show="big_img_status" @mouseleave="hide_big_img">
+                    <!--<p>这里显示藏品图片</p>-->
+                    <img :src="img_src" :alt="img_src"/>
+                </div>
+                <div class="nav_pic" v-show="big_nav_status" @mouseleave="hide_big_nav" @mouseenter="in_big_nav">
+                    <!--<p>这里显示地理位置信息</p>-->
+                    <div class="view">
+                        <div class="point" :data-title="nav_name"></div>
+                        <img :src="nav_map" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+                    </div>
+                </div>
+                <!--显示表格数据-->
+                <section class="tableWrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="4%">
+                                <!--:indeterminate="true" 部分选中状态-->
+                                <input type="checkbox" v-model="allStatus" @click="changeStatus"/>
+                            </th>
+                            <th>
+                                状态
+                            </th>
+                            <th>
+                                藏品名称
+                            </th>
+                            <th>
+                                总登记号
+                            </th>
+                            <th>
+                                材质
+                            </th>
+                            <th>
+                                类型
+                            </th>
+                            <th>
+                                等级
+                            </th>
+                            <th>
+                                年代
+                            </th>
+                            <th>
+                                位置
+                            </th>
+                            <!--<th>-->
+                                <!--最新数据-->
+                            <!--</th>-->
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="relic in tableData">
+                            <td>
+                                <!--:checked="selRelics.indexOf(relic.relic_no)!=-1"-->
+                                <input type="checkbox" v-if="relic&&relic.relicNo" @click="changeRelic(relic)" :value="relic.relicNo" v-model="selRelics"/>
+                            </td>
+                            <td>
+                                <!--{no_need_repair:relic.status=='不需修复'||relic.status=='无需修复',need_repair:relic.status=='需要修复',need_repair_asap:relic.status=='亟需修复'||relic.status=='亟待修复',in:relic.status=='展出'||relic.status=='修复中'||relic.status=='修复'||relic.status=='研究中'||relic.status=='研究'||relic.status=='已归还',out:relic.status=='借出'||relic.status=='借入'}-->
+                                <span class="relic_status_item" :class="relic.status">{{relic.status||'无状态信息'}}</span>
+                            </td>
+                            <td class="left relic_name_no" style="position: relative;">
+                                <p style="cursor: pointer;padding-left: 30px" @click="jumpDetails(relic.relicNo)">
+                                    <img v-if="relic.image" style="vertical-align: middle;margin-right:5px;" :src="relic.image" :alt="" @mouseenter.stop="show_big_img($event,relic.image)" @mouseleave="hide_big_img"/><span class="relic_name">{{relic.name}}</span>
+                                </p>
+                            </td>
+                            <td>
+                                {{relic.relicId||''}}
+                                <!--{{relic.relicNo||''}}-->
+                            </td>
+                            <td>
+                                {{relic.material}}
+                            </td>
+                            <td>
+                                {{relic.category}}
+                            </td>
+                            <td>
+                                {{relic.level}}
+                            </td>
+                            <td>
+                                {{relic.age}}
+                            </td>
+                            <td class="left">
+                                <!--@click="goEnvDetail(relic.parent_env_no)"位置图不提供跳转功能-->
+                                <p style="position: relative;padding-left: 25px;">
+                                    <span v-if="relic.map&&relic.locate" class="nav_icon" @mouseenter.stop="show_big_nav($event,relic.map,relic.locate,relic)" @mouseleave="hide_big_nav"></span>
+                                    {{nav_info(relic.nav)||'暂无位置信息'}}
+                                </p>
+                            </td>
+                            <!--<td>-->
+                                <!--&lt;!&ndash;{{relic.new_data}}&ndash;&gt;-->
+                                <!--<span v-if="relic.new_data&&relic.new_data.temperature">温度:{{relic.new_data.temperature}}</span>-->
+                                <!--<span v-if="relic.new_data&&relic.new_data.humidity">湿度:{{relic.new_data.humidity}}</span>-->
+                            <!--</td>-->
+                        </tr>
+                        </tbody>
+                    </table>
+                </section>
+                <!--显示分页页码-->
+                <footer>
+                    <page-list @turn-page="turnPage" :page.sync="page" :allPage="allPage" :count.sync="count"></page-list>
+                </footer>
+                <div class="loading" v-show="tableLoading"></div>
+            </div>
+        </section>
+        <Modal
+                title="藏品出库"
+                :visible.sync="modalVisible"
+                class-name="vertical-center-modal"
+                :mask-closable="false"
+                :scrollable="false"
+        >
+            <div>
+                <Row type="flex" align="top">
+                    <i-col span="5">
+                        <p style="text-align: left;line-height: 32px;">
+                            出库状态选择 :
+                        </p>
+                    </i-col>
+                    <i-col span="10">
+                        <i-select :model.sync="status">
+                            <!--<Option-group label="库藏藏品">-->
+                                <!--<i-option value="不需修复">不需修复</i-option>-->
+                                <!--<i-option value="需要修复">需要修复</i-option>-->
+                                <!--<i-option value="亟需修复">亟需修复</i-option>-->
+                            <!--</Option-group>-->
+                            <Option-group label="离库藏品">
+                                <!--如果选中的藏品中有亟需修复的藏品,则展陈和巡展两种出库状态不可选-->
+                                <i-option value="展陈" :disabled="needRepair">展陈</i-option>
+                                <i-option value="科研">科研</i-option>
+                                <i-option value="修复">修复</i-option>
+                                <i-option value="巡展" :disabled="needRepair">巡展</i-option>
+                                <i-option value="借出">借出</i-option>
+                            </Option-group>
+                        </i-select>
+                    </i-col>
+                    <i-col span="9">
+                        <p style="text-align: right;line-height: 32px;padding-right:15px;">
+                            选中藏品数量: {{modalTableData.length}} 件
+                        </p>
+                    </i-col>
+                </Row>
+                <div class="modalTabelContainer">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>藏品名称</th>
+                            <th>总登记号</th>
+                            <th>材质</th>
+                            <th>等级</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="relic in modalTableData" track-by="$index">
+                            <td>{{relic.name}}</td>
+                            <td>{{relic.relicId}}</td>
+                            <!--<td>{{relic.relicNo}}</td>-->
+                            <td>{{relic.material}}</td>
+                            <td>{{relic.level}}</td>
+                            <td>
+                                <Icon type="android-close" size="18" color="red" style="cursor:pointer;" @click="removeRelic(relic)"></Icon>
+                            </td>
+                        </tr>
+                        <tr v-show="!modalTableData||modalTableData.length===0">
+                            <td colspan="5">
+                                未选中出库藏品
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div slot="footer">
+                <i-button type="primary" @click="out_storage_ok">确认出库</i-button>
+                <i-button type="ghost" @click="out_storage_cancel">取消</i-button>
+            </div>
+        </Modal>
+    </div>
+</template>

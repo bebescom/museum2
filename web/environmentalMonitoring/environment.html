@@ -1,0 +1,665 @@
+<template id="environment_template">
+	<div class="environment">
+		<div class="header">
+			<div class="title">
+				<a href="javascript:window.history.go(-1)"  class="goBack"><Icon type="chevron-left" style="margin-right: 10px;"></Icon>环境详情与对比</a>
+			</div>
+			<div class="ability">
+				<!--<div @click="timeChange">按时间对比</div>-->
+				<!--<div>设置阈值</div>-->
+				<!--<div class="operationWrap">更多<span class="dragImg"></span>-->
+					<!--<ul class="operation">-->
+						<!--<li>设置阈值</li>-->
+					<!--</ul>-->
+				<!--</div>-->
+			</div>
+			<div class="diy">
+				<Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" class="timePicker" :value="timeArr" placeholder="选择日期和时间" :clearable="false" :options="timePickerOption" style="width: 300px" @on-change="changeTime" placement="bottom-end" :editable="false" @on-clear="resetTime" @on-ok="requireData" @on-open-change="saveOldTime"></Date-picker>
+				<!--<input placeholder="请输入日期" v-model="pick_time.start" class="start_time laydate-icon" @click="openTimePicker('start')" > 至-->
+				<!--<input placeholder="请输入日期" v-model="pick_time.end" class="end_time laydate-icon" @click="openTimePicker('end')" >-->
+				<!--<div class="button">确定</div>-->
+			</div>
+		</div>
+		<div class="body">
+			<div class="left_environment">
+				<div class="function">
+					<span class="floatL searchKey"></span>
+					<div class="floatL spanShow">
+						<div class="floatL hidden_function">
+							<input type="text" placeholder="请输入搜索条件" v-model="filterInput" @keyup.prevent.stop.down="keyDown" @keyup.prevent.stop.up="keyUp" @keyup.prevent.stop.enter="keyEnter($event)">
+							<div class="operation" v-show="filterInput">
+								<ul id="searchUl">
+									<li v-for="(num,obj) in filterContent | filterBy filterInput in 'name'" :class="{active:(who===num)}"  @click="clickSearch(obj.name,obj.env_no)">
+										{{filter_filterInput(obj.name,filterInput)}}
+									</li>
+								</ul>
+							</div>
+							<div class="clear_env" >
+								<span @click="clearEnv()">清空</span>
+							</div>
+						</div>
+						<!--<div class="spanWrap">
+							<span class="allWheae active">所有位置</span><span class="selected">已选[0]</span>
+						</div>-->
+					</div>
+				</div>
+				<div class="tree_box">
+					<tree-list :tree_list="tree_list" :keyword="keyword" :sel_list.sync="sel_env"></tree-list>
+				</div>
+			</div>
+			<div class="right_environment">
+				<p class="title" v-show="sel_env==''?false:true">
+					<span :class="{active:com=='environment_curve'}" @click="check_component('curve')">监测曲线</span>
+					<span :class="{active:com=='environment_data'}"  @click="check_component('data')">原始数据</span>
+					<span :class="{active:com=='environment_relic'}"  @click="check_component('relic')">文物</span>
+					<span :class="{active:com=='environment_equipment'}"  @click="check_component('equipment')">设备</span>
+					<span :class="{active:com=='environment_map'}"  @click="check_component('map')">地图</span>
+				</p>
+				<!--<div class="shadow" v-show="shadowKey" :style="{height:shadowHeight+'px'}"></div>-->
+				<component :is="com" :time.sync="timeStr" :envs.sync="envs" :shadow-key.sync="shadowKey" :env_name.sync="env_name" :in_detail_b:sync="inDetailB" :has_envs.sync="hasEnvs"  keep-alive  v-if="sel_env==''?false:true"></component>
+					<p  class="hintMsg" v-if="envsShow" >请选择环境</p>
+			</div>
+		</div>
+	</div>
+</template>
+
+
+<template id="environment_curve">
+    <div class="curve_content">
+        <div class="filter_box clear">
+            <p><font style="margin-right:5px">环境参数 :</font>
+                <span @click="save_delete(name)" :class="[name,{active:save_param.indexOf(name)!=-1}]"
+                      v-for="name in param" :style="{border:borderStyle(save_param.indexOf(name))}">
+                    {{changeName(name)}}
+                    <!--<i></i>-->
+                </span>
+            </p>
+            <p><font style="margin-right:5px">图表类型 :</font>
+                <select name="" id="">
+                    <option value="">监测曲线</option>
+                </select></p>
+        </div>
+        <div class="diyButton">
+            <i-button type="ghost" class="diyYAxis" v-show="save_param.length!=0" @click="showModal">
+                自定义Y轴
+            </i-button>
+        </div>
+        <div class="filter_content" v-show="envs&&envs.length!=0">
+            <div class="tabContainer" v-show="switchBtn&&save_param.length!=0">
+                <span class="img" @click="switchImgTable('img')" :class="{active:switchCurr==='img'}">图</span>
+                <span class="table" @click="switchImgTable('table')" :class="{active:switchCurr==='table'}">表</span>
+            </div>
+            <div class="echarts_container" v-show="switchCurr==='img'"></div>
+            <div class="table_container" v-show="switchCurr==='table'&&save_param.length!=0">
+                <div class="tableWarp">
+                    <!--显示表格-->
+                    <table class="cardTable" :width="cardTableWidth">
+                        <thead>
+                        <tr>
+                            <th rowspan="2" width="150" height="50">
+                                位置
+                            </th>
+                            <th v-for="(param,types) in tableHead" track-by="$index" colspan="8">
+                                {{param}}<br/>
+                                <span style="color:#adb8bc;font-size: 10px;">({{cnUnit[param]}})</span>
+                            </th>
+                        </tr>
+                        <tr>
+                            <template v-for="(param,types) in tableHead">
+                            <th v-for="item in types">
+                                {{item}}
+                            </th>
+                            </template>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="env in data_eigenvalue_sort">
+                            <td>
+                                {{env.env_name}}
+                            </td>
+                            <template v-for="(param,types) in tableHead">
+                                <td v-for="type in types">
+                                    {{env[param][type]}}
+                                </td>
+                            </template>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="shadow tableShadow"></div>
+            </div>
+
+            <div class="card_show" v-show="envs" v-cloak>
+                <div class="envThreshold" v-for="(env_no,env) in envThresholdData">
+                    <div class="thresholdHeader">
+                        <h4>
+                            <span class="envName">{{env.name}}</span>
+                            <div class="lockStatus permissionHidden" v-permission="{name:'修改阈值'}">
+                                <Icon class="left" type="locked" v-show="env.lock==1" @click="changeLockStatus(env_no)"></Icon>
+                                <Icon type="unlocked" v-show="env.lock==0" @click="changeLockStatus(env_no)"></Icon>
+                            </div>
+                            <div class="editEnvThreshold permissionHidden" v-permission="{name:'修改阈值'}">
+                                <Icon type="edit" v-show="!inEdit[env_no]" :class="{disabled:env.lock==1}" @click="editEnvThreshold(env_no)"></Icon>
+                                <!--<Icon type="chevron-right" :class="{collapse:!envCollapse}"-->
+                                      <!--@click="collapseEnvThreshold"></Icon>-->
+                            </div>
+                        </h4>
+                        <!--v-show="!envCollapse" transition="collapse"-->
+                        <div class="envThresholdContent">
+                            <section>
+                                <Row v-for="(key,item) in env"  :style="editStyle(env_no)" v-show="item&&((item.max&&item.max!='')||(item.min&&item.min!=''))||inEdit[env_no]">
+                                    <template v-if="key!='type'&&key!='no'&&key!='lock'&&key!='name'">
+                                        <i-col span="10">
+                                            <div style="white-space: normal">{{item.name}}</div>
+                                        </i-col>
+                                        <i-col span="14">
+                                            <Row v-if="item.min||item.min==''">
+                                                <i-col span="11" class="center">
+                                                    <span v-show="!inEdit[env_no]">{{item.min}}</span>
+                                                    <i-input size="small" v-show="inEdit[env_no]" :value.sync="item.min" class="wide" :class="{error:thresholdValidate[env_no][key+'min']}" @on-change="validateThreshold(env_no,key,item,'min')"></i-input>
+                                                    <div class="errorMessage" v-show="thresholdValidate[env_no][key+'min']">{{thresholdErrorMsg[env_no][key+'min']}}</div>
+                                                </i-col>
+                                                <i-col span="2" class="center">~</i-col>
+                                                <i-col span="11" class="center">
+                                                    <span v-show="!inEdit[env_no]">{{item.max}}{{item.unit}}</span>
+                                                    <i-input size="small" v-show="inEdit[env_no]" :value.sync="item.max" class="wide" :class="{error:thresholdValidate[env_no][key+'max']}" @on-change="validateThreshold(env_no,key,item,'max')"></i-input>
+                                                    <div class="errorMessage" v-show="thresholdValidate[env_no][key+'max']">{{thresholdErrorMsg[env_no][key+'max']}}</div>
+                                                </i-col>
+                                                <!--<i-col span="7" class="center">{{item.unit}}</i-col>-->
+                                            </Row>
+                                            <Row v-else>
+                                                <i-col span="2" class="right">&le;</i-col>
+                                                <i-col span="22" class="center">
+                                                    <span v-show="!inEdit[env_no]">{{item.max}}{{item.unit}}</span>
+                                                    <i-input size="small" v-show="inEdit[env_no]" :value.sync="item.max" class="wide" :class="{error:thresholdValidate[env_no][key+'max']}" @on-change="validateThreshold(env_no,key,item,'max')"></i-input>
+                                                    <div class="errorMessage" v-show="thresholdValidate[env_no][key+'max']">{{thresholdErrorMsg[env_no][key+'max']}}</div>
+                                                </i-col>
+                                                <!--<i-col span="7" class="center">{{item.unit}}</i-col>-->
+                                            </Row>
+                                        </i-col>
+                                    </template>
+                                </Row>
+                            </section>
+                            <footer v-show="inEdit[env_no]" class="btns">
+                                <i-button type="info" @click="submitEdit(env_no)">确定</i-button>
+                                <i-button type="ghost" @click="cancelEdit(env_no)">取消</i-button>
+                            </footer>
+                        </div>
+                    </div>
+                    <!--这里是一个可折叠的tab,显示环境阈值信息-->
+                </div>
+                <!--原卡片显示环境特征值-->
+                <!--<div class="card first" :style="{height:env_name.length>1?87+'px':47+'px'}">-->
+                    <!--<div class="name_box">-->
+                        <!--<p class="name">特征值名称</p>-->
+                    <!--</div>-->
+                    <!--<p class="name_detail ellipsis">-->
+                        <!--<font class="ellipsis" v-for="name in env_name" track-by="$index">{{name}}<br/></font>-->
+                        <!--<span v-show="env_name.length>1"></span>-->
+                    <!--</p>-->
+                <!--</div>-->
+                <!--<template v-for="(name,obj) in data_eigenvalue_sort">-->
+                    <!--<div class="card" v-for="(key,arr) in obj" :class="name"-->
+                         <!--:style="{height:env_name.length>1?87+'px':47+'px'}" v-show="save_param.indexOf(name)!=-1">-->
+                        <!--<div class="name_box">-->
+                            <!--<p class="name">{{changeName(name)+changeType(key)}}</p>-->
+                        <!--</div>-->
+                        <!--<p class="name_detail ellipsis">-->
+                            <!--<font v-for="num in arr" track-by="$index">{{num}}<br/></font>-->
+                            <!--<span v-show="env_name.length>1"></span>-->
+                        <!--</p>-->
+                    <!--</div>-->
+                <!--</template>-->
+            </div>
+            <div class="shadow coverAll"></div>
+        </div>
+        <Modal
+                title="自定义Y轴"
+                :visible.sync="showDiyModal"
+                :mask-closable="false"
+                @on-ok="changeY"
+                @on-cancel="cancelChangeY"
+        >
+            <div class="yAreaContainer">
+                <i-form :model="yAreaData" :label-width="90">
+                    <form-item v-for="(key,item) in yAreaData" :label="changeName(key)" :prop="key">
+                        <row>
+                            <i-col span="12">
+                                <form-item :prop="key+'min'">
+                                    <Radio-group :model.sync="item.status" @on-change="changeYType(key,item.status)">
+                                        <Radio value="default">自适应</Radio>
+                                        <Radio value="user-defined">自定义</Radio>
+                                    </Radio-group>
+                                </form-item>
+                            </i-col>
+                            <i-col span="5" v-show="item.status=='user-defined'">
+                                <form-item :prop="key+'min'">
+                                    <i-input :value.sync="item.min" :class="{error:!yAreaValidate[key].min}" @on-change="validateY(key,'min',item.min)"></i-input>
+                                    <div class="errorMessage" v-show="!yAreaValidate[key].min">{{errorMsg[key].min}}</div>
+                                </form-item>
+                            </i-col>
+                            <i-col span="2" style="text-align: center"
+                                   v-show="item.status=='user-defined'">-
+                            </i-col>
+                            <i-col span="5" v-show="item.status=='user-defined'">
+                                <form-item :prop="key+'max'">
+                                    <i-input :value.sync="item.max" :class="{error:!yAreaValidate[key].max}" @on-change="validateY(key,'max',item.max)"></i-input>
+                                    <div class="errorMessage" v-show="!yAreaValidate[key].max">{{errorMsg[key].max}}</div>
+                                </form-item>
+                            </i-col>
+                        </row>
+                    </form-item>
+                </i-form>
+            </div>
+            <div slot="footer">
+                <i-button type="primary" @click="changeY">
+                    确定
+                </i-button>
+                <i-button @click="cancelChangeY">
+                    取消
+                </i-button>
+            </div>
+        </Modal>
+    </div>
+</template>
+
+<template id="environment_data">
+	<div class="data_content">
+		<div class="fliter_box">
+			<p>筛选条件 : 
+				<span v-for="obj in filter_conditions.environment" @click="filter('environment',obj.name,obj.env_no)">{{obj.name}}</span>
+				<span v-for="name in filter_conditions.equip" @click="filter('equip',name)">{{name}}</span>
+			</p>
+		</div>
+		<div class="original_data">
+			<table class="table">
+				<thead>
+					<td><p>时间</p></td>
+					<td class="cursor" @mouseenter="change('environment',$event)"  @mouseleave="change('environment',$event)"><p>环境<span class="dragImg"></span></p>
+						<ul v-show="environment" class="operation" transition="change" :style="{left:environmentLeft+'px'}">
+							<li v-for="(index,name) in env_name" @click="filter('environment',name,env_no_change[index])" track-by="$index">{{name}}</li>
+						</ul>
+					</td>
+					<td class="cursor" @mouseenter="change('equip',$event)"  @mouseleave="change('equip',$event)"><p>设备<span class="dragImg"></span></p>
+						<ul v-show="equip" class="operation" transition="change" :style="{left:equipLeft+'px'}">
+							<li class="hidden_function function">
+								<span class="floatL searchKey"></span>
+								<input type="text" placeholder="请输入设备编号" @keydown.enter="searchEquip" v-model="Equipment_serial_number"/>
+							</li>
+							<template v-for="(name,type) in equip_type">
+								<li v-for="name in type" @click="filter('equip',name)">{{name}}</li>
+							</template>
+						</ul>
+					</td>
+					<td>温度<br/><span>℃</span></td>
+					<td>相对湿度<br/><span>%</span></td>
+					<td>光照强度<br/><span>lx</span></td>
+					<td>紫外线强度<br/><span>μw/cm²</span></td>
+					<td>有挥发染物<br/><span>ppb</span></td>
+					<td>二氧化碳<br/><span>ppm</span></td>
+					<td>有机污染物<br/><span>Hz</span></td>
+					<td>无机污染物<br/><span>Hz</span></td>
+					<td>含硫污染物<br/><span>Hz</span></td>
+					<td>土壤温度<br/><span>°C</span></td>
+					<td>土壤湿度<br/><span>%</span></td>
+					<td>土壤含盐量<br/><span>%</span></td>
+				</thead>
+				<tbody>
+					<tr v-for="rows in table_data.rows">
+						<td>{{rows.equip_time}}</td>
+						<td>{{rows.env_name}}</td>
+						<td>{{rows.equip_no}}</td>
+						
+						<td>{{rows.new_data.temperature}}</td>
+						<td>{{rows.new_data.humidity}}</td>
+						<td>{{rows.new_data.light}}</td>
+						<td>{{rows.new_data.uv}}</td>
+						<td>{{rows.new_data.voc}}</td>
+						<td>{{rows.new_data.co2}}</td>
+						<td>{{rows.new_data.organic}}</td>
+						<td>{{rows.new_data.inorganic}}</td>
+						<td>{{rows.new_data.sulfur}}</td>
+
+						<td>{{rows.new_data.soil_temperature}}</td>
+						<td>{{rows.new_data.soil_humidity}}</td>
+						<td>{{rows.new_data.soil_salt}}</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="shadow"></div>
+		</div>
+		<page-list @turn-page="turnPage" :page.sync="data_params.page" :allPage.sync="allPage" :count="table_data.count"></page-list>
+	</div>
+</template>
+
+<template id="environment_equipment">
+	<div id="equipment">
+		<div class="equipment_top">
+			<div class="title_label lf">筛选条件 : </div>
+			<ul class="filter_condition_list lf" v-for="(key,condition_type) in filter_list">
+				<li class="filter_condition_item" v-for="condition in condition_type" @click="change_filter(condition,key)">
+					{{condition}}
+					<i class="cancel_icon"></i>
+				</li>
+			</ul>
+		</div>
+		<div class="table_container">
+			<div class="table_dimmer" v-show="equipment_table_data_index!=0">
+				<!-- 为table添加一个遮罩层，背景图中心Loading-->
+			</div>
+			<div class="nav_pic" v-show="big_nav_status" @mouseleave="hide_big_nav" @mouseenter="in_big_nav">
+				<!--<p>这里显示地理位置信息</p>-->
+				<div class="view">
+					<div class="point" :data-title="nav_name"></div>
+					<img :src="nav_map" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+				</div>
+			</div>
+			<div class="wrapper">
+				<table class="equipment_info_table">
+					<thead>
+					<tr>
+						<th class="equipment_status" @mouseenter="show_filter_condition('equipment_status')" @mouseleave="hide_filter_condition('equipment_status')" width="10%">
+							<span>状态<i class="arrow_down"></i></span>
+							<div class="status_filter_condition left" v-show="status.equipment_status" @mouseleave="hide_filter_condition('equipment_status')">
+								<!--<span class="equipment_status_item normal" @click="change_filter('正常','status')">正常</span>-->
+								<!--<span class="equipment_status_item fault" @click="change_filter('故障','status')">故障</span>-->
+								<!--<span class="equipment_status_item overproof_very_low_voltage_abnormal" @click="change_filter('超标','status')">超标</span>-->
+								<!--<span class="equipment_status_item low_voltage" @click="change_filter('低电','status')">低电</span>-->
+								<!--<span class="equipment_status_item overproof_very_low_voltage_abnormal" @click="change_filter('超低电','status')">超低电</span>-->
+								<!--<span class="equipment_status_item backup" @click="change_filter('备用','status')">备用</span>-->
+								<!--<span class="equipment_status_item disable" @click="change_filter('停用','status')">停用</span>-->
+								<!--<span class="equipment_status_item overproof_very_low_voltage_abnormal" @click="change_filter('异常','status')">异常</span>-->
+
+								<span v-for="status in equip_status" :class="['equipment_status_item',status.name]" @click="change_filter(status.name,'status')">
+									{{status.name}}
+								</span>
+							</div>
+						</th>
+						<th class="equipment_name" width="30%" @mouseenter="show_filter_condition('equipment_name')" @mouseleave="hide_filter_condition('equipment_name')">
+							<span>设备名称|设备ID<i class="arrow_down"></i></span>
+							<div class="name_filter_condition left" @mouseleave="hide_filter_condition('equipment_name')" v-show="status.equipment_name">
+								<div>
+									<input type="text" v-model="search_equipment_name" placeholder="输入设备名称或设备ID" @keyup.enter="exact_search(search_equipment_name)"/>
+									<span class="search_icon"></span>
+									<span class="clear_icon" @click="clear_search_equipment_name"></span>
+								</div>
+							</div>
+						</th>
+						<th class="equipment_nav" width="30%" @mouseenter="show_filter_condition('equipment_nav')" @mouseleave="hide_filter_condition('equipment_nav')">
+							<span>位置<i class="arrow_down" v-show="env_name.length!=0"></i></span>
+							<div class="nav_filter_condition left right" @mouseleave="hide_filter_condition('equipment_nav')" v-show="status.equipment_nav&&env_name.length!=0">
+								<ul>
+									<li v-for="nav in env_name" track-by="$index" @click="change_filter(nav,'position')" :class="{active:filter_list.position.indexOf(nav)!=-1}">
+										{{nav}}
+									</li>
+								</ul>
+							</div>
+						</th>
+						<th class="equipment_type" width="10%" @mouseenter="show_filter_condition('equipment_type')" @mouseleave="hide_filter_condition('equipment_type')">
+							<span>类型<i class="arrow_down"></i></span>
+							<div class="equipment_type_filter_condition right" v-show="status.equipment_type">
+								<ul class="equipment_type_filter_list">
+									<template v-if='equip_type.sensor&&equip_type.sensor.length!=0'>
+										<li  v-for="data in equip_type.sensor" class="equipment_type_filter_item sensor rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{sensor_temperature_humidity:data=='温湿度监测终端',sensor_temperature_humidity_with_screen:data=='带屏温湿度监测终端',sensor_light_uv:data=='光照紫外监测终端',sensor_co2:data=='二氧化碳监测终端',sensor_voc:data=='有机挥发物监测终端',sensor_qcm:data=='空气质量监测终端',sensor_soil_temperature_humidity:data=='土壤温湿度监测终端',sensor_security:data=='安防监测终端',sensor_shock:data=='震动监测终端'}"></span>{{data}}</li>
+									</template>
+								</ul>
+								<ul class="equipment_type_filter_list">
+									<li v-if='equip_type.network&&equip_type.network.length!=0' v-for="data in equip_type.network" class="equipment_type_filter_item network rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{network_gateway:data=='网关',network_relay:data=='中继'}"></span>{{data}}</li>
+								</ul>
+								<ul class="equipment_type_filter_list">
+									<li v-if='equip_type.controller&&equip_type.controller.length!=0' v-for="data in equip_type.controller" class="equipment_type_filter_item controller rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{controller_humidity_machine:data=='调湿机',controller_lighting:data=='灯光调控终端',controller_humidity_cabinet:data=='充氮调湿柜',controller_humidity_agent:data=='调湿剂',智能展柜:data=='智能展柜'}"></span>{{data}}</li>
+								</ul>
+								<ul class="equipment_type_filter_list">
+									<li v-if='equip_type.offline&&equip_type.offline.length!=0' v-for="data in equip_type.offline" class="equipment_type_filter_item sp_sensor rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{sensor_offline_temperature_humidity:data=='手持式温湿度检测仪'||data=='固定式温湿度检测仪',sensor_offline_light_uv:data=='手持式光照紫外检测仪',sensor_offline_co2:data=='手持式二氧化碳检测仪'||data=='固定式二氧化碳检测仪',sensor_offline_formaldehyde:data=='手持式甲醛检测仪',sensor_offline_voc:data=='手持式有机挥发物检测仪'}"></span>{{data}}</li>
+								</ul>
+								<ul class="equipment_type_filter_list">
+									<li v-if='equip_type.box&&equip_type.box.length!=0' v-for="data in equip_type.box" class="equipment_type_filter_item sp_sensor rf" :class={active:filter_list.equip_type.indexOf(data)!=-1} @click="change_filter(data,'equip_type')"><span class="equipment_type_icon" :class="{sp_sensor_capsule:data=='智能囊匣'}"></span>{{data}}</li>
+								</ul>
+							</div>
+						</th>
+						<th class="equipment_new_data" width="20%">
+							最新数据
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr v-for="(index,data) in equipment_rows">
+						<td class="equipment_status_item">
+						<span class="equipment_status_item" :class="{normal:data.status=='正常',fault:data.status=='故障',overproof_very_low_voltage_abnormal:data.status=='超标'||data.status=='超低电'||data.status=='异常',low_voltage:data.status=='低电',backup:data.status=='备用',disable:data.status=='停用'}">
+							{{data.status||'无状态信息'}}
+						</span>
+						</td>
+						<td class="equipment_name_no">
+							<p style="cursor: pointer" @click="go_equipment_detail(data.equip_no)">
+								<span class="equipment_name">{{data.name}}</span><span class="equipment_no">{{data.equip_no}}</span>
+							</p>
+						</td>
+						<td class="equipment_nav">
+							<p><span v-if="data.map&&data.locate" class="nav_icon" @mouseenter.stop="show_big_nav($event,data.map,data.locate,data)" @mouseleave="hide_big_nav"></span>{{nav_info(data.nav)||'暂无位置信息'}}</p>
+						</td>
+						<td class="equipment_equip_type">
+							<span class="equipment_type_icon" :class="{sensor_temperature_humidity:data.equip_type=='温湿度监测终端',sensor_offline_temperature_humidity:data.equip_type=='手持式温湿度检测仪'||data.equip_type=='固定式温湿度检测仪',sensor_temperature_humidity_with_screen:data.equip_type=='带屏温湿度监测终端',sensor_light_uv:data.equip_type=='光照紫外监测终端',sensor_offline_light_uv:data.equip_type=='手持式光照紫外检测仪',sensor_co2:data.equip_type=='二氧化碳监测终端',sensor_offline_co2:data.equip_type=='手持式二氧化碳检测仪',sensor_offline_formaldehyde:data.equip_type=='手持式甲醛检测仪',sensor_voc:data.equip_type=='有机挥发物监测终端',sensor_offline_voc:data.equip_type=='手持式有机挥发物检测仪',sensor_qcm:data.equip_type=='空气质量监测终端',sensor_soil_temperature_humidity:data.equip_type=='土壤温湿度监测终端',sensor_security:data.equip_type=='安防监测终端',sensor_shock:data.equip_type=='震动监测终端',network_gateway:data.equip_type=='网关',network_relay:data.equip_type=='中继',controller_humidity_machine:data.equip_type=='调湿机',controller_lighting:data.equip_type=='灯光调控终端',controller_humidity_cabinet:data.equip_type=='充氮调湿柜',controller_humidity_agent:data.equip_type=='调湿剂',sp_sensor_capsule:data.equip_type=='智能囊匣监测终端',智能展柜:data.equip_type=='智能展柜'}" :data-title="data.equip_type"></span>
+							<!--{{data.equip_type}}-->
+						</td>
+						<td class="equipment_new_data" @mouseenter="show_more(data.equip_no)" @mouseleave="hide_more(data.equip_no)">
+							<Poptip trigger="hover" placement="left">
+								<div class="newDataEnd">{{{newDataEnd(data)}}}</div>
+								<div class="api" slot="content">
+									{{{allNewDataEnd(data)}}}
+								</div>
+							</Poptip>
+							<!--<span class="temperature">-->
+								<!--{{data.new_data.temperature||'-'}}{{unit.temperature}}-->
+							<!--</span>-->
+							<!--<span class="humidity">-->
+								<!--{{data.new_data.humidity||'-'}}{{unit.humidity}}-->
+							<!--</span>-->
+								<!--<span class="more_new_data" v-show="has_other_key(data.new_data,data.equip_no)">-->
+								<!--<b>. . .</b>-->
+							<!--</span>-->
+								<!--<div v-if="has_other_key(data.new_data,data.equip_no)" v-show="more_status[data.equip_no]" class="more_info">-->
+									<!--<p v-for="(index,value) in data.new_data" :class="index">-->
+										<!--<span v-if="index!='broken'&&index!='vibration'&&index!='multi_wave'">{{value||'-'}}{{unit[index]}}</span>-->
+										<!--<span v-if="index=='broken'">玻破警报</span>-->
+										<!--<span v-if="index=='vibration'">震动警报</span>-->
+										<!--<span v-if="index=='multi_wave'">驻波警报</span>-->
+									<!--</p>-->
+								<!--</div>-->
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<page-list :page.sync="curr_page" :allpage="page_num" :count="total"></page-list>
+	</div>
+</template>
+
+<template id="environment_relic">
+	<div id="relic">
+		<div class="relic_top">
+			<div class="title_label lf">筛选条件 : </div>
+			<ul class="filter_condition_list lf" v-for="(key,condition_type) in filter_list">
+				<li class="filter_condition_item" v-for="condition in condition_type" @click="change_filter(condition,key)">
+					{{condition}}
+					<i class="cancel_icon"></i>
+				</li>
+			</ul>
+		</div>
+		<div class="table_container">
+			<div class="table_dimmer" v-show="relic_table_data_index!=0">
+				<!-- 为table添加一个遮罩层，背景图中心Loading-->
+			</div>
+			<div class="relic_pic" v-show="big_img_status" @mouseleave="hide_big_img">
+				<!--<p>这里显示文物图片</p>-->
+				<img :src="img_src" :alt="img_src"/>
+			</div>
+			<div class="nav_pic" v-show="big_nav_status" @mouseleave="hide_big_nav" @mouseenter="in_big_nav">
+				<!--<p>这里显示地理位置信息</p>-->
+				<div class="view">
+					<div class="point" :data-title="nav_name"></div>
+					<img :src="nav_map" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+				</div>
+			</div>
+			<div class="wrapper">
+				<table class="relic_info_table">
+					<thead>
+					<tr>
+						<th class="relic_status" @mouseenter="show_filter_condition('relic_status')" @mouseleave="hide_filter_condition('relic_status')" width="10%">
+							<span>状态<i class="arrow_down"></i></span>
+							<div class="status_filter_condition left" v-show="status.relic_status" @mouseleave="hide_filter_condition('relic_status')">
+								<span v-for="status in status_list" v-show="status.name" :class="['relic_status_item',status.name]" @click="change_filter(status.name,'status')">{{status.name}}</span>
+								<!--<p>-->
+									<!--<span class="label">库藏文物</span>-->
+									<!--<span class="relic_status_item 不需修复" @click="change_filter('不需修复','status')">不需修复</span>-->
+									<!--<span class="relic_status_item 需要修复" @click="change_filter('需要修复','status')">需要修复</span>-->
+									<!--<span class="relic_status_item 亟需修复" @click="change_filter('亟需修复','status')">亟需修复</span>-->
+								<!--</p>-->
+								<!--<p>-->
+									<!--<span class="label">离库文物</span>-->
+									<!--<span class="relic_status_item 展陈 show" @click="change_filter('展陈','status')">展陈</span>-->
+									<!--<span class="relic_status_item 修复 repair" @click="change_filter('修复','status')">修复</span>-->
+									<!--<span class="relic_status_item 修复 research" @click="change_filter('科研','status')">科研</span>-->
+									<!--<span class="relic_status_item 借调 borrow_out" @click="change_filter('借调','status')">借调</span>-->
+								<!--</p>-->
+								<!--<p>-->
+									<!--<span class="label">它馆借调</span>-->
+									<!--<span class="relic_status_item 已归还 return" @click="change_filter('已归还','status')">已归还</span>-->
+									<!--<span class="relic_status_item 借入 borrow_in" @click="change_filter('借入','status')">借入</span>-->
+								<!--</p>-->
+							</div>
+						</th>
+						<th class="relic_name" @mouseenter="show_filter_condition('relic_name')" @mouseleave="hide_filter_condition('relic_name')" width="30%">
+							<span>藏品名称|总登记号<i class="arrow_down"></i></span>
+							<div class="name_filter_condition left" @mouseleave="hide_filter_condition('relic_name')" v-show="status.relic_name">
+								<div>
+									<input type="text" v-model="search_relic_name" placeholder="输入藏品名称或总登记号" @keyup.enter="exact_search(search_relic_name)"/>
+									<span class="search_icon"></span>
+									<span class="clear_icon" @click="clear_search_relic_name"></span>
+								</div>
+								<!--<p>-->
+								<!--排序: <span :class="{order:order_type=='A-Z'}" @click="change_order_type('A-Z')">A-Z</span><span :class="{order:order_type=='Z-A'}" @click="change_order_type('Z-A')">Z-A</span>-->
+								<!--</p>-->
+							</div>
+						</th>
+						<th class="relic_material" @mouseenter="show_filter_condition('relic_material')" @mouseleave="hide_filter_condition('relic_material')" width="10%">
+							<span>材质<i class="arrow_down"></i></span>
+							<div class="material_filter_condition left" @mouseleave="hide_filter_condition('relic_material')" v-show="status.relic_material">
+								<!-- 模拟材质列表 -->
+								<!--<ul class="_header">-->
+								<!--<li @click="sel_material_first_word('全部')" :class="{active:material_first_word=='全部'}" class="all_material">全部</li>-->
+								<!--<li v-for="data in material_first_word_list" @click="sel_material_first_word(data)" :class="{active:material_first_word==data}" class="_first_word">-->
+								<!--{{data}}-->
+								<!--</li>-->
+								<!--</ul>-->
+								<ul class="_body">
+									<li v-for="data in material_list" @click="change_filter(data.name,'material')" class="filtered_relic_item" v-show='data.name' :class="{active:filter_list.material.indexOf(data.name)!=-1}">
+										{{data.name}}
+									</li>
+								</ul>
+							</div>
+						</th>
+						<th class="relic_category" width="10%" @mouseenter="show_filter_condition('relic_category')" @mouseleave="hide_filter_condition('relic_category')">
+							<span>类别<i class="arrow_down"></i></span>
+							<div class="category_filter_condition right" @mouseleave="hide_filter_condition('relic_category')" v-show="status.relic_category">
+								<!-- 模拟类别列表 -->
+								<!--<ul class="_header">-->
+								<!--<li @click="sel_category_first_word('全部')" :class="{active:category_first_word=='全部'}" class="all_material">全部</li>-->
+								<!--<li v-for="data in category_first_word_list" @click="sel_category_first_word(data)" :class="{active:category_first_word==data}" class="_first_word">-->
+								<!--{{data}}-->
+								<!--</li>-->
+								<!--</ul>-->
+								<ul class="_body">
+									<li v-for="data in category_list" @click="change_filter(data.name,'category')" class="filtered_relic_item" v-show='data.name' :class="{active:filter_list.category.indexOf(data.name)!=-1}">
+										{{data.name}}
+									</li>
+								</ul>
+							</div>
+						</th>
+						<th class="relic_age" width="10%" @mouseenter="show_filter_condition('relic_age')" @mouseleave="hide_filter_condition('relic_age')">
+							<span>年代<i class="arrow_down"></i></span>
+							<div class="age_filter_condition right" @mouseleave="hide_filter_condition('relic_age')" v-show="status.relic_age">
+								<!-- 模拟年代列表 -->
+								<!--<ul class="_header">-->
+								<!--<li @click="sel_age_first_word('全部')" :class="{active:age_first_word=='全部'}" class="all_material">全部</li>-->
+								<!--<li v-for="data in age_first_word_list" @click="sel_age_first_word(data)" :class="{active:age_first_word==data}" class="_first_word">-->
+								<!--{{data}}-->
+								<!--</li>-->
+								<!--</ul>-->
+								<ul class="_body">
+									<li v-for="data in age_list" @click="change_filter(data.name,'age')" class="filtered_relic_item" v-show='data.name' :class="{active:filter_list.age.indexOf(data.name)!=-1}">
+										{{data.name}}
+									</li>
+								</ul>
+							</div>
+						</th>
+						<th class="relic_nav" width="30%" @mouseenter="show_filter_condition('relic_nav')" @mouseleave="hide_filter_condition('relic_nav')">
+							<span>位置<i class="arrow_down" v-show="env_name.length!=0"></i></span>
+							<div class="nav_filter_condition left right" @mouseleave="hide_filter_condition('relic_nav')" v-show="status.relic_nav&&env_name.length!=0">
+								<ul>
+									<li v-for="nav in env_name" track-by="$index" @click="change_filter(nav,'position')" :class="{active:filter_list.position.indexOf(nav)!=-1}">
+										{{nav}}
+									</li>
+								</ul>
+							</div>
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<!--<tr v-for="(index,data) in filtered_relic_name">-->
+					<tr v-for="(index,data) in relic_rows">
+						<td class="relic_status">
+							<!--:class="{no_need_repair:data.status=='不需修复'||data.status=='无需修复',need_repair:data.status=='需要修复',need_repair_asap:data.status=='亟需修复'||data.status=='亟待修复',in:data.status=='展出'||data.status=='修复中'||data.status=='修复'||data.status=='研究中'||data.status=='研究'||data.status=='已归还',out:data.status=='借出'||data.status=='借入'}"-->
+							<span class="relic_status_item" :class="data.status">{{data.status||'无状态信息'}}</span>
+						</td>
+						<td class="relic_name_no">
+							<p style="cursor: pointer;padding-left: 30px" @click="go_relic_detail(data.relic_no)">
+								<img v-if="data.image" :src="data.image" :alt="" @mouseenter.stop="show_big_img($event,data.image)" @mouseleave="hide_big_img"/><span class="relic_name">{{data.name}}</span><span class="relic_no">{{data.relic_no}}</span>
+							</p>
+						</td>
+						<td class="relic_material">
+							{{data.material}}
+						</td>
+						<td class="relic_category">
+							{{data.category}}
+						</td>
+						<td class="relic_age">
+							{{data.age}}
+						</td>
+						<td class="relic_nav">
+							<p><span v-if="data.map&&data.locate" class="nav_icon" @mouseenter.stop="show_big_nav($event,data.map,data.locate,data)" @mouseleave="hide_big_nav"></span>{{nav_info(data.nav)||'暂无位置信息'}}</p>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<page-list :page.sync="curr_page" :allpage="page_num" :count="total"></page-list>
+	</div>
+</template>
+
+
+<template id="environment_map">
+		<div id="map">
+			<div class="map_top">
+				<div class="title_label lf">筛选条件 : </div>
+				<select v-show="curr_env_no" name="env_name" id="env_name" v-model="curr_env_no" @change="change_map(curr_env_no)">
+					<option :value="index" v-for="(index,data) in env_list">{{data.name}}</option>
+				</select>
+				<div class="title_label lf" v-show="!curr_env_no">请从左侧环境树中选择环境!</div>
+			</div>
+			<div class="bgContainer">
+				<span class="resetBtn" @click="resetImg"></span>
+				<div class="imgView" @mousewheel="scaleImg" @mousedown="dragStart" style="box-sizing: border-box;">
+					<div class="imgBox" :style="imgStyle" id="imgBox" >
+						<img :src="imgUrl" style="width:100%" v-show="imgUrl" alt="图片无法正常加载...">
+						<div id="mapPoint" v-show="mapPointData&&mapPointData.locate" :style="pointStyle" :data-title="tooltip"></div>
+					</div>
+				</div>
+			</div>
+			<!--<div class="map_container" id="map_bg">-->
+				<!--<div id="map_point" v-show="curr_locate" :data-title="tooltip"></div>-->
+			<!--</div>-->
+		</div>
+</template>
+

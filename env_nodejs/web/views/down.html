@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>下发数据</title>
+    <meta charset='utf-8'>
+
+    <link href="ionicons/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+    <link href="element/element.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/init.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="js/vue.js"></script>
+    <script type="text/javascript" src="element/element.min.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+    <style type="text/css">
+        .el-table .cell, .el-table th>div{
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="批量下发" name="send">
+            <send-box></send-box>
+        </el-tab-pane>
+        <el-tab-pane label="下发记录" name="send_log">
+            <send-log></send-log>
+        </el-tab-pane>
+        <el-tab-pane label="反馈记录" name="feedback_log">
+            <feedback-log></feedback-log>
+        </el-tab-pane>
+    </el-tabs>
+
+</div>
+
+
+<script type="text/javascript">
+    var default_param = {
+        model: '休眠',//0x01
+        sleep_period: '',//0x02
+        unit: 'minute',//0x02
+        equip_no: '',//0x04
+        area_no: '',//0x05,已取消
+
+        //0x30
+        c_model: '停止',
+
+        //0x31
+        control: 'humidity',
+        min: '',
+
+        //0x32
+        control_inner: 'humidity',
+        c_order: '1',
+        c_value: '',
+
+        //0x20 0x21
+        correction: 'humidity',
+        crt_value: '',
+
+        //0x12
+        f_rate: '0',
+        b_rate: '1',
+
+        //other
+        other: '',
+
+        //0x22
+        parameter: '--',
+        func: '',
+        set_value: '',
+        set_unit: 'minute',
+
+        //0x10
+        range_param: 'humidity',
+        range_value1: '',
+        range_value2: '',
+
+        //0x11
+        alert_param: 'humidity',
+        alert_value1: '',
+        alert_value2: '',
+
+
+        box_model: '正常模式',
+        box_sensitivity: 32,
+
+
+    };
+
+</script>
+
+<template id="send_box_template">
+    <div>
+        <el-form ref="form" :model="form" label-width="100px">
+
+            <el-form-item label="设备列表" style="margin-bottom: 10px;">
+                <el-select style="width: 80%;" v-model="add_equips" @change="add_equip" default-first-option
+                           filterable multiple placeholder="请选择要添加的设备编号">
+                    <el-option v-for="item in all_equips" :key="item.equip_no" :value="item.equip_no"
+                               :label="item.equip_no"></el-option>
+                </el-select>
+                <a id="grid" href="grid.html#/_data_sensor" target="_blank">查看曲线图</a>
+            </el-form-item>
+
+            <el-form-item label="参数设置" style="margin-bottom: 10px;">
+                <el-row>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="01">设置工作模式(0x01)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="02">设置休眠周期(0x02)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="03">设置系统时间(0x03)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="04">设置设备编号(0x04)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="10">设置量程(0x10)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="11">设置报警值(0x11)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="12">设置频率波特率(0x12)</el-radio>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="20">设备标定(0x20)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="21">设备校正系数(0x21)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="22">设置功能参数(0x22)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="30">设置调控模式(0x30)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="31">设置调控范围(0x31)</el-radio>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="32">设置调控内部参数(0x32)</el-radio>
+                    </el-col>
+                </el-row>
+
+                <el-row>
+
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="other">自定义指令参数</el-radio>
+                    </el-col>
+
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="box01">囊匣设置工作模式(0x01)</el-radio>
+                    </el-col>
+
+                    <el-col :span="3">
+                        <el-radio v-model="instruct" label="box09">囊匣设置振动灵敏度(0x09)</el-radio>
+                    </el-col>
+                </el-row>
+
+            </el-form-item>
+
+            <el-form-item label="参数值">
+                <send-param :instruct="instruct" :param="all_param" show_note="true"></send-param>
+            </el-form-item>
+
+            <el-form-item label="下发方式" style="margin-bottom:10px;">
+                <el-radio class="radio" v-model="send_type" label="1">被动</el-radio>
+                <el-radio class="radio" v-model="send_type" label="2">主动(立即群发)</el-radio>
+            </el-form-item>
+
+            <el-table
+                    ref="multipleTable"
+                    :data="send_down_equip_data"
+                    border size="small"
+                    style="min-height: 200px"
+                    @selection-change="selectionChange">
+                <el-table-column type="selection" width="50"></el-table-column>
+                <el-table-column type="index" width="60"></el-table-column>
+                <el-table-column label="设备编号" width="150">
+                    <template scope="scope">{{ scope.row.no.slice(-11) }}</template>
+                </el-table-column>
+                <el-table-column label="参数值">
+                    <template scope="scope">
+                        <send-param :instruct="instruct"
+                                    :param="send_down_equip_data.length>scope.$index?send_down_equip_data[scope.$index].param:{}">
+                        </send-param>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+
+        </el-form>
+
+        <br>
+        <el-row height="30">
+            <el-col :span="18" align="center">
+
+                <el-button type="primary" size="large" @click="save" :loading="send_loading">保存批量设置</el-button>
+            </el-col>
+        </el-row>
+    </div>
+</template>
+
+<script type="text/javascript">
+    var prev_add_equips = store('add_equips') || [];
+    Vue.component('send-box', {
+        template: '#send_box_template',
+        data: function () {
+            return {
+                send_down_equip_data: [],//下拉选中的设备
+                all_param: _.extend({}, default_param),
+                instruct: store('instruct') || '01',
+                add_equips: store('add_equips') || [],
+                all_equips: [],//所有设备
+                multipleSelection: [],//勾选选中的设备
+                send_loading: false,
+                send_type: '1',
+                form: {},
+            }
+        },
+        watch: {
+            instruct: {
+                handler: function (val) {
+                    store('instruct', val);
+                }
+            },
+            'all_param': {
+                handler: function (val) {
+                    var $this = this;
+                    console.log(val);
+                    _.each($this.send_down_equip_data, function (row, no) {
+                        if (row && row.param) {
+                            row.param = _.extend({}, val);//去除多余set/get方法
+                        }
+                    });
+
+                },
+                deep: true
+            }
+        },
+        methods: {
+            add_equip: function (equips) {
+                var $this = this;
+                console.log('add_equip', equips);
+                var old_equips = _.pluck($this.send_down_equip_data, 'no');
+                console.log('old_equips', old_equips);
+                _.each(equips, function (no) {
+                    if (!_.contains(old_equips, no)) {
+                        var row = {
+                            no: no,
+                            param: _.extend({}, $this.all_param)
+                        };
+                        $this.send_down_equip_data.unshift(row);
+                        $this.$refs.multipleTable.toggleRowSelection(row);
+                    }
+                });
+                var del_equips = _.difference(prev_add_equips, equips);
+                console.log('del', del_equips);
+                _.each($this.send_down_equip_data, function (row, index) {
+                    if (row && row.no && _.contains(del_equips, row.no)) {
+                        console.log('del index', index);
+                        $this.send_down_equip_data.splice(index, 1);
+                    }
+                });
+                prev_add_equips = equips.slice(0);
+                console.log(prev_add_equips, $this.send_down_equip_data);
+                store('add_equips', equips);
+                $('#grid').attr('href', 'grid.html#/_data_sensor/' + equips.join(','));
+            },
+            selectionChange: function (val) {
+                this.multipleSelection = val;
+            },
+            save: function () {
+                var $this = this;
+                console.log($this.multipleSelection, this.send_down_equip_data);
+                if (!_.size(this.multipleSelection)) {
+                    this.$message('没有选择任何设备');
+                    return;
+                }
+                var json = {};
+                json.instruct = this.instruct;
+                json.send_type = this.send_type;
+                json.equips = [];
+                var err;
+                _.each($this.multipleSelection, function (row) {
+                    if (err) {
+                        return;
+                    }
+                    var rt = {};
+                    if (instructs[json.instruct] && instructs[json.instruct].valid) {
+                        rt = instructs[json.instruct].valid(row.param);
+                        if (rt.err) {
+                            err = rt.err;
+                            return;
+                        }
+                    }
+
+                    json.equips.push({
+                        equip_no: row.no,
+                        instruct: json.instruct,
+                        operation: instructs[json.instruct].name,
+                        send_data: rt.data || '',
+                        remark: rt.remark || ''
+                    });
+                });
+                console.log(json);
+                if (err) {
+                    $this.$message.error(err);
+                    return;
+                }
+                $this.send_loading = true;
+
+                $.post('sensor/batch_send_down', json, function (data) {
+                    $this.send_loading = false;
+                    if (data.error) {
+                        $this.$message.error(data.error);
+                        return;
+                    }
+                    $this.$message(data.msg);
+                    vm.activeName = 'send_log';
+                    vm.get_history();
+                }, 'json').error(function () {
+                    $this.send_loading = false;
+                });
+
+            }
+        },
+        created: function () {
+            var $this = this;
+            $.post('sensor/equips', function (equips) {
+                $this.all_equips = equips;
+                var add_equips = store('add_equips');
+                if (add_equips) {
+                    _.each(add_equips, function (no) {
+                        var row = {
+                            no: no,
+                            param: _.extend({}, default_param)
+                        };
+                        $this.send_down_equip_data.unshift(row);
+                        $this.$refs.multipleTable.toggleRowSelection(row);
+                    });
+                    $('#grid').attr('href', 'grid.html#/_data_sensor/' + add_equips.join(','));
+                }
+
+            }, 'json');
+        }
+    });
+
+</script>
+
+
+<template id="send_param_template">
+    <div>
+        <div v-if="instruct=='01'">
+            <el-select style="width: 200px;" v-model="param.model">
+                <el-option value="休眠"></el-option>
+                <el-option value="工作"></el-option>
+                <el-option value="校准"></el-option>
+                <el-option value="复位"></el-option>
+            </el-select>
+        </div>
+
+        <div v-if="instruct=='02'">
+            <el-input style="width: 200px;" v-model="param.sleep_period"
+                      :placeholder="param.unit=='hour'?'休眠周期为1~55':'休眠周期为1~100'"></el-input>
+            <el-select style="width: 100px;" v-model="param.unit">
+                <el-option value="second" label="秒"></el-option>
+                <el-option value="minute" label="分钟"></el-option>
+                <el-option value="hour" label="小时"></el-option>
+            </el-select>
+        </div>
+
+        <div v-if="instruct=='03'">
+            下发时同步系统时间
+        </div>
+
+        <div v-if="instruct=='04'">
+            <el-input style="width: 200px;" v-model="param.equip_no" placeholder="编号为11位数字"></el-input>
+        </div>
+
+        <div v-if="instruct=='10'">
+            <el-select style="width:200px;" v-model="param.range_param">
+                <el-option v-for="item in params" :key="item.value" :label="item.label"
+                           :value="item.value"></el-option>
+            </el-select>
+            <el-input style="width:250px;" v-model="param.range_value1" placeholder="参数1">
+                <span slot="prepend">参数1:</span>
+            </el-input>
+            <el-input style="width:250px;" v-model="param.range_value2" placeholder="参数1">
+                <span slot="prepend">参数2:</span>
+            </el-input>
+
+        </div>
+
+        <div v-if="instruct=='11'">
+
+            <el-select style="width:200px;" v-model="param.alert_param">
+                <el-option v-for="item in params" :key="item.value" :label="item.label"
+                           :value="item.value"></el-option>
+            </el-select>
+            <el-input style="width:250px;" v-model="param.alert_value1" placeholder="参数1">
+                <span slot="prepend">参数1:</span>
+            </el-input>
+            <el-input style="width:250px;" v-model="param.alert_value2" placeholder="参数1">
+                <span slot="prepend">参数2:</span>
+            </el-input>
+        </div>
+
+
+        <div v-if="instruct=='12'">
+            频率:
+            <el-select style="width:100px;" v-model="param.f_rate">
+                <el-option value="0"></el-option>
+                <el-option value="1"></el-option>
+                <el-option value="2"></el-option>
+                <el-option value="3"></el-option>
+                <el-option value="4"></el-option>
+            </el-select>
+            波特率:
+            <el-select style="width:100px;" v-model="param.b_rate">
+                <el-option value="0"></el-option>
+                <el-option value="1"></el-option>
+            </el-select>
+        </div>
+
+        <div v-if="instruct=='20'">
+            <el-select style="width:200px;" v-model="param.correction">
+                <el-option v-for="item in params" :key="item.value" :label="item.label"
+                           :value="item.value"></el-option>
+            </el-select>
+            <el-input style="width:350px;" v-model="param.crt_value" placeholder="请输入标定值，1个或多个">
+                <span slot="prepend">标定值:</span>
+            </el-input>
+        </div>
+
+        <div v-if="instruct=='21'">
+            <el-select style="width:200px;" v-model="param.correction">
+                <el-option v-for="item in params" :key="item.value" :label="item.label"
+                           :value="item.value"></el-option>
+            </el-select>
+            <el-input style="width:350px;" v-model="param.crt_value" placeholder="请输入校正值，1个或多个">
+                <span slot="prepend">校正值:</span>
+            </el-input>
+        </div>
+
+        <div v-if="instruct=='22'">
+            <el-select style="width:200px;" v-model="param.parameter">
+                <el-option label="无" value="--"></el-option>
+                <el-option v-for="item in params" :key="item.value" :label="item.label"
+                           :value="item.value"></el-option>
+            </el-select>
+            <el-select style="width: 200px;" v-model="param.func">
+                <el-option value="清历史数据" label="0x01:清历史数据"></el-option>
+                <el-option value="终端重启" label="0x02:终端重启"></el-option>
+                <el-option value="进入标定流程" label="0x03:进入标定流程（传感器上电）"></el-option>
+                <el-option value="退出标定流程" label="0x04:退出标定流程（关闭传感器持续供电）"></el-option>
+                <el-option value="终端发送数据类型" label="0x05:终端发送数据类型"></el-option>
+                <el-option value="设置除湿目标值" label="0x06:设置除湿目标值"></el-option>
+                <el-option value="设置除湿时间" label="0x07:设置除湿时间"></el-option>
+                <el-option value="终端传感器预热时间" label="0x08:终端传感器预热时间"></el-option>
+                <el-option value="清除标定数据" label="0x09:清除标定数据"></el-option>
+                <el-option value="终端全范围湿度补偿开关" label="0x0a:终端全范围湿度补偿开关"></el-option>
+                <el-option value="终端校正数值开关" label="0x0b:终端校正数值开关"></el-option>
+                <el-option value="终端全范围湿度补偿值" label="0x0c:终端全范围湿度补偿值"></el-option>
+                <el-option value="终端循环发送帧数" label="0x0d:终端循环发送帧数"></el-option>
+
+            </el-select>
+            <el-input
+                    v-show="['终端发送数据类型','设置除湿目标值','设置除湿时间','终端传感器预热时间','终端全范围湿度补偿值','终端循环发送帧数','终端全范围湿度补偿值','终端全范围湿度补偿开关','终端校正数值开关'].indexOf(param.func)!==-1"
+                    style="width: 250px;"
+                    v-model="param.set_value" placeholder="请输入参数值">
+                <span slot="prepend">参数值:</span>
+            </el-input>
+            <el-select v-model="param.set_unit" style="width: 80px"
+                       v-show="['设置除湿时间','终端传感器预热时间'].indexOf(param.func)!==-1">
+                <el-option value="second" label="秒"></el-option>
+                <el-option value="minute" label="分钟"></el-option>
+                <el-option value="hour" label="小时"></el-option>
+            </el-select>
+        </div>
+
+        <div v-if="instruct=='30'">
+            <el-select style="width: 200px;" v-model="param.c_model">
+                <el-option value="停止"></el-option>
+                <el-option value="启动"></el-option>
+            </el-select>
+        </div>
+
+        <div v-if="instruct=='31'">
+            <el-select style="width: 200px;" v-model="param.control">
+                <el-option v-for="item in params" :key="item.value" :label="item.label"
+                           :value="item.value"></el-option>
+            </el-select>
+            <el-input style="width: 200px;" v-model="param.min" placeholder="调控值"></el-input>
+
+        </div>
+
+        <div v-if="instruct=='32'">
+            <el-select style="width: 200px;" v-model="param.control_inner">
+                <el-option v-for="item in params" :key="item.value" :label="item.label"
+                           :value="item.value"></el-option>
+            </el-select>
+            序号:
+            <el-input v-model="param.c_order" placeholder="序号" style="width:60px;"></el-input>
+            调控值:
+            <el-input v-model="param.c_value" placeholder="调控值" style="width:100px;"></el-input>
+
+        </div>
+
+        <div v-if="instruct=='other'">
+            <el-input style="width:400px;" placeholder="请输入指令及参数" v-model="param.other"></el-input>
+            <label v-show="show_note" class="inline" style="font-size: 12px;color: #0000ff">
+                <span>*</span>自定义指令编码和参数,可空格，如1101或11 01,代表0x11指令，参数0x01
+            </label>
+        </div>
+
+        <div v-if="instruct=='box01'">
+            <el-select style="width: 200px;" v-model="param.box_model">
+                <el-option value="运输模式"></el-option>
+                <el-option value="正常模式"></el-option>
+                <el-option value="休眠关机"></el-option>
+            </el-select>
+        </div>
+
+        <div v-if="instruct=='box09'">
+            <el-input style="width: 100px;" v-model="param.box_sensitivity" placeholder="1~255"></el-input>
+            1~255
+        </div>
+
+    </div>
+</template>
+
+
+<script type="text/javascript">
+    var all_param = [
+        {value: "humidity", label: "相对湿度"},
+        {value: "temperature", label: "温度"},
+        {value: "voc", label: "有机挥发物"},
+        {value: "co2", label: "二氧化碳"},
+        {value: "light", label: "光照强度"},
+        {value: "uv", label: "紫外强度"},
+        {value: "organic", label: "有机污染物"},
+        {value: "inorganic", label: "无机污染物"},
+        {value: "sulfur", label: "硫化污染物"},
+        {value: "soil_temperature", label: "土壤温度"},
+        {value: "soil_humidity", label: "土壤含水率"},
+        {value: "soil_conductivity", label: "土壤电导率"},
+        {value: "cascophen", label: "甲醛"},
+        {value: "so2", label: "二氧化硫"},
+        {value: "no", label: "氮氧化物"},
+        {value: "o3", label: "臭氧"},
+        {value: "oxygen", label: "氧气浓度"},
+        {value: "lighting", label: "灯光亮度"},
+        {value: "accel", label: "加速度"}
+    ];
+    var all_param_name = {};
+    _.each(all_param, function (row) {
+        all_param_name[row.value] = row.label;
+    });
+
+    Vue.component('send-param', {
+        template: '#send_param_template',
+        props: ['instruct', 'param', 'show_note'],
+        data: function () {
+            return {
+                params: all_param
+            }
+        }
+    });
+</script>
+
+<template id="send_log_template">
+    <div>
+        <el-form ref="form" :model="form" style="padding-bottom: 10px;" :inline="true" onSubmit="return false;">
+            <el-input placeholder="请输入设备编号" style="width: 200px;" v-model="equip_no"
+                      @keyup.enter.native="get_history"></el-input>
+            <el-button type="primary" @click="get_history">查询</el-button>
+            <el-checkbox v-model="auto_load_history">自动刷新(10s),
+                <a href="javascript:void(0)" @click="get_history">立即刷新</a>
+            </el-checkbox>
+        </el-form>
+
+        <el-table :data="send_history_data" border highlight-row size="small" v-loading.body="loading">
+            <el-table-column type="index" width="60">
+                <template scope="scope">
+                    {{ (history_page - 1) * history_limit + scope.$index + 1 }}
+                </template>
+            </el-table-column>
+            <el-table-column label="设备编号" prop="equip_no" width="120">
+                <template scope="scope">
+                    <a target="_blank"
+                       :href="'sensor_local.html?sensor_no='+ (scope.row.equip_no.length > 11 ? scope.row.equip_no.slice(-11) : scope.row.equip_no)">
+                        {{ scope.row.equip_no.length > 11 ? scope.row.equip_no.slice(-11) : scope.row.equip_no }}
+                    </a>
+                </template>
+            </el-table-column>
+            <el-table-column label="指令" width="200">
+                <template scope="scope">
+                    {{ instruct_name(scope.row) }}
+                </template>
+            </el-table-column>
+            <el-table-column label="配置参数" prop="remark"></el-table-column>
+            <el-table-column label="状态(下发次数)取消" prop="status" width="150">
+                <template scope="scope">
+                    {{status_text(scope.row)}}
+                    <span v-show="scope.row.send_count>1">
+                    ({{scope.row.send_count}})
+                    </span>
+                    <i class="el-icon-delete2 cursor_pointer" @click="cancel_down(scope.row.id)"
+                       v-show="[1,2].indexOf(scope.row.send_status*1)!==-1" title="取消下发"></i>
+                </template>
+            </el-table-column>
+            <el-table-column label="创建时间" prop="operation_time" width="160">
+                <template scope="scope">
+                    {{ time_formatter(scope.row.operation_time) }}
+                </template>
+            </el-table-column>
+            <el-table-column label="下发时间" prop="send_time" width="160">
+                <template scope="scope">
+                    {{ time_formatter(scope.row.send_time) }}
+                </template>
+            </el-table-column>
+            <el-table-column label="反馈时间" prop="feedback_time" width="160">
+                <template scope="scope">
+                    {{ time_formatter(scope.row.feedback_time) }}
+                </template>
+            </el-table-column>
+            <el-table-column label="反馈结果" prop="feedback_data">
+                <template scope="scope">
+                    <div v-html="render_json(scope.row.feedback_data)"></div>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <div style="padding-top: 10px;">
+            <el-pagination :total="history_count"
+                           :current-page.sync="history_page"
+                           :page-size="history_limit"
+                           @current-change="get_history"
+                           @size-change="size_change"
+                           layout="total, sizes, prev, pager, next, jumper"
+                           ></el-pagination>
+        </div>
+    </div>
+</template>
+<script type="text/javascript">
+    Vue.component('send-log', {
+        template: '#send_log_template',
+        data: function () {
+            return {
+                send_history_data: [],
+                equip_no: '',
+                history_page: 1,
+                history_limit: 10,
+                history_count: 0,
+                auto_load_history: true,
+                loading: true,
+                form: {},
+            }
+        },
+        methods: {
+            size_change: function (size) {
+                this.history_limit = size;
+                this.get_history();
+            },
+            get_history: function () {
+                var $this = this;
+                $this.loading = true;
+                var query = {
+                    page: $this.history_page,
+                    rows: $this.history_limit,
+                    equip_no: $this.equip_no,
+                };
+                console.log(query);
+                $.post('sensor/send_log', query, function (data) {
+                    $this.loading = false;
+                    if (data.error) {
+                        $this.$message.error(data.error);
+                        return;
+                    }
+                    $this.send_history_data = data.rows;
+                    $this.history_count = data.total;
+                }, 'json').error(function () {
+                    $this.loading = false;
+                });
+
+            },
+            auto_load_history_fn: function () {
+                var $this = this;
+//                console.log(this.auto_load_history);
+                setTimeout(function () {
+                    $this.auto_load_history_fn();
+                    if ($this.auto_load_history && !$this.loading) {
+                        $this.get_history();
+                    }
+                }, 10000);
+            },
+            render_json: function (text, only_val) {
+                if (!text) {
+                    return '';
+                }
+                try {
+                    var t = JSON.parse(text);
+                    text = [];
+                    _.each(t, function (val, key) {
+                        text.push(only_val ? val : key + ':' + val);
+                    });
+                    text = text.join(only_val ? ',' : '<br/>');
+                } catch (e) {
+                    console.error(e, text);
+                }
+                return text;
+            },
+            status_text: function (row) {
+                var status_text = ['无反馈', '等待下发', '已下发', '已反馈', '组帧错误', '已取消'];
+                return status_text[row.send_status] || '';
+            },
+            instruct_name: function (row) {
+                if (!instructs[row.instruct]) {
+                    return '';
+                }
+                return instructs[row.instruct].name;
+            },
+            time_formatter: function (value) {
+                if (!value) {
+                    return '';
+                }
+                return new Date(value.length > 11 ? value : value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+            }, cancel_down: function (id) {
+                var $this = this;
+                console.log(id);
+                $.post("sensor/cancel_down", {id: id}, function (data) {
+                    if (data.error) {
+                        $this.$message.error(data.error);
+                        return;
+                    }
+                    $this.$message.info(data.msg);
+                    $this.get_history();
+                })
+            }
+        },
+        created: function () {
+            var $this = this;
+            $this.get_history();
+            $this.auto_load_history_fn();
+            $this.$root.$on('reload_history', function () {
+                console.log('reload_history');
+                $this.get_history();
+            });
+        }
+    });
+</script>
+
+<template id="feedback_log_template">
+    <div>
+        <el-form ref="form" :model="form" style="padding-bottom: 10px;" :inline="true" onSubmit="return false;">
+            <el-input placeholder="请输入设备编号" style="width: 200px;" v-model="sensor_no"
+                      @keyup.enter.native="get_history"></el-input>
+            <el-button type="primary" @click="get_history">查询</el-button>
+            <el-checkbox v-model="auto_load_history">自动刷新(10s),
+                <a href="javascript:void(0)" @click="get_history">立即刷新</a>
+            </el-checkbox>
+        </el-form>
+
+        <el-table :data="send_history_data" border highlight-row size="small" v-loading.body="loading">
+            <el-table-column type="index" width="60">
+                <template scope="scope">
+                    {{ (history_page - 1) * history_limit + scope.$index + 1 }}
+                </template>
+            </el-table-column>
+            <el-table-column label="设备编号" prop="sensor_no" width="120">
+                <template scope="scope">
+                    <a target="_blank"
+                       :href="'grid.html#/_data_sensor/'+ (scope.row.sensor_no.length > 11 ? scope.row.sensor_no.slice(-11) : scope.row.sensor_no)">
+                        {{ scope.row.sensor_no.length > 11 ? scope.row.sensor_no.slice(-11) : scope.row.sensor_no }}
+                    </a>
+                </template>
+            </el-table-column>
+            <el-table-column label="指令" prop="instruct" width="200">
+                <template scope="scope">
+                    {{ instruct_name(scope.row) }}
+                </template>
+            </el-table-column>
+
+            <el-table-column label="状态" prop="status" width="100"></el-table-column>
+            <el-table-column label="反馈时间" prop="feedback_time" width="160">
+                <template scope="scope">
+                    {{ time_formatter(scope.row.feedback_time) }}
+                </template>
+            </el-table-column>
+            <el-table-column label="反馈结果" prop="feedback_data">
+            </el-table-column>
+            <el-table-column label="原始数据" prop="raw_data">
+                <template scope="scope">
+                    {{ scope.row.raw_data.replace(/(.{2})/g, "$1 ") }}
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <div style="padding-top: 10px;">
+            <el-pagination :total="history_count"
+                           :current-page.sync="history_page"
+                           :page-size="history_limit"
+                           @current-change="get_history"
+                           @size-change="size_change"
+                           layout="total, sizes, prev, pager, next, jumper"
+                           ></el-pagination>
+        </div>
+    </div>
+</template>
+<script type="text/javascript">
+    Vue.component('feedback-log', {
+        template: '#feedback_log_template',
+        data: function () {
+            return {
+                send_history_data: [],
+                sensor_no: '',
+                history_page: 1,
+                history_limit: 10,
+                history_count: 0,
+                auto_load_history: true,
+                loading: true,
+                form: {},
+            }
+        },
+        methods: {
+            size_change: function (size) {
+                this.history_limit = size;
+                this.get_history();
+            },
+            get_history: function () {
+                var $this = this;
+                $this.loading = true;
+                var query = {
+                    page: $this.history_page,
+                    rows: $this.history_limit,
+                    no: $this.sensor_no,
+                };
+                console.log(query);
+                $.post('sensor/feedbackList', query, function (data) {
+                    $this.loading = false;
+                    if (data.error) {
+                        $this.$message.error(data.error);
+                        return;
+                    }
+                    $this.send_history_data = data.rows;
+                    $this.history_count = data.total;
+                }, 'json').error(function () {
+                    $this.loading = false;
+                });
+
+            },
+            auto_load_history_fn: function () {
+                var $this = this;
+//                console.log(this.auto_load_history);
+                setTimeout(function () {
+                    $this.auto_load_history_fn();
+                    if ($this.auto_load_history && !$this.loading) {
+                        $this.get_history();
+                    }
+                }, 10000);
+            },
+            instruct_name: function (row) {
+                if (!instructs[row.instruct]) {
+                    return row.instruct;
+                }
+                return instructs[row.instruct].name;
+            },
+            time_formatter: function (value) {
+                if (!value) {
+                    return '';
+                }
+                return new Date(value.length > 11 ? value : value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+            }
+        },
+        created: function () {
+            this.get_history();
+            this.auto_load_history_fn();
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    var default_tab = window.location.hash != "" ? window.location.hash.slice(1) : 'send';
+
+    var vm = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                activeName: default_tab,
+            }
+        },
+        methods: {
+            handleClick: function (tab) {
+//                console.log(tab, event);
+                window.location.hash = "#" + tab.name;
+            },
+            get_history: function () {
+                this.$emit('reload_history');
+            }
+        }
+
+    });
+
+
+    var instructs = {};
+
+    instructs['01'] = {
+        name: '设置工作模式(0x01)',
+        valid: function (param) {
+            var json = {};
+            json.model = param.model;
+            return {data: json, remark: '' + json.model};
+        }
+    };
+    instructs['02'] = {
+        name: '设置休眠周期(0x02)',
+        valid: function (param) {
+            var json = {};
+            json.sleep_period = param.sleep_period * 1;
+            json.unit = param.unit;
+            if (parseInt(json.sleep_period) != json.sleep_period) {
+                return {err: '休眠周期必须为整数'};
+            }
+            if (json.unit === 'hour') {
+                if (json.sleep_period > 55 || json.sleep_period < 1) {
+                    return {err: '休眠周期为1~55'};
+                }
+            } else {
+                if (json.sleep_period > 100 || json.sleep_period < 1) {
+                    return {err: '休眠周期为1~100'};
+                }
+            }
+            var units = {second: '秒', minute: '分钟', hour: '小时'};
+
+            return {data: json, remark: json.sleep_period + '' + units[json.unit]};
+        }
+    };
+    instructs['03'] = {
+        name: '同步系统时间(0x03)',
+        valid: function (param) {
+            return {data: {}, remark: ''}
+        }
+    };
+    instructs['04'] = {
+        name: '设置设备编号(0x04)',
+        valid: function (param) {
+            var json = {};
+            json.equip_no = param.equip_no + '';
+            var reg = /\d{11}/;
+            if (json.equip_no.length != 11) {
+                return {err: '设备编号应为11位'};
+            }
+            if (reg.exec(json.equip_no) == false) {
+                return {err: '设备编号应为11位数字'};
+            }
+            return {data: json, remark: json.equip_no};
+        }
+    };
+
+    instructs['10'] = {
+        name: '设置:量程(0x10)',
+        valid: function (param) {
+            var json = {};
+            json.range_param = param.range_param;
+            json.range_value1 = param.range_value1;
+            json.range_value2 = param.range_value2;
+            if (!json.range_value1) {
+                return {err: '请输入参数1'};
+            }
+            return {
+                data: json,
+                remark: all_param_name[json.range_param] + ',' + json.range_value1 + ',' + json.range_value2
+            };
+        }
+    };
+
+    instructs['11'] = {
+        name: '设置:预警范围(0x11)',
+        valid: function (param) {
+            var json = {};
+            json.alert_param = param.alert_param;
+            json.alert_value1 = param.alert_value1;
+            json.alert_value2 = param.alert_value2;
+            if (!json.alert_value1) {
+                return {err: '请输入参数1'};
+            }
+            return {
+                data: json,
+                remark: all_param_name[json.alert_param] + ',' + json.alert_value1 + ',' + json.alert_value2
+            };
+        }
+    };
+    instructs['12'] = {
+        name: '设置频率波特率(0x12)',
+        valid: function (param) {
+            var json = {};
+            json.f_rate = param.f_rate;
+            json.b_rate = param.b_rate;
+            return {data: json, remark: '频率:' + json.f_rate + ',波特率:' + json.b_rate};
+        }
+    };
+
+    instructs['20'] = {
+        name: '标定(0x20)',
+        valid: function (param) {
+            var json = {};
+            json.correction = param.correction;
+            json.crt_value = param.crt_value;
+
+            if (!json.crt_value) {
+                return {err: '标定值不能空'};
+            }
+            var crt_value = json.crt_value.replace('，', ',').split(',');
+
+            for (var i in crt_value) {
+                if (is_float(crt_value[i]) == false) {
+                    return {err: "第" + (parseInt(i) + 1) + "个标定值应为整数或小数"};
+                }
+            }
+            return {data: json, remark: all_param_name[json.correction] + ',' + json.crt_value};
+        }
+    };
+    instructs['21'] = {
+        name: '校正系数(0x21)',
+        valid: function (param) {
+            var json = {};
+            json.correction = param.correction;
+            json.crt_value = param.crt_value;
+
+            if (!json.crt_value) {
+                return {err: '校正值不能空'};
+            }
+            var crt_value = json.crt_value.replace('，', ',').split(',');
+            for (var i in crt_value) {
+                if (is_float(crt_value[i]) == false) {
+                    return {err: "第" + (parseInt(i) + 1) + "个校正值应为整数或小数"};
+                }
+            }
+            return {data: json, remark: all_param_name[json.correction] + ',' + json.crt_value};
+        }
+    };
+
+    instructs['22'] = {
+        name: '设置功能参数(0x22)',
+        valid: function (param) {
+            var json = {};
+            json.parameter = param.parameter;
+            json.func = param.func;
+            json.set_value = param.set_value;
+            if (!json.func) {
+                return {err: '功能参数不能空'};
+            }
+            var remark = all_param_name[json.parameter] + ',' + json.func;
+            if (['设置除湿目标值', '设置除湿时间', '终端传感器预热时间',
+                    '终端全范围湿度补偿值', '终端循环发送帧数', '终端全范围湿度补偿值',
+                    '终端全范围湿度补偿开关', '终端校正数值开关', '终端发送数据类型'
+                ].indexOf(json.func) !== -1) {
+
+                if (json.set_value === '') {
+                    return {err: '设定值不能空'};
+                }
+                remark += ',' + json.set_value;
+                if (['设置除湿时间', '终端传感器预热时间'].indexOf(json.func) !== -1) {
+                    json.set_unit = param.set_unit;
+                    if (parseInt(json.set_value) != json.set_value) {
+                        return {err: json.func + '必须为整数'};
+                    }
+                    if (json.set_unit === 'hour') {
+                        if (json.set_value > 55 || json.set_value < 1) {
+                            return {err: json.func + '为1~55'};
+                        }
+                    } else {
+                        if (json.set_value > 100 || json.set_value < 1) {
+                            return {err: json.func + '为1~100'};
+                        }
+                    }
+                    var units = {second: '秒', minute: '分钟', hour: '小时'};
+                    remark += ',' + units[json.set_unit];
+                }
+            }
+
+            return {data: json, remark: remark};
+        }
+    };
+
+    instructs['30'] = {
+        name: '设置调控模式(0x30)',
+        valid: function (param) {
+            var json = {};
+            json.c_model = param.c_model;
+            return {data: json, remark: json.c_model};
+        }
+    };
+    instructs['31'] = {
+        name: '设定调控目标值(0x31)',
+        valid: function (param) {
+            var json = {};
+            json.control = param.control;
+            json.min = param.min * 1;
+
+            if (json.min == '') {
+                return {err: '请输入调控值'};
+            }
+            if (json.control === 'humidity' && (json.min > 70 || json.min < 30)) {
+                return {err: '调控值(30~70)'};
+            }
+            if (json.control === 'lighting' && (json.min > 100 || json.min < 0)) {
+                return {err: '调控值(0~100)'};
+            }
+            json.max = json.min;
+            return {data: json, remark: all_param_name[json.control] + ',' + json.min};
+        }
+    };
+    instructs['32'] = {
+        name: '设置调控内部参数(0x32)',
+        valid: function (param) {
+            var json = {};
+            json.control_inner = param.control_inner;
+            json.c_order = param.c_order;
+            json.c_value = param.c_value;
+            if (json.c_order == '') {
+                return {err: '序号不能为空'};
+            }
+            if (json.c_value == '') {
+                return {err: '调控值不能为空'};
+            }
+            return {
+                data: json,
+                remark: all_param_name[json.control_inner] + ',序号:' + json.c_order + ',' + json.c_value
+            };
+        }
+    };
+    instructs['other'] = {
+        name: '自定义指令参数',
+        valid: function (param) {
+            var json = {};
+            json.other = param.other;
+            if (!json.other) {
+                return {err: '请输入指令及参数'};
+            }
+            if (!/^[0-9a-fA-F ]+$/.test(json.other)) {
+                return {err: '指令及参数必须为16进制'};
+            }
+
+            return {data: json, remark: json.other};
+        }
+    };
+
+    instructs['box01'] = {
+        name: '囊匣设置工作模式(0x01)',
+        valid: function (param) {
+            var json = {};
+            json.box_model = param.box_model;
+            return {data: json, remark: '' + json.box_model};
+        }
+    };
+    instructs['box09'] = {
+        name: '囊匣设置振动灵敏度(0x09)',
+        valid: function (param) {
+            var json = {};
+            json.box_sensitivity = param.box_sensitivity * 1;
+            if (!_.isNumber(json.box_sensitivity) || json.box_sensitivity < 1 || json.box_sensitivity > 255) {
+                return {err: '灵敏度为1~255'};
+            }
+            return {data: json, remark: '灵敏度为' + json.box_sensitivity};
+        }
+    };
+
+
+    function is_float(f) {
+        var reg = /(^-?(\d+|\d+\.\d+$))(?!.)/;
+        var ret = reg.exec(f);
+//        console.log(ret);
+        if (ret && ret.index == 0) {
+            return true;
+        }
+        return false;
+    }
+
+</script>
+
+
+</body>
+</html>

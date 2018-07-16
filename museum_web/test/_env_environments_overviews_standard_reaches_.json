@@ -1,0 +1,17 @@
+[
+  {
+    "quantity": 20,
+    "rate": 10,
+    "name": "主动调控"
+  },
+  {
+    "quantity": 30,
+    "rate": 12.5,
+    "name": "被动调控"
+  },
+  {
+    "quantity": 50,
+    "rate": 15,
+    "name": "仅监测"
+  }
+]

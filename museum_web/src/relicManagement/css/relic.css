@@ -1,0 +1,271 @@
+#relic.relic_manage{
+	position: absolute;
+    bottom:15px;
+    left:0;
+    right:0;
+    top:0;
+}
+#relic .drag{
+	right: 41px;
+}
+#relic .functionName{
+	background:#f5f8fd;
+}
+#relic .scrollContent>div:not(.drag){
+    margin:0 16px 24px 0;
+}
+.relicWaterfall{
+    margin-right:0 !important;
+    margin-bottom: 0 !important;
+}
+.relic .equipView{
+	margin: 0 10px;
+    overflow: hidden;
+}
+.relic li{
+	list-style:none;
+}
+.relic{
+	margin:0 17px 10px 0 !important;
+	cursor: pointer;
+}
+#relic .scrollWrap{
+	position: relative;
+	margin-top: 45px;
+    overflow-y: scroll;
+}
+.filterChooce .showHide span{
+    background: #1bbc9b url('../../capsule/images/equip_small.png') no-repeat -6px -458px;
+}
+.equipLocation.category{
+	background-position-y:-433px !important; 
+}
+.equipLocation.age{
+	background-position-y:-478px; 
+}
+.filterChooce .showHide{
+    background: url('../../capsule/images/equip_small.png') no-repeat 53px -430px;
+}
+.filterChooce .showHide.active{
+	background-position-y:-459px; 
+}
+#relic .drag{
+	margin-right: -35px;
+	opacity: 0;
+}
+#relic .contentFooter{
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+}
+
+/*添加文物*/
+#relic~.alertBox{
+    width: 815px !important;
+    overflow: hidden;
+}
+.Environmental_requirements{
+    /*width: 246px !important;*/
+    /*float: left;*/
+    /*margin-left: 36px;*/
+    left:34%;
+}
+.Management_information{
+    right:0;
+}
+.Environmental_requirements.data span{
+	display: inline-block;
+    width: 27px;
+    margin-top: 8px;
+    float: left;
+}
+.Environmental_requirements>div{
+    height: 46px;
+    margin-bottom: 20px;
+}
+.Environmental_requirements div p{
+	font-size: 12px;
+	color: #73797f;
+	margin: 5px 0;
+}
+
+.Environmental_requirements div[class$=Line] input{
+    width: 37px;
+    height: 20px;
+    font-size: 12px;
+    line-height: 17px;
+    color: #9fa3ac;
+    padding: 0;
+    text-align: center;
+}
+.oneLine:last-child{
+	position: relative;
+	top: -10px;
+}
+.oneLine p{
+    position: relative;
+    top: 10px;
+}
+.imgView{
+    height: 140px;
+    margin-top: 30px;
+}
+.treeSelect .env_tree_list li{
+    line-height: 20px;
+    padding: 0;
+}
+.treeSelect .env_tree_list li p{
+	font-size: 14px !important;
+    cursor: pointer;
+}
+.treeSelect ul.env_tree_list>li>div{
+	padding: 0;
+}
+.treeSelect{
+    max-height: 286px;
+    /*overflow-y: scroll;*/
+    /*margin-right: 13px;*/
+    border: 1px solid #ccc;
+    position: absolute;
+    width:90%;
+    /*display: none;*/
+    z-index: 999;
+    background: #fff;
+    color: #73797f;
+}
+.treeSelect ul.env_tree_list>li>div:first-child:hover input{
+    display: none;
+}
+.Management_information h6{
+	cursor: pointer;
+}
+#equip_add_image{
+    border: none !important;
+}
+.a-upload {
+    position: relative;
+    display: inline-block;
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    border-radius: 4px;
+    padding: 4px 12px;
+    overflow: hidden;
+    color: #1E88C7;
+    text-decoration: none;
+    text-indent: 0;
+    line-height: 20px;
+}
+.a-upload input {
+    position: absolute;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    opacity: 0;
+}
+.a-upload:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
+}
+
+
+.communicationInfo .fade-transition.ivu-tag.ivu-tag-closable span.ivu-tag-text{
+    width: 150px;
+    display: inline-block;
+    overflow: hidden;
+}
+.communicationInfo .fade-transition.ivu-tag.ivu-tag-closable i.ivu-icon.ivu-icon-ios-close-empty{
+    top: -5px;
+}
+.communicationInfo div.fade-transition.ivu-tag.ivu-tag-closable{
+    width: 90%;
+}
+
+/*文物页面改版,卡片视图变为表格视图*/
+#relic_container{
+    position: absolute;
+    left:15px;
+    right:0;
+    top:0;
+    bottom:0;
+}
+.relicTableContainer{
+    /*border: 1px solid red;*/
+    position: absolute;
+    left: 0;
+    right: 5px;
+    top: 60px;
+    bottom: 15px;
+}
+.relicTableContainer section.tableWrap{
+    position: absolute;
+    left:0;
+    right:0;
+    top:0;
+    bottom:37px;
+    overflow: auto;
+}
+.relicTableContainer section.tableWrap table{
+    width:100%;
+    border-collapse: collapse;
+}
+.relicTableContainer section.tableWrap table input[type="checkbox"]{
+    width:16px;
+    height:16px;
+    position: relative;
+    top:2px;
+}
+.relicTableContainer section.tableWrap table thead tr{
+    background-color:#D4EAE9;
+}
+.relicTableContainer section.tableWrap table tbody tr:nth-child(odd){
+    background-color:#FFFFFF;
+}
+.relicTableContainer section.tableWrap table tbody tr:nth-child(even){
+    background-color:#F3FBF9;
+}
+.relicTableContainer section.tableWrap table td,
+.relicTableContainer section.tableWrap table th{
+    border-collapse: collapse;
+    text-align: center;
+    height:40px;
+}
+.relicTableContainer section.tableWrap table td.left{
+    text-align: left;
+}
+.relicTableContainer footer{
+    position: absolute;
+    left:0;
+    right:0;
+    bottom:0;
+}
+.loading{
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background: rgba(255,255,255,0.5) url(../../capsule/images/loading.gif) no-repeat center center;
+}
+.nav_icon {
+    display: inline-block;
+    width: 16px;
+    height: 22px;
+    position: absolute;
+    top: -2px;
+    left: 5px;
+    background: url(../../capsule/images/environment_relic_icons.png) no-repeat -4px -51px;
+    cursor: pointer;
+}
+.relic_name_no img{
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #fff;
+    /* border: 1px solid dodgerblue; */
+    position: absolute;
+    top: 8px;
+    left: 2px;
+    vertical-align: bottom;
+}

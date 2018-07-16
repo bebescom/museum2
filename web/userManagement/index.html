@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+  <link rel="stylesheet" href="../common/css/left.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../js/iview/iview.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/css/header.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="css/userManagement.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="css/addUser.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="css/roleSetting.css?v=2.2.05_P001" />
+</head>
+<body>
+<div id="header" v-cloak>
+
+    <a class="logo" href="../capsule">
+        <div v-text="web_config.app_name"></div>
+    </a>
+
+    <div class="right_top_box">
+
+
+        <header-down v-ref:down></header-down>
+
+        <div class="warning_logo">
+            <Badge :count="all_num" overflow-count="99">
+                    <img src="../common/images/warning_logo.png" width="24" height="24" alt="" @click="warningList" />
+            </Badge>
+        </div>
+
+        <!--<div class="feedback">-->
+            <!--<a href="http://wpa.qq.com/msgrd?v=3&uin=3356346419&site=qq&menu=yes" target="_blank"></a>-->
+        <!--</div>-->
+
+        <!--<div class="user_logo">-->
+            <!--<img src="../common/images/man.png">-->
+
+        <!--</div>-->
+
+        <div class="user_drop">
+            <Dropdown placement="bottom-end">
+                <div class="user_name" v-text="web_config.user.real_name"></div>
+                <Dropdown-menu slot="list">
+
+                    <Dropdown placement="left-start" class="hide">
+                        <Dropdown-item class="view">
+                            切换视图
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item>地图视图</Dropdown-item>
+                            <Dropdown-item>数据视图</Dropdown-item>
+                            <Dropdown-item>工作视图</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="user_set hide">账户设置</Dropdown-item>
+                    <Dropdown-item class="system_set hide">系统设置</Dropdown-item>
+                    <Dropdown-item class="help hide">帮助中心</Dropdown-item>
+                    <Dropdown-item class="paramSetting" @click="paramSetting">平台参数设置</Dropdown-item>
+                    <Dropdown-item class="user_set permissionHidden" @click="userManagement(user)"
+                                   v-permission="{name:'用户管理'}">用户管理
+                    </Dropdown-item>
+                    <Dropdown placement="left-start">
+                        <Dropdown-item class="view">
+                            切换语言
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item @click="change_language('chinese')">汉语</Dropdown-item>
+                            <Dropdown-item @click="change_language('tibetan')">藏语</Dropdown-item>
+                            <Dropdown-item @click="change_language('english')">英语</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="logout" @click.stop="exit">退出登录</Dropdown-item>
+
+                </Dropdown-menu>
+            </Dropdown>
+        </div>
+    </div>
+</div>
+
+<template id="header_down">
+    <div class="equip_down" >
+
+        <Dropdown trigger="custom" :visible="show_list_key">
+            <Badge :count="downLoadingLen">
+                <img src="../common/images/loading_img.png" alt="下载loading" @click.stop="show_list">
+            </Badge>
+            <!--<i class="loadingNumber" v-text="downLoadingLen"></i>-->
+            <Dropdown-menu slot="list" style="width: 350px;">
+                <li class="loading_div" v-for="(index,item) in downLoadList">
+                    <div class="singleDown" :classno="item.noClass">
+                        <i :class="item.down_status"></i>
+                        <Poptip trigger="hover" :content="item.file_name">
+                            <span v-text="item.file_name"></span>
+                        </Poptip>
+                        <Icon v-show="item.url" type="ios-download-outline" @click.stop="down_file(item.url)"
+                              class="download_file" data-title="下载文件" size="24"></Icon>
+                        <i class="reloading" @click.stop="re_down(item.msg_id)"
+                           v-show="item.down_status === 'singleDown_reloading'"></i>
+                        <i class="singleDown_clear" @click.stop="del_down(item.msg_id)"></i>
+                    </div>
+                </li>
+
+            </Dropdown-menu>
+        </Dropdown>
+
+        <Progress :percent="45" :stroke-width="5" status="active" v-show="downLoadingLen" hide-info></Progress>
+
+    </div>
+
+</template>
+<script type="text/javascript" src="../js/mod.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/socket.io.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/underscore-min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/jquery-1.10.2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/vue.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/iview/iview.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/tooltip.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/store2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/socket.io.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/permission.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/vue-router.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/header.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/left.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="addUser.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="editUser.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="roleSetting.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="userManagement.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="index.js?v=2.2.05_P001" ></script>
+<script type="text/javascript">
+    Vue.component('header-down', {
+        template: '#header_down',
+        data: function () {
+            return {
+                show_loading_key: true,//是否显示下载
+                show_list_key: false,//是否显示下拉列表
+                downLoadList: {},//设备下载传输数据
+            }
+        },
+        computed: {
+            downLoadListLength: function () {
+                return _.size(this.downLoadList);
+            },
+            downLoadingLen: function () {
+                var _len = 0;
+                for (var i in this.downLoadList) {
+                    if (this.downLoadList[i].down_status === 'singleDown_status_change') {
+                        ++_len;
+                    }
+                }
+                return _len;
+            }
+        },
+        ready: function () {
+            var _this = this;
+            _this.downLoadList = my_store('downloadEquipData') || {};
+            if (_this.downLoadListLength) {
+                _this.show_loading_key = true;
+            }
+            //下载完成后的通知
+            window.socket.on("downEquipDataEnd", function (json) {
+                console.log(json);
+                setTimeout(function () {
+                    if (_this.downLoadList[json.msg_id]) {
+                        window.socket.emit("downEquipDataAck", json);//确认收到消息
+                        _this.end_down(json);//下载完成
+                    }
+                }, 0);
+            });
+
+            window.new_down = _this.new_down;//新建下载队列
+
+        },
+        methods: {
+            show_list: function () {
+                // console.log(this.downLoadingLen)
+                // if(!this.downLoadingLen){//当下载数据为0时，不执行下载
+                //     return
+                // }
+                this.show_list_key = !this.show_list_key;
+            },
+            re_down: function (msg_id) {//重新下载
+                var _this = this;
+                if (!msg_id || !_this.downLoadList[msg_id]) {
+                    return;
+                }
+                setTimeout(function () {
+                    _this.new_down(_this.downLoadList[msg_id]);
+                }, 0);
+            },
+            del_down: function (item_id) {//删除某个下载任务
+                console.log('del_down', item_id);
+                var _this = this;
+                var _list = my_store('downloadEquipData') || {};
+                delete _list[item_id];
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _this.downLoadList);
+
+                if (_this.downLoadListLength === 0) {
+                    _this.show_loading_key = false;
+                    _this.show_list_key = false;
+                }
+            },
+            down_file: function (url) {//下载文件
+                if (url) {
+                    window.location.href = ('/2.2.05_P001/base_api' + url.slice(1));
+                }
+            },
+            new_down: function (msg) {//新建下载任务
+                var _this = this;
+                msg.msg_id = msg.msg_id || 'down_' + new Date().getTime() + '_' + Math.random();
+                msg.down_status = 'singleDown_status_change';
+                msg.access_token = window.web_config.token;
+                var _list = my_store('downloadEquipData') || {};
+                _list[msg.msg_id] = msg;
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _this.downLoadList);
+                _this.show_loading_key = true;
+                window.socket.emit('downEquipData', msg);
+
+            },
+            end_down: function (json) {//下载队列完成
+                var _this = this;
+                if (!json.result) {
+                    _this.$Message.error('下载失败');
+                }
+                var _list = my_store('downloadEquipData') || {};
+                _list[json.msg_id].down_status = json.result ? 'singleDown_status' : 'singleDown_reloading';
+                if (json.url) {
+                    _list[json.msg_id].url = json.url;
+                }
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _list);
+                setTimeout(function () {
+                    _this.show_list_key = true;
+                    if (json.result && json.url) {
+                        var url = json.url.slice(1);
+                        var a = window.open('/2.2.05_P001/base_api' + url);
+                        console.log(a);
+                    }
+                }, 200);
+            }
+        },
+        events: {
+            hideOverlay: function () {
+                if (this.show_loading_key) {
+                    this.show_loading_key = false;
+                }
+            }
+        }
+    });
+</script>
+
+
+
+<div id="left">
+    <ul>
+    	<li class="integrated permissionHidden" v-permission="{name:'综合管理'}">
+			<a href="../capsule/#!/integrated">
+				<span></span>
+				<span v-text="language.left_integrated"></span>
+			</a>
+		</li>
+		<li class="capsule permissionHidden"  v-if="capsule=='1'" v-permission="{name:'智能囊匣'}">
+			<a href="../capsule/#!capsule">
+				<span></span>
+				智能囊匣
+			</a>
+		</li>
+		<li class="monitoring permissionHidden" v-permission="{name:'环境监控'}">
+			<a href="../capsule/#!/environment">
+				<span></span>
+				<span v-text="language.left_environmentalMonitor"></span>
+			</a>
+		</li>
+		<li class="vibration permissionHidden" v-if="vibration=='1'" v-permission="{name:'震动监测'}">
+            <a href="../vibration">
+                <span></span>
+                震动监测
+            </a>
+        </li>
+		<li class="relic_ permissionHidden" v-permission="{name:'文物管理'}">
+			<a href="../capsule/#!/relic">
+				<span></span>
+				<span v-text="language.left_relicManagement"></span>
+			</a>
+		</li>
+		<li class="equipment permissionHidden" v-permission="{name:'设备管理'}">
+			<a href="../equipManage">
+				<span></span>
+				<span v-text="language.left_equipManagement"></span>
+			</a>
+		</li>
+    </ul>
+</div>
+
+<div id="content" v-cloak>
+    <router-view></router-view>
+</div>
+<!--用户管理模块-->
+<template id="userManagement">
+    <header class="userManagementHeader clear">
+        <div class="left lf">
+            <!--跳转返回功能暂时取消-->
+            <!--@click="goBack"-->
+            <!--<Icon type="chevron-left" style="margin-right:5px;"></Icon>-->
+            <span class="headerTitle noHand">用户管理</span>
+        </div>
+        <div class="rf">
+            <i-button v-link="{ path: '/addUser' }" class="routerButton permissionHidden" v-permission="{name:'添加用户'}">
+                新建用户
+            </i-button>
+            <i-button v-link="{ path: '/roleSetting' }" class="routerButton permissionHidden" v-permission="{name:'角色设置'}">
+                角色设置
+            </i-button>
+        </div>
+    </header>
+    <section class="userManagementSection clear">
+        <i-table v-show="users&&users.length!=0" :height="sectionHeight" :columns="tableHead" :data="users" :stripe="true" ></i-table>
+        <page-list :page.sync="page" :allpage="page_num" :count="total"></page-list>
+        <div class="loading" v-show="showLoading"></div>
+    </section>
+</template>
+
+<!--新建用户模块-->
+<template id="addUser">
+    <div id="addUserT">
+        <div class="header">
+            <div class="left lf">
+                <span class="headerTitle" @click.prevent.stop="backUserManage"><Icon type="chevron-left" style="margin-right:5px;"></Icon>新建用户</span>
+            </div>
+            <i-button type="ghost" class="reset" @click="resetSubmit">还原</i-button>
+            <i-button type="ghost" class="save" @click="handleSubmit">保存</i-button>
+        </div>
+        <div class="content">
+            <i-form v-ref:form="validate" :model="formValidate" :rules="ruleValidate" :label-width="80" label-position="left">
+                <Form-item label="用户名" prop="name">
+                    <i-input :value.sync="formValidate.name" placeholder="请输入邮箱/手机格式登录名" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="昵称" prop="nickname">
+                    <i-input :value.sync="formValidate.nickname" placeholder="请输入昵称" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="密码" prop="passwd">
+                    <i-input type="password" :value.sync="formValidate.passwd" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="重复密码" prop="passwdCheck">
+                    <i-input type="password" :value.sync="formValidate.passwdCheck" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="手机号" prop="phoneNumber">
+                    <i-input  :value.sync="formValidate.phoneNumber" placeholder="请输入手机号" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="邮箱" prop="mail">
+                    <i-input  :value.sync="formValidate.mail" placeholder="请输入邮箱" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="用户角色" prop="userRole">
+                    <Checkbox-group :model.sync="formValidate.userRole">
+                        <Checkbox :value='item.name' v-for="(index,item) in formValidate.userRole" track-by="$index" v-show="item.name"></Checkbox>
+                    </Checkbox-group>
+                </Form-item>
+            </i-form>
+        </div>
+    </div>
+
+</template>
+
+<!--编辑用户模块-->
+<template id="editUser">
+    <div id="addUserT">
+        <div class="header">
+            <div class="left lf">
+                <span class="headerTitle" @click.prevent.stop="backUserManage"><Icon type="chevron-left" style="margin-right:5px;"></Icon>编辑用户</span>
+            </div>
+            <!--<i-button type="ghost" class="reset" @click="resetSubmit">还原</i-button>-->
+            <i-button type="ghost" class="save" @click="handleSubmit">保存</i-button>
+        </div>
+        <div class="content">
+            <i-form v-ref:form="validate" :model="formValidate" :rules="ruleValidate" :label-width="80" label-position="left">
+                <Form-item label="登录名" prop="name">
+                    <i-input :value.sync="formValidate.name" placeholder="请输入邮箱格式登录名" style = "width:400px" readonly disabled></i-input>
+                </Form-item>
+
+                <Form-item label="昵称" prop="nickname">
+                    <i-input :value.sync="formValidate.nickname" placeholder="请输入昵称" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="密码" prop="passwd">
+                    <i-input type="password" :value.sync="formValidate.passwd" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="重复密码" prop="passwdCheck">
+                    <i-input type="password" :value.sync="formValidate.passwdCheck" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="手机号" prop="phoneNumber">
+                    <i-input  :value.sync="formValidate.phoneNumber" placeholder="请输入手机号" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="邮箱" prop="mail">
+                    <i-input  :value.sync="formValidate.mail" placeholder="请输入邮箱" style = "width:400px"></i-input>
+                </Form-item>
+
+                <Form-item label="用户角色" prop="userRole">
+                    <Checkbox-group :model.sync="formValidate.userRole" >
+                        <!--@on-change="showUserRole"-->
+                        <Checkbox :value='item' v-for="(index,item) in roleList" track-by="$index"></Checkbox>
+                    </Checkbox-group>
+                </Form-item>
+            </i-form>
+        </div>
+    </div>
+
+</template>
+
+<!--角色设置模块-->
+<template id="roleSetting">
+
+    <div id="roleSettingT">
+        <div class="header">
+            <div class="left lf" @click="backUserManage">
+                <span class="headerTitle"><Icon type="chevron-left" style="margin-right:5px;"></Icon>角色设置</span>
+            </div>
+            <!--<div class="title" style="cursor: pointer" @click.prevent.stop="backUserManage"> < 角色设置</div>-->
+            <i-button type="ghost" class="addRole" @click="addRole" v-show="addRoleKey">添加角色</i-button>
+            <i-button type="ghost" class="saveRole" @click="saveRole" v-show="saveRoleKey">保存角色</i-button>
+        </div>
+        <Modal
+                :visible.sync="addRoleModal"
+                title="添加角色"
+                @on-ok="addSaveRole"
+                @on-cancel="cancelAdd"
+        >
+            <div class="addroleDiv">
+                <p class="juename" style="font-weight: 600;font-size: 12px;margin-bottom: 5px">角色名称</p>
+                <i-input :value.sync="inputRoleName" placeholder="请输入角色名称" style="width: 300px" @on-blur="checkTong" @on-focus="checkTongFocus"></i-input>
+                <p style="color:red;" v-show="spacing">角色名不能包含空格</p>
+                <p style="color:red;" v-show="checkTongB">已存在这个角色名，请重新填写!</p>
+                <p style="color:red;" v-show="checkTongEmpty">角色名不能为空，请重新填写!</p>
+            </div>
+        </Modal>
+        <div class="content" v-cloak>
+            <Tabs type="card" :animated="animated" @on-tab-remove="removeRole" @on-click="changeRole" :closable = "closebleShow" track-by="$index" v-cloak>
+                <Tab-pane v-for = "(indexs,items) in rolesDataCopy" :label="items.name">
+                    <div class="permissions" v-for="(index,item) in permissionData" style="margin-bottom: 15px">
+                        <Checkbox-group :model="checkAll" style="margin-left: 20px" @on-change="changePermission">
+                            <Checkbox :value="changeEnglish(index)" :indeterminate="titlePermissions.indexOf(changeEnglish(index))!= -1" @click="titlePermission(index)" :disabled="disabledGroupTitle"></Checkbox><br/>
+                            <Checkbox :value="permi.name" v-for="(key,permi) in item" :disabled="disabledGroup"></Checkbox>
+                        </Checkbox-group>
+                    </div>
+                </Tab-pane>
+            </Tabs>
+            <div id="environmentTree" v-show="environmentTreeShow">
+                <Tree :data="baseData" show-checkbox></Tree>
+            </div>
+        </div>
+        <div class="loading" v-show="showLoading"></div>
+        <!--<div class="shadow" v-show="shadow"></div>-->
+    </div>
+
+</template>
+
+<!--引入页码组件-->
+<!--使用方法-->
+<!--<page-list @turn-page="turnPage" :page.sync="page" :allPage="allPage" :count.sync="count"></page-list>-->
+<!--参数含义-->
+<!--turnPage:父级有一个方法,处理分页组件的页码切换事件-->
+<!--page:双向绑定,子组件页码改动,直接反映到父级-->
+<!--allPage:总的页数,父组件根据表格高度,计算limit,limit为每页最多条数,分页结果根据每页数量,后台计算总页数-->
+<!--count:后台统计,数据记录总数-->
+<style>
+	/*footer*/
+	.clear:after{
+		clear: both;
+		content: '';
+		zoom: 1;
+		display: block;
+	}
+	.equipFooter:after{
+		clear: both;
+		content: '';
+		display: block;
+		zoom:1;
+		height: 2px;
+	}
+	.pageList{
+	    position: relative;
+    	/*left: -50%;*/
+		/*页码数字改为居左*/
+		left:0;
+	}
+	.pageList li {
+	    list-style: none;
+	    padding: 0 8px !important;
+	    height: 31px;
+		line-height: 31px;
+	    float: left;
+	    text-align: center;
+	    font-size: 16px;
+	    color: #9fa3ac;
+	    cursor: pointer;
+	}
+	.pageList li.active {
+	    color: #1bbc9b;
+	    cursor: pointer;
+	}
+	.relative{
+	    position: relative;
+	    display: inline-block;
+	    /*left: 50%;*/
+		/*页码数字改为居左*/
+		left:0;
+	}
+	.count{
+        float: right;
+		font-size: 16px;
+		color: #9fa3ac;
+        height:31px;
+        line-height: 31px;;
+	}
+</style>
+<!-- 分页 页码 模板 -->
+<template id="pageList">
+	<div class="equipFooter">
+		<div class="relative" v-show="count!=0">
+			<ul @click="changePage" class="pageList clear">
+				<li class="back" @click="back"></li>
+				<li :class="{'active':page==1}">1</li>
+				<li class="omit" v-show="key.left">...</li>
+				<li v-for="num in pages" :class="{'active':page==num}" v-text="num"></li>
+				<li class="omit" v-show="key.right">...</li>
+				<li v-text="allpage" v-show="allpage>1" :class="{'active':page==allpage}"></li>
+				<li class="next" @click="next"></li>
+			</ul>
+		</div>
+		<span class="count" style="margin-right:20px;">数据总数：{{count||0}}</span>
+	</div>
+</template>
+
+
+<script>
+	Vue.component('page-list',{
+		template:'#pageList',
+		props:['page','allpage','count'],
+		computed:{
+			pages:function(){
+				var obj=fn_each(this.page,this.allpage);
+				this.key.left=obj.left;
+				this.key.right=obj.right;
+				return obj.arr;
+			}
+		},
+		data:function(){
+			return {
+				key:{
+					left:false,
+					right:false
+				}
+			}
+		},
+		methods:{
+			changePage:function(e){
+				var element=e.target||e.srcElement,
+					newPage=parseInt($(element).html());
+				if(isNaN(newPage)){
+					return false;
+				}
+				this.page=newPage;
+				this.changeActive();
+			},
+			back:function(){
+				this.page--;
+				if(this.page<1){
+					this.page=1;
+				}
+				this.changeActive();
+			},
+			next:function(){
+				this.page++;
+				if(this.page>this.allpage){
+					this.page=this.allpage||1;
+				}
+				this.changeActive();
+			},
+			changeActive:function(){
+				this.$dispatch('turn-page');
+			}
+		},
+		events:{
+			'resetPage':function(page){
+//			    console.log(page);
+				this.page=page||1;
+				this.changeActive();
+			}
+		}
+	});
+	
+	var fn_each=each(isAllPage_10,isPage_between,isPage_1_4,isPage_Max_4);
+	
+	function each(){
+		var fn_list=Array.prototype.slice.call(arguments);
+		return function(){
+			for(var i=0,len=fn_list.length;i<len;i++){
+				var key=fn_list[i].apply(this,arguments);
+				if(key!==false){
+					return key;
+				}
+			}
+		}
+	}
+	function isAllPage_10(page,allPage){		//页码总数9个及9个以内
+		var arr=[];
+		if(allPage<=10){
+			for(var i=2;i<allPage;i++){
+				arr.push(i);
+			}
+			return {
+				arr:arr,
+				left:false,
+				right:false
+			};
+		}
+		return false;
+	}
+	function isPage_1_4(page,allPage){			//页码在1到其后面4个
+		var arr=[];
+		if(page<=5){
+			for(var i=2;i<=6;i++){
+				arr.push(i);
+			}
+			return {
+				arr:arr,
+				left:false,
+				right:true
+			};
+		}
+		return false;
+	}
+	function isPage_Max_4(page,allPage){			//页码在MAX页到其前面4个
+		var arr=[];
+		if(page>=(allPage-4)){
+			for(var i=allPage-1;i>=allPage-5;i--){
+				arr.push(i);
+			}
+			return {
+				arr:arr.reverse(),
+				left:true,
+				right:false
+			};
+		}
+		return false;
+	}
+	function isPage_between(page,allPage){			//页码同时不满足前两种条件
+		var arr=[];
+		if(page>5&&page<(allPage-4)){
+			for(var i=page-2;i<=page+2;i++){
+				arr.push(i);
+			}
+			return {
+				arr:arr,
+				left:true,
+				right:true
+			};
+		}
+		return false;
+	}
+
+</script>
+
+<script>
+    require('userManagement/index');
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>设备状态改变历史</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="js/init.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorgrid'>
+</table>
+
+<div id="sensortool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+
+        设备No:<input size="10" type="text" name="equip_no" id="equip_no" value=""/>
+
+        <button type="submit" class="easyui-linkbutton">查询</button>
+    </form>
+
+</div>
+
+
+<script type="text/javascript">
+
+    $('#sensorgrid').datagrid({
+        url: 'sensor/equip_operation',
+        toolbar: '#sensortool',
+        singleSelect: true,
+        rownumbers: true,
+        pagination: true,
+        pagePosition: 'top',
+//        fitColumns: true,
+        fit: true,
+        pageSize: 50,
+        pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+        remoteSort: false,
+        columns: [
+            [
+                {field: 'equip_no', width: 200, title: '设备No'},
+                {field: 'operation', width: 150, title: '操作类型'},
+                {field: 'operator', width: 150, title: '操作人员'},
+                {
+                    field: 'operation_time', width: 150, title: '操作时间',
+                    formatter: function (value) {
+                        return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                    }
+                },
+                {field: 'remark', title: '备注'}
+            ]
+        ]
+
+    });
+
+    function searchSensor() {
+        var equip_no = $('#equip_no').val();
+
+        $('#sensorgrid').datagrid('load', {
+            equip_no: equip_no
+        });
+    }
+
+
+</script>
+</body>
+</html>

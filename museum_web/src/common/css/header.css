@@ -1,0 +1,399 @@
+@charset "UTF-8";
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "微软雅黑";
+}
+
+.cursor_pointer {
+    cursor: pointer;
+}
+
+::-webkit-scrollbar {
+    background-color: transparent;
+    width: 10px;
+    height: 10px;
+}
+
+/*滚动条里面的小方块，能上下左右移动(取决于是垂直滚动条还是水平滚动条)*/
+::-webkit-scrollbar-thumb {
+    background: rgba(27, 188, 155, .5);
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+}
+
+/*滚动条交角样式*/
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+    background: rgba(27, 188, 155, .5);
+}
+
+a {
+    text-decoration: none;
+    color: #7f8282;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #1bbc9b;
+}
+
+div.clear {
+    clear: both;
+}
+
+.ng-hide, .hide {
+    display: none;
+}
+
+/* header */
+
+#header {
+    width: 100%;
+    height: 83px;
+    /* background-color: #5a9e6d; */
+    background-color: #1bbc9b;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 999;
+}
+
+#header a.logo:hover {
+    text-decoration: none;
+}
+
+#header a.logo {
+    display: inline-block;
+    text-decoration: none;
+    margin-left: 36px;
+}
+
+#header a.logo div {
+    padding-left: 84px;
+    height: 80px;
+    font-size: 32px;
+    font-family: "微软雅黑";
+    color: #ffffff;
+    cursor: pointer;
+    background: url("../images/logo.png") no-repeat 0;
+    line-height: 80px;
+}
+
+#header .right_top_box {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 9;
+    height: 60px;
+}
+
+#header .right_top_box * {
+    box-sizing: border-box !important;
+}
+
+#header .feedback {
+    display: inline-block;
+    width: 100px;
+    height: 60px;
+    padding-top: 18px;
+    overflow: hidden;
+}
+
+#header .feedback a {
+    width: 26px;
+    height: 24px;
+    background: url('../images/txtbtn3.png');
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+}
+
+#header .user_logo {
+    width: 100px;
+    height: 60px;
+    display: inline-block;
+    overflow: hidden;
+}
+
+#header .user_logo img {
+    width: 50px;
+    height: 52px;
+    display: block;
+    margin: 0 auto;
+}
+
+#header .warning_logo{
+    width: 100px;
+    height: 60px;
+    display: inline-block;
+    overflow: hidden;
+    padding-top: 20px;
+    padding-left: 15px;
+}
+
+#header .warning_logo img{
+    display: inline-block;
+    cursor: pointer;
+}
+#header .warning_logo .ivu-badge-count-alone,#header .equip_down .ivu-badge-count-alone{
+    top:-10px;
+    position: absolute;
+    transform: translateX(50%);
+}
+
+#header  .user_drop {
+    width: 150px;
+    height: 60px;
+    display: inline-block;
+    overflow: hidden;
+    padding-top: 20px;
+}
+
+#header .user_name {
+    font-size: 16px;
+    color: #bce8b7;
+    background: url('../images/xbtn.png') no-repeat right;
+    white-space: nowrap;
+    max-width: 112px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 28px;
+    cursor: pointer;
+}
+
+#header .user_drop li {
+    line-height: 29px;
+    list-style: none;
+    height: 29px;
+    margin: 0;
+    padding: 0 33px;
+    font-size: 14px;
+    color: #647481;
+    cursor: pointer;
+    background: #fff url("../images/man_con.png") no-repeat 0 -4px;
+}
+
+#header .user_drop li:hover {
+    background-color: #bce8b7;
+}
+
+#header li.view {
+    background-position: 0 -4px;
+}
+
+#header li.user_set {
+    background-position: -2px -28px;
+}
+
+#header li.system_set {
+    background-position: 0 -57px;
+}
+
+#header li.help {
+    background-position: 0 -88px;
+}
+
+#header li.paramSetting {
+    background-position: -1px -56px;
+}
+
+#header li.userManagement {
+    background-position: -2px -28px;
+}
+
+#header li.logout {
+    background-position: 0 -114px;
+}
+
+#header .user_drop .ivu-select-dropdown {
+    max-width: 150px;
+}
+
+/*header部分结束*/
+
+.ellipsis {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.upload_mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgba(0, 0, 0, 0.3);
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    display: -webkit-box;
+    -webkit-box-orient: horizontal;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+}
+
+.upload_mask > div {
+    height: 50px;
+    background: url("../images/loading.gif") no-repeat left center;
+    padding-left: 50px;
+    line-height: 50px;
+    color: #fff;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+.permissionHidden {
+    display: none !important;
+}
+
+#header .equip_down {
+    width: 100px;
+    height: 60px;
+    display: inline-block;
+    overflow: hidden;
+    padding-top: 20px;
+}
+
+#header .equip_down img {
+    margin-left: 38px;
+}
+
+.equip_down img:hover {
+    cursor: pointer;
+}
+
+.equip_down .loading_list {
+    width: 330px;
+    height: 150px;
+    position: relative;
+    overflow-y: scroll;
+    right: 54px;
+    top: 15px;
+    background: #FFF;
+    border-radius: 5px;
+    box-shadow: -2px 0 2px #eee, /*左边阴影*/ 2px 0 2px #eee, /*右边阴影*/ 0 -2px 2px #eee, /*顶部阴影*/ 0 2px 2px #eee; /*底边阴影*/
+}
+
+.singleDown {
+    position: relative;
+}
+
+.singleDown > .ivu-poptip {
+    position: absolute;
+    top: 15px;
+}
+
+.singleDown .ivu-poptip span {
+    width: 200px;
+    height: 20px;
+    overflow: hidden;
+    display: inline-block;
+    cursor: default;
+}
+
+.singleDown .singleDown_status,
+.singleDown .singleDown_clear,
+.singleDown .singleDown_status_change,
+.singleDown .singleDown_reloading {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+}
+
+.singleDown .singleDown_status {
+    background: url("../images/loading_success.png") no-repeat 0;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.singleDown .singleDown_status_change {
+    background: url("../images/loading_load.gif") no-repeat 0;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.singleDown .singleDown_reloading {
+    background: url("../images/loading_error.png") no-repeat 0;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.singleDown .singleDown_clear {
+    background: url("../floor_hall/img/closekey.png") no-repeat 10px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.singleDown .singleDown_clear:hover {
+    background: url("../floor_hall/img/closekeyhover.png") no-repeat 10px;
+}
+
+.singleDown .reloading {
+    background: url("../images/loading_refresh.png") no-repeat 3px;
+    position: absolute;
+    right: 40px;
+    top: 15px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+
+.singleDown .download_file {
+    position: absolute;
+    right: 67px;
+    top: 11px;
+    cursor: pointer;
+}
+
+.singleDown .reloading:hover {
+    cursor: pointer;
+}
+
+.equip_down .ivu-progress-outer {
+    width: 70px;
+    margin-left: 15px;
+}
+
+.equip_down .ivu-progress-outer .ivu-progress-bg {
+    width: 100% !important;
+    height: 5px !important;
+}
+.equip_down .ivu-select-dropdown{
+    padding: 0;
+}
+
+.loadingNumber {
+    display: inline-block;
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    top: 8px;
+    left: 55px;
+    border-radius: 50%;
+    color: #fff;
+    font-style: normal;
+}
+
+
+.clear_env {
+    /* height: 30px; */
+    position: absolute;
+    right: -54px;
+    bottom: 0px;
+    font-size: 14px;
+}
+
+.clear_env span {
+    border: none
+}

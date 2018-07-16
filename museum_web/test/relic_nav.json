@@ -1,0 +1,7 @@
+{
+	"name":"布达拉宫",
+	"where":{"keyName":"珍宝馆","list_name":[{"name":"xxx","link":"123"},{"name":"xxx","link":"123"}]},
+	"floor":{"keyName":"二层","list_name":[{"name":"xxx","link":"123"},{"name":"xxx","link":"123"},{"name":"xxx","link":"123"},{"name":"xxx","link":"123"}]},
+	"screen":{"keyName":"汉韵书画厅","list_name":[{"name":"xxx","link":"123"},{"name":"xxx","link":"123"},{"name":"xxx","link":"123"}]},
+	"relic":{"keyName":"大风堂独立展柜","list_name":[{"name":"xxx","link":"123"},{"name":"xxx","link":"123"}]}
+}

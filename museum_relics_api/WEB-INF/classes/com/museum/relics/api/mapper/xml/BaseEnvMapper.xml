@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.relics.api.mapper.BaseEnvMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.museum.relics.api.entity.BaseEnv">
+		<id column="id" property="id" />
+		<result column="env_no" property="envNo" />
+		<result column="parent_env_no" property="parentEnvNo" />
+		<result column="name" property="name" />
+		<result column="type" property="type" />
+		<result column="map" property="map" />
+		<result column="locate" property="locate" />
+		<result column="sort" property="sort" />
+		<result column="size" property="size" />
+		<result column="volume" property="volume" />
+		<result column="tag_no" property="tagNo" />
+	</resultMap>
+	<resultMap id="BaseResultMap2" type="com.museum.relics.api.entity.BaseEnv">
+		<id column="id" property="id" />
+		<result column="env_no" property="envNo" />
+		<result column="parent_env_no" property="parentEnvNo" />
+		<result column="name" property="name" />
+		<result column="type" property="type" />
+		<result column="map" property="map" />
+		<result column="locate" property="locate" />
+		<result column="sort" property="sort" />
+		<result column="size" property="size" />
+		<result column="volume" property="volume" />
+		<result column="tag_no" property="tagNo" />
+		<collection property="envList" ofType="com.museum.relics.api.entity.BaseEnv">
+			<id column="id2" property="id" />
+			<result column="env_no2" property="envNo" />
+			<result column="parent_env_no2" property="parentEnvNo" />
+			<result column="name2" property="name" />
+			<result column="type2" property="type" />
+			<result column="map2" property="map" />
+			<result column="locate2" property="locate" />
+			<result column="sort2" property="sort" />
+			<result column="size2" property="size" />
+			<result column="volume2" property="volume" />
+			<result column="tag_no2" property="tagNo" />
+			<collection property="envList" ofType="com.museum.relics.api.entity.BaseEnv">
+				<id column="id4" property="id" />
+				<result column="env_no4" property="envNo" />
+				<result column="parent_env_no4" property="parentEnvNo" />
+				<result column="name4" property="name" />
+				<result column="type4" property="type" />
+				<result column="map4" property="map" />
+				<result column="locate4" property="locate" />
+				<result column="sort4" property="sort" />
+				<result column="size4" property="size" />
+				<result column="volume4" property="volume" />
+				<result column="tag_no4" property="tagNo" />
+			</collection>
+		</collection>
+	</resultMap>
+
+	<select id="selectHoust" resultMap="BaseResultMap2">
+		select
+		e3.*, e4.id as id4,
+		e4.env_no as env_no4,
+		e4.parent_env_no as parent_env_no4,
+		e4.name as name4,
+		e4.type as type4,
+		e4.map as map4,
+		e4.locate as locate4,
+		e4.sort as sort4,
+		e4.size as size4,
+		e4.volume as volume4,
+		e4.tag_no as tag_no4
+		from
+		(
+		select
+		e1.*, e2.id as id2,
+		e2.env_no as env_no2,
+		e2.parent_env_no as parent_env_no2,
+		e2.name as name2,
+		e2.type as type2,
+		e2.map as map2,
+		e2.locate as locate2,
+		e2.sort as sort2,
+		e2.size as size2,
+		e2.volume as volume2,
+		e2.tag_no as tag_no2
+		from
+		env e1
+		inner join env e2 on e1.env_no = e2.parent_env_no
+		where
+		e1.type = '库房'
+		) e3
+		left join env e4 on e3.env_no2 = e4.parent_env_no
+	</select>
+
+</mapper>

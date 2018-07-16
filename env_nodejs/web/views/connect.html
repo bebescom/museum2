@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>终端连接 仅保存30天</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/socket.io.min.js"></script>
+    <script type="text/javascript" src="js/my.socket.io.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+    <style type="text/css">
+        #sensor_timeout {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="cc" class="easyui-layout" data-options="fit:true">
+
+    <div data-options="region:'north',title:'查询条件（本页数据仅保存30天）'" style="height:65px;padding:5px 10px;">
+        起始时间：
+        <input type="text" name="ktime" id="ktime" value=""/>
+        结束时间：
+        <input type="text" name="dtime" id="dtime" value=""/>
+        起始编号：
+        <input class="easyui-textbox" name="ksensor_no" id="ksensor_no" size="10" value=""/>
+        结束编号：
+        <input class="easyui-textbox" name="dsensor_no" id="dsensor_no" size="10" value=""/>
+        上传/下发：
+        <select class="easyui-combobox" id="type" name="type" style="width: 80px;">
+            <option value="">所有</option>
+            <option value="up">上传</option>
+            <option value="down">下发</option>
+        </select>
+        时间差值：<input class="easyui-textbox" type="text" size="1" name="diff_time" id="diff_time"> s
+
+        &nbsp;
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" href="javascript:searchSensor()">查询</a>
+        &nbsp;
+        <input type="checkbox" name="autoReload" id="autoReload" value="1" checked/><label for="autoReload">自动刷新</label>
+
+        <span id="sensorText"></span>
+
+    </div>
+    <div data-options="region:'west',title:'终端连接状态(只计算上传)',split:true" style="width:400px;">
+        <table id="connectGrid"></table>
+    </div>
+    <div data-options="region:'east',title:'终端超时<span id=\'sensor_timeout\' title=\'点击修改\'></span>',split:true"
+         style="width:400px;">
+        <table id="timeoutGrid"></table>
+    </div>
+    <div data-options="region:'center',title:'终端详情,<span style=\'background-color:rgb(255, 143, 143);\'>红色为超时后第一帧</span>、<span style=\'background-color:rgb(245, 236, 56);\'>黄色为重复上一帧</span>、<span style=\'background-color:rgb(163, 163, 239);\'>蓝色为帧序号递增错误</span>,设备时间后面(d天/h小时/m分钟/s秒)为时间差值向下取整'">
+        <table id="sensorGrid"></table>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        $('#sensor_timeout').click(function () {
+            $.messager.prompt('输入', '请输入新的超时时间，当前为' + CONFIG.sensor_timeout + '秒，<br/>确定后将自动重启程序起效：', function (r) {
+                if (r) {
+                    var time = r * 1;
+                    if (!_.isNumber(time)) {
+                        $.messager.alert('错误', '超时时间必须为整数');
+                        return;
+                    }
+                    $.post('sensor/edit_timeout', {time: time}, function (data) {
+                        if (data.error) {
+                            $.messager.alert('错误', data.error);
+                            return;
+                        }
+                        CONFIG.sensor_timeout = time;
+                        $.messager.show({
+                            title: '提示',
+                            msg: '程序重启中，请稍后',
+                            timeout: 3000,
+                            showType: 'slide'
+                        });
+
+                    });
+
+                }
+            });
+
+        });
+    });
+
+
+    socket.on('connect', function () {
+        socket.emit('sensor');
+
+        if (CONFIG.sensor_timeout) {
+            var text = CONFIG.sensor_timeout + 's';
+            if (CONFIG.sensor_timeout > 60) {
+                text = parseInt(CONFIG.sensor_timeout / 60) + 'm' + (CONFIG.sensor_timeout % 60) + 's';
+            }
+            $('#sensor_timeout').text(text);
+        }
+
+    });
+
+    socket.on('sensor_timeout', function () {
+        console.log('sensor_timeout');
+        if ($('#autoReload').attr('checked')) {
+            timeout_grid();
+        }
+    });
+    socket.on('sensor_connect', function () {
+        console.log('sensor_connect');
+        if ($('#autoReload').attr('checked')) {
+            connect_grid();
+        }
+    });
+    var connect_search = store.session('connect_search') || {};
+
+    $('#ktime').datetimebox({
+        value: connect_search.ktime || new Date().Format('yyyy-MM-dd') + ' 00:00:00',
+        onChange: function (nval, oval) {
+            searchSensor();
+        }
+    });
+    $('#dtime').datetimebox({
+        value: connect_search.dtime || '',
+        onChange: function (nval, oval) {
+            searchSensor();
+        }
+    });
+
+    $(function () {
+        $('#type').combobox('setValue', connect_search.type !== undefined ? connect_search.type : 'up');
+        $('#diff_time').textbox('setValue', connect_search.diff_time || 600);
+        if ($(document).width() < 1200) {
+            $('#cc').layout('collapse', 'east');
+        }
+        connect_grid();
+        timeout_grid();
+    });
+
+    var show_sensor_no;
+
+    function connect_grid() {
+        var _this = connect_grid;
+        var json = {};
+        json.ktime = $('#ktime').datetimebox('getValue');
+        json.dtime = $('#dtime').datetimebox('getValue');
+        json.ksensor_no = $('#ksensor_no').textbox('getValue');
+        json.dsensor_no = $('#dsensor_no').textbox('getValue');
+
+        if (_this.loading) {
+            return;
+        }
+        _this.loading = true;
+        if (_this.init) {
+            $('#connectGrid').datagrid('load', json);
+            return;
+        }
+
+        $('#connectGrid').datagrid({
+            url: 'sensor/connectList',
+            queryParams: json,
+            singleSelect: true,
+            rownumbers: true,
+            fit: true,
+            border: false,
+            pageList: [10, 15, 20, 24, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+            pagination: true,
+            pageSize: 24,
+            remoteSort: false,
+            sortName: 'connect_time',
+            sortOrder: 'desc',
+            columns: [
+                [
+                    {field: 'sensor_no', width: 85, title: '终端编号', sortable: true},
+                    {
+                        field: 'connect_time', width: 130, title: '最后接收时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            var date;
+                            if (value.toString().length > 10) {
+                                date = new Date(value * 1);
+                            } else {
+                                date = new Date(value * 1000);
+                            }
+
+                            return date.Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {field: 'total_no_repeat', width: 90, title: '去重总计', sortable: true},
+                    {field: 'total_repeat', width: 90, title: '重复总计', sortable: true},
+                    {field: 'total', width: 90, title: '接收数据总计', sortable: true},
+                    {field: 'total_lost_frame', width: 90, title: '序号递增错误总计', sortable: true}
+                ]
+            ],
+            onClickRow: function (index, row) {
+                show_sensor_no = row.sensor_no;
+                showSensor();
+            },
+            onLoadSuccess: function () {
+                _this.loading = false;
+            }
+
+        });
+        _this.init = true;
+
+    }
+
+    function timeout_grid() {
+        var _this = timeout_grid;
+        var json = {};
+        json.ktime = $('#ktime').datetimebox('getValue');
+        json.dtime = $('#dtime').datetimebox('getValue');
+        json.ksensor_no = $('#ksensor_no').textbox('getValue');
+        json.dsensor_no = $('#dsensor_no').textbox('getValue');
+
+        if (_this.loading) {
+            return;
+        }
+        _this.loading = true;
+        if (_this.init) {
+            $('#timeoutGrid').datagrid('load', json);
+            return;
+        }
+
+        $('#timeoutGrid').datagrid({
+            url: 'sensor/connectTimeOutList',
+            queryParams: json,
+            singleSelect: true,
+            rownumbers: true,
+            fit: true,
+            border: false,
+            pageList: [10, 15, 20, 24, 30, 40, 50, 100, 150, 200, 300, 500],
+            pagination: true,
+            pageSize: 24,
+            remoteSort: false,
+            columns: [
+                [
+                    {field: 'sensor_no', width: 85, title: '终端编号', sortable: true},
+                    {
+                        field: 'out_time', width: 130, title: '检查时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'prev_time', width: 130, title: '上次接收时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    }
+                ]
+            ],
+            onClickRow: function (index, row) {
+                show_sensor_no = row.sensor_no;
+                showSensor();
+            },
+            onLoadSuccess: function () {
+                _this.loading = false;
+            }
+
+        });
+        _this.init = false;
+    }
+
+
+    function showSensor() {
+        var _this = showSensor;
+        console.log(_this);
+        if (!show_sensor_no) {
+            return;
+        }
+        var json = {};
+
+        json.ktime = $('#ktime').datetimebox('getValue');
+        json.dtime = $('#dtime').datetimebox('getValue');
+        json.type = $('#type').combobox('getValue');
+        json.diff_time = $('#diff_time').textbox('getValue');
+        json.sensor_no = show_sensor_no;
+
+        store.session('connect_search', json);
+
+        if (_this.loading) {
+            return;
+        }
+        _this.loading = true;
+        if (_this.init) {
+            $('#sensorGrid').datagrid('load', json);
+            return;
+        }
+
+        $('#sensorGrid').datagrid({
+            url: 'sensor/connectShow',
+            queryParams: json,
+            singleSelect: true,
+            rownumbers: true,
+            fit: true,
+            border: false,
+            pageList: [10, 15, 20, 24, 30, 40, 50, 100, 150, 200, 300, 500],
+            pagination: true,
+            pageSize: 24,
+            rowStyler: function (index, row) {
+                var $color = '';
+                if (row.lost_frame == 1) {
+                    $color = 'background-color:rgb(163, 163, 239);';
+                }
+                if (row.repeat == 1) {
+                    $color = 'background-color:rgb(245, 236, 56);';
+                }
+                if (row.lost == 1) {
+                    $color = 'background-color:rgb(255, 143, 143);';
+                }
+                return $color;
+            },
+            columns: [
+                [
+                    {
+                        field: 'type', width: '40', title: '类型',
+                        formatter: function (value, row, index) {
+                            if (value === 'down') {
+                                return '下发';
+                            } else if (value === 'up') {
+                                return '上传';
+                            }
+                        }
+                    },
+                    {
+                        field: 'sensor_no', width: 90, title: '设备编号',
+                        styler: function (value, row, index) {
+                            var $color = '';
+
+                            if (row.lost_frame == 1) {
+                                $color = 'background-color:rgb(163, 163, 239);';
+                            }
+                            return $color;
+                        }
+                    },
+                    {
+                        field: 'equip_time', width: 170, title: '设备时间',
+                        formatter: function (value, row, index) {
+                            var date;
+                            if (row.raw_data.length < 28) {
+                                return;
+                            }
+                            //55aa2c5210000000000c000100c15a6ece910501405ec489204260d0e121415c7af4234301cd1102fff4b03f
+                            var c1 = row.raw_data.slice(26, 28);
+                            if (c1 !== 'c1') {
+                                return;
+                            }
+                            var time = parseInt(row.raw_data.slice(28, 36), 16);
+                            if (time.length > 10) {
+                                date = new Date(time * 1);
+                            } else {
+                                date = new Date(time * 1000);
+                            }
+                            var etime = date.Format('yyyy-MM-dd hh:mm:ss'),
+                                ctime = parseInt(row.connect_time / 1000) - time;
+
+                            if (ctime > json.diff_time) {
+                                // etime += '<span style="background-color:#F5F5DD;">';
+                                if (ctime > 24 * 3600) {
+                                    etime += "(" + parseInt(ctime / 24 / 3600) + "d)";
+                                } else if (ctime > 3600) {
+                                    etime += "(" + parseInt(ctime / 3600) + "h)";
+                                } else if (ctime > 60) {
+                                    etime += "(" + parseInt(ctime / 60) + "m)";
+                                } else {
+                                    etime += "(" + ctime + "s)";
+                                }
+                                // etime += '</span>';
+                            }
+
+                            return etime;
+                        }
+                    },
+                    {
+                        field: 'connect_time', width: 155, title: '服务器时间',
+                        formatter: function (value, row, index) {
+                            var date;
+                            if (value.toString().length > 10) {
+                                date = new Date(value * 1);
+                            } else {
+                                date = new Date(value * 1000);
+                            }
+
+                            return date.Format('yyyy-MM-dd hh:mm:ss.S');
+                        },
+                        styler: function (value, row, index) {
+                            var $color = '';
+                            if (row.repeat == 1) {
+                                $color = 'background-color:rgb(245, 236, 56);';
+                            }
+                            return $color;
+                        }
+                    },
+                    {
+                        field: 'raw_data', title: '原始数据',
+                        formatter: function (value, row, index) {
+                            var str = "";
+                            if (value) {
+                                str = value.replace(/(.{2})/g, "$1 ");
+                            }
+                            if (row.lost_frame == 1) {
+                                str = str.slice(0, 8) + '<span style="background-color:rgb(163, 163, 239);color:#fff">' + str.slice(8, 12) + '</span>' + str.slice(12);
+                            }
+                            return str;
+                        }
+                    },
+                    {
+                        field: 'ip_port', width: 140, title: 'IP:PORT',
+                        formatter: function (value, row, index) {
+                            if (value) {
+                                return value.replace('::ffff:', "");
+                            }
+                        }
+                    },
+                ]
+            ],
+            onLoadSuccess: function () {
+                _this.loading = false;
+            }
+
+        });
+        _this.init = true;
+
+    }
+
+
+    function searchSensor() {
+
+        connect_grid();
+        timeout_grid();
+        showSensor();
+    }
+
+
+</script>
+</body>
+</html>

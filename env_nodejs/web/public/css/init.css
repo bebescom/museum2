@@ -1,0 +1,79 @@
+.menu-text {
+    height: 25px;
+    line-height: 25px;
+}
+
+.cursor_pointer {
+    cursor: pointer;
+}
+
+.size-12 {
+    font-size: 12px;
+}
+
+.size-14 {
+    font-size: 14px;
+}
+
+.size-16 {
+    font-size: 16px;
+}
+
+.size-18 {
+    font-size: 18px;
+}
+
+.size-21 {
+    font-size: 21px;
+}
+
+.size-24 {
+    font-size: 24px;
+}
+
+.size-32 {
+    font-size: 32px;
+}
+
+.size-48 {
+    font-size: 48px;
+}
+
+.size-64 {
+    font-size: 64px;
+}
+
+.size-96 {
+    font-size: 96px;
+}
+
+.el-scrollbar__thumb {
+    background-color: rgba(0, 108, 249, 0.3);
+}
+
+.hide {
+    display: none;
+}
+
+::-webkit-scrollbar {
+    background-color: transparent;
+    width: 13px;
+    height: 13px;
+}
+
+/*滚动条里面的小方块，能上下左右移动(取决于是垂直滚动条还是水平滚动条)*/
+::-webkit-scrollbar-thumb {
+    background: rgba(27, 188, 155, .6);
+    width: 13px;
+    height: 13px;
+    border-radius: 5px;
+}
+
+/*滚动条交角样式*/
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+    background: rgba(27, 188, 155, .6);
+}

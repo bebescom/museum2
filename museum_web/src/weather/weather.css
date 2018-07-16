@@ -1,0 +1,64 @@
+.data_box {
+    position: relative;
+    float: left;
+    width: 48%;
+    height: 225px;
+    border: 1px solid #B1D3BA;
+    margin: .5%;
+    min-width: 400px;
+}
+.comeBack{
+    position: absolute;
+    right: 48px;
+    top: 102px;
+    cursor: pointer;
+}
+.comeBack:hover{
+	color: #59BFAA;
+}
+#content{
+    margin-top: 83px;
+    padding: 0 20px;
+    margin-left: 25px;
+}
+#content:after{
+	content: '';
+	zoom:1;
+	clear: both;
+	display: block;    
+}
+.clear:after{
+    content:'';
+    display: block;
+    zoom:1;
+    height: 1px;
+    clear:both;
+}
+.button{
+    height: 100%;
+    line-height: 29px;
+    padding: 0 13px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    display: inline-block;
+    position: relative;
+    /*top: -2px;*/
+    border-radius: 0px 5px 5px 0;
+}
+.laydate-icon{
+    position: relative;
+    top: -2px;
+    padding-left: 10px;
+}
+#the_wind_rose{
+    width: 97.2%;
+    height: 400px;
+}
+.shadow{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.1) url('../common/images/loading.gif') center no-repeat;
+    z-index: 999;
+    display: none;
+}

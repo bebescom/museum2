@@ -1,0 +1,988 @@
+@charset "UTF-8";
+/*图标体系*/
+
+/*定位地图图标*/
+.museum_icon {
+    display: inline-block;
+    width: 35px;
+    height: 55px;
+    background: transparent url('../images/newTypeIcon.png') no-repeat -140px -495px;
+    vertical-align: middle;
+}
+
+/*设备类型小图标*/
+.museum_icon.small {
+    width: 35px;
+    height: 35px;
+    background-position: -916px -632px;
+}
+
+/*设备管理 参数图标*/
+.museum_icon.xsmall {
+    width: 22px;
+    height: 22px;
+    background-position: -927px 0;
+}
+
+/*设备类型大图标*/
+.museum_icon.big {
+    width: 55px;
+    height: 55px;
+    background-position: -897px -300px;
+}
+
+/*------*/
+
+.museum_icon.温湿度监测终端 {
+    background-position: 0 -55px;
+}
+
+.museum_icon.温湿度监测终端.alert {
+    background-position: 0 -110px;
+}
+
+.museum_icon.温湿度监测终端.warn {
+    background-position: 0 -165px;
+}
+
+.museum_icon.温湿度监测终端.small {
+    background-position: 0 -560px;
+}
+
+.museum_icon.温湿度监测终端.small.alert {
+    background-position: 0 -595px;
+}
+
+.museum_icon.温湿度监测终端.small.warn {
+    background-position: 0 -630px;
+}
+
+.museum_icon.温湿度监测终端.big {
+    background-position: -447px -56px;
+}
+
+/*------*/
+
+.museum_icon.手持式温湿度检测仪,
+.museum_icon.固定式温湿度检测仪 {
+    background-position: 0 -220px;
+}
+
+.museum_icon.sensor_offline_temperature_humidity.small,
+.museum_icon.手持式温湿度检测仪.small,
+.museum_icon.固定式温湿度检测仪.small {
+    background-position: 0 -665px;
+}
+
+.museum_icon.手持式温湿度检测仪.big,
+.museum_icon.固定式温湿度检测仪.big {
+    background-position: -743px -176px;
+}
+
+/*------*/
+
+.museum_icon.带屏温湿度监测终端 {
+    background-position: -35px -55px;
+}
+
+.museum_icon.带屏温湿度监测终端.alert {
+    background-position: -35px -110px;
+}
+
+.museum_icon.带屏温湿度监测终端.warn {
+    background-position: -35px -165px;
+}
+
+.museum_icon.带屏温湿度监测终端.small {
+    background-position: -35px -560px;
+}
+
+.museum_icon.带屏温湿度监测终端.small.alert {
+    background-position: -35px -595px;
+}
+
+.museum_icon.带屏温湿度监测终端.small.warn {
+    background-position: -35px -630px;
+}
+
+.museum_icon.带屏温湿度监测终端.big {
+    background-position: -506px -56px;
+}
+
+/*------*/
+
+.museum_icon.光照紫外监测终端 {
+    background-position: -70px -55px;
+}
+
+.museum_icon.光照紫外监测终端.alert {
+    background-position: -70px -110px;
+}
+
+.museum_icon.光照紫外监测终端.warn {
+    background-position: -70px -165px;
+}
+
+.museum_icon.光照紫外监测终端.small {
+    background-position: -70px -560px;
+}
+
+.museum_icon.光照紫外监测终端.small.alert {
+    background-position: -70px -595px;
+}
+
+.museum_icon.光照紫外监测终端.small.warn {
+    background-position: -70px -630px;
+}
+
+.museum_icon.光照紫外监测终端.big {
+    background-position: -565px -56px;
+}
+
+/*------*/
+
+.museum_icon.手持式光照紫外检测仪 {
+    background-position: -70px -220px;
+}
+
+.museum_icon.手持式光照紫外检测仪.small {
+    background-position: -70px -665px;
+}
+
+.museum_icon.手持式光照紫外检测仪.big {
+    background-position: -802px -176px;
+}
+
+/*------*/
+
+.museum_icon.二氧化碳监测终端 {
+    background-position: -105px -55px;
+}
+
+.museum_icon.二氧化碳监测终端.alert {
+    background-position: -105px -110px;
+}
+
+.museum_icon.二氧化碳监测终端.warn {
+    background-position: -105px -165px;
+}
+
+.museum_icon.二氧化碳监测终端.small {
+    background-position: -105px -560px;
+}
+
+.museum_icon.二氧化碳监测终端.small.alert {
+    background-position: -105px -595px;
+}
+
+.museum_icon.二氧化碳监测终端.small.warn {
+    background-position: -105px -630px;
+}
+
+.museum_icon.二氧化碳监测终端.big {
+    background-position: -683px -56px;
+}
+
+/*------*/
+
+.museum_icon.手持式二氧化碳检测仪 {
+    background-position: -105px -220px;
+}
+
+.museum_icon.手持式二氧化碳检测仪.small {
+    background-position: -105px -665px;
+}
+
+.museum_icon.手持式二氧化碳检测仪.big {
+    background-position: -861px -176px;
+}
+
+/*------*/
+
+.museum_icon.有机挥发物监测终端 {
+    background-position: -140px -55px;
+}
+
+.museum_icon.有机挥发物监测终端.alert {
+    background-position: -140px -110px;
+}
+
+.museum_icon.有机挥发物监测终端.warn {
+    background-position: -140px -165px;
+}
+
+.museum_icon.有机挥发物监测终端.small {
+    background-position: -140px -560px;
+}
+
+.museum_icon.有机挥发物监测终端.small.alert {
+    background-position: -140px -595px;
+}
+
+.museum_icon.有机挥发物监测终端.small.warn {
+    background-position: -140px -630px;
+}
+
+.museum_icon.有机挥发物监测终端.big {
+    background-position: -743px -56px;
+}
+
+/*------*/
+
+.museum_icon.有机挥发物检测仪, .museum_icon.手持式有机挥发物检测仪 {
+    background-position: -140px -220px;
+}
+
+.museum_icon.有机挥发物检测仪.small, .museum_icon.手持式有机挥发物检测仪.small {
+    background-position: -140px -665px;
+}
+
+.museum_icon.有机挥发物检测仪.big, .museum_icon.手持式有机挥发物检测仪.big {
+    background-position: -624px -176px;
+}
+
+/*------*/
+
+.museum_icon.空气质量监测终端 {
+    background-position: -175px -55px;
+}
+
+.museum_icon.空气质量监测终端.alert {
+    background-position: -175px -110px;
+}
+
+.museum_icon.空气质量监测终端.warn {
+    background-position: -175px -165px;
+}
+
+.museum_icon.空气质量监测终端.small {
+    background-position: -175px -560px;
+}
+
+.museum_icon.空气质量监测终端.small.alert {
+    background-position: -175px -595px;
+}
+
+.museum_icon.空气质量监测终端.small.warn {
+    background-position: -175px -630px;
+}
+
+.museum_icon.空气质量监测终端.big {
+    background-position: -802px -56px;
+}
+
+/*------*/
+.museum_icon.震动监测终端 {
+    background-position: -210px -55px;
+}
+
+.museum_icon.震动监测终端.alert {
+    background-position: -210px -110px;
+}
+
+.museum_icon.震动监测终端.warn {
+    background-position: -210px -165px;
+}
+
+.museum_icon.震动监测终端.small {
+    background-position: -210px -560px;
+}
+
+.museum_icon.震动监测终端.small.alert {
+    background-position: -210px -595px;
+}
+
+.museum_icon.震动监测终端.small.warn {
+    background-position: -210px -630px;
+}
+ .museum_icon.震动监测终端.big {
+     background-position: -861px -55px;
+ }
+
+/*------*/
+
+/*玻破?*/
+
+/*------*/
+.museum_icon.气象站 {
+    background-position: -280px -55px;
+}
+
+.museum_icon.气象站.alert {
+    background-position: -280px -110px;
+}
+
+.museum_icon.气象站.warn {
+    background-position: -280px -165px;
+}
+
+.museum_icon.气象站.small {
+    background-position: -280px -560px;
+}
+
+.museum_icon.气象站.small.alert {
+    background-position: -280px -595px;
+}
+
+.museum_icon.气象站.small.warn {
+    background-position: -280px -630px;
+}
+
+.museum_icon.气象站.big {
+    background-position: -506px -116px;
+}
+
+/*------*/
+
+.museum_icon.土壤温湿度监测终端 {
+    background-position: -315px -55px;
+}
+
+.museum_icon.土壤温湿度监测终端.alert {
+    background-position: -315px -110px;
+}
+
+.museum_icon.土壤温湿度监测终端.warn {
+    background-position: -315px -165px;
+}
+
+.museum_icon.土壤温湿度监测终端.small {
+    background-position: -315px -560px;
+}
+
+.museum_icon.土壤温湿度监测终端.small.alert {
+    background-position: -315px -595px;
+}
+
+.museum_icon.土壤温湿度监测终端.small.warn {
+    background-position: -315px -630px;
+}
+
+.museum_icon.土壤温湿度监测终端.big {
+    background-position: -565px -116px;
+}
+
+/*------*/
+
+.museum_icon.安防监测终端 {
+    background-position: -350px -55px;
+}
+
+.museum_icon.安防监测终端.alert {
+    background-position: -350px -110px;
+}
+
+.museum_icon.安防监测终端.warn {
+    background-position: -350px -165px;
+}
+
+.museum_icon.安防监测终端.small {
+    background-position: -350px -560px;
+}
+
+.museum_icon.安防监测终端.small.alert {
+    background-position: -350px -595px;
+}
+
+.museum_icon.安防监测终端.small.warn {
+    background-position: -350px -630px;
+}
+
+.museum_icon.安防监测终端.big {
+    background-position: -624px -116px;
+}
+
+/*------*/
+
+.museum_icon.网关 {
+    background-position: 0 -275px;
+}
+
+.museum_icon.网关.alert {
+    background-position: 0 -330px;
+}
+
+.museum_icon.网关.small {
+    background-position: 0 -700px;
+}
+
+.museum_icon.网关.small.alert {
+    background-position: 0 -735px;
+}
+
+.museum_icon.网关.big {
+    background-position: -683px -116px;
+}
+
+/*------*/
+.museum_icon.中继 {
+    background-position: -35px -275px;
+}
+
+.museum_icon.中继.alert {
+    background-position: -35px -330px;
+}
+
+.museum_icon.中继.small {
+    background-position: -35px -700px;
+}
+
+.museum_icon.中继.small.alert {
+    background-position: -35px -735px;
+}
+
+.museum_icon.中继.big {
+    background-position: -743px -116px;
+}
+
+/*------*/
+
+.museum_icon.调湿机 {
+    background-position: -70px -275px;
+}
+
+.museum_icon.调湿机.alert {
+    background-position: -70px -330px;
+}
+
+.museum_icon.调湿机.warn {
+    background-position: -70px -385px;
+}
+
+.museum_icon.调湿机.small {
+    background-position: -70px -700px;
+}
+
+.museum_icon.调湿机.small.alert {
+    background-position: -70px -735px;
+}
+
+.museum_icon.调湿机.small.warn {
+    background-position: -70px -770px;
+}
+
+.museum_icon.调湿机.big {
+    background-position: -624px -56px;
+}
+
+/*------*/
+.museum_icon.调湿剂 {
+    background-position: -105px -275px;
+}
+
+.museum_icon.调湿剂.alert {
+    background-position: -105px -330px;
+}
+
+.museum_icon.调湿剂.warn {
+    background-position: -105px -385px;
+}
+
+.museum_icon.调湿剂.small {
+    background-position: -105px -700px;
+}
+
+.museum_icon.调湿剂.small.alert {
+    background-position: -105px -735px;
+}
+
+.museum_icon.调湿剂.small.warn {
+    background-position: -105px -770px;
+}
+
+.museum_icon.调湿剂.big {
+    background-position: -566px -176px;
+}
+
+/*------*/
+
+.museum_icon.智能囊匣 {
+    background-position: -175px -275px;
+}
+
+.museum_icon.智能囊匣.alert {
+    background-position: -175px -330px;
+}
+
+.museum_icon.智能囊匣.warn {
+    background-position: -175px -385px;
+}
+
+.museum_icon.智能囊匣.small {
+    background-position: -175px -700px;
+}
+
+.museum_icon.智能囊匣.small.alert {
+    background-position: -175px -735px;
+}
+
+.museum_icon.智能囊匣.small.warn {
+    background-position: -175px -770px;
+}
+
+.museum_icon.智能囊匣.big {
+    background-position: -447px -176px;
+}
+
+/*------*/
+.museum_icon.充氮调湿柜 {
+    background-position: -210px -275px;
+}
+
+.museum_icon.充氮调湿柜.alert {
+    background-position: -210px -330px;
+}
+
+.museum_icon.充氮调湿柜.warn {
+    background-position: -210px -385px;
+}
+
+.museum_icon.充氮调湿柜.small {
+    background-position: -210px -700px;
+}
+
+.museum_icon.充氮调湿柜.small.alert {
+    background-position: -210px -735px;
+}
+
+.museum_icon.充氮调湿柜.small.warn {
+    background-position: -210px -770px;
+}
+
+.museum_icon.充氮调湿柜.big {
+    background-position: -861px -116px;
+}
+
+/*------*/
+.museum_icon.智能展柜 {
+    background-position: -245px -275px;
+}
+
+.museum_icon.智能展柜.alert {
+    background-position: -245px -330px;
+}
+
+.museum_icon.智能展柜.warn {
+    background-position: -245px -385px;
+}
+
+.museum_icon.智能展柜.small {
+    background-position: -245px -700px;
+}
+
+.museum_icon.智能展柜.small.alert {
+    background-position: -245px -735px;
+}
+
+.museum_icon.智能展柜.small.warn {
+    background-position: -245px -770px;
+}
+
+.museum_icon.智能展柜.big {
+    background-position: -802px -116px;
+}
+
+/*------*/
+
+.museum_icon.灯光调控终端 {
+    background-position: -280px -275px;
+}
+
+.museum_icon.灯光调控终端.alert {
+    background-position: -280px -330px;
+}
+
+.museum_icon.灯光调控终端.warn {
+    background-position: -280px -385px;
+}
+
+.museum_icon.灯光调控终端.small {
+    background-position: -280px -700px;
+}
+
+.museum_icon.灯光调控终端.small.alert {
+    background-position: -280px -735px;
+}
+
+.museum_icon.灯光调控终端.small.warn {
+    background-position: -280px -770px;
+}
+
+.museum_icon.灯光调控终端.big {
+    background-position: -447px -298px;
+}
+
+/*-------*/
+.museum_icon.调控材料 {
+    background-position: -315px -275px;
+}
+
+.museum_icon.调控材料.small {
+    background-position: -315px -700px;
+}
+
+.museum_icon.调控材料.big {
+    background-position: -506px -298px;
+}
+
+/*------*/
+.museum_icon.一级文物 {
+    background-position: 0 -495px;
+}
+
+.museum_icon.一级文物.small {
+    background-position: 0 -840px;
+}
+
+/*------*/
+.museum_icon.二级文物 {
+    background-position: -35px -495px;
+}
+
+.museum_icon.二级文物.small {
+    background-position: -35px -840px;
+}
+
+/*------*/
+.museum_icon.三级文物 {
+    background-position: -70px -495px;
+}
+
+.museum_icon.三级文物.small {
+    background-position: -70px -840px;
+}
+
+/*------*/
+.museum_icon.一般文物 {
+    background-position: -105px -495px;
+}
+
+.museum_icon.一般文物.small {
+    background-position: -105px -840px;
+}
+
+/*------*/
+.museum_icon.未定级文物 {
+    background-position: -140px -495px;
+}
+
+.museum_icon.未定级文物.small {
+    background-position: -140px -840px;
+}
+
+/*------*/
+.museum_icon.其他文物 {
+    background-position: -175px -495px;
+}
+
+.museum_icon.其他文物.small {
+    background-position: -175px -840px;
+}
+
+/*------*/
+.museum_icon.甲醛监测终端 {
+    background-position: -636px -387px;
+}
+
+.museum_icon.甲醛监测终端.alert {
+    background-position: -636px -442px;
+}
+
+.museum_icon.甲醛监测终端.warn {
+    background-position: -636px -497px;
+}
+
+.museum_icon.甲醛监测终端.small {
+    background-position: -385px -560px;
+}
+
+.museum_icon.甲醛监测终端.small.alert {
+    background-position: -385px -595px;
+}
+
+.museum_icon.甲醛监测终端.small.warn {
+    background-position: -385px -630px;
+}
+
+.museum_icon.甲醛监测终端.big {
+    background-position: -566px -298px;
+}
+
+/*------*/
+.museum_icon.甲醛检测仪,
+.museum_icon.手持式甲醛检测仪 {
+    background-position: -636px -552px;
+}
+
+.museum_icon.甲醛检测仪.small,
+.museum_icon.手持式甲醛检测仪.small {
+    background-position: -385px -665px;
+}
+
+.museum_icon.甲醛检测仪.big, .museum_icon.手持式甲醛检测仪.big {
+    background-position: -682px -176px;
+}
+
+/*------*/
+.museum_icon.二氧化硫监测终端 {
+    background-position: -671px -387px;
+}
+
+.museum_icon.二氧化硫监测终端.alert {
+    background-position: -671px -442px;
+}
+
+.museum_icon.二氧化硫监测终端.warn {
+    background-position: -671px -497px;
+}
+
+.museum_icon.二氧化硫监测终端.small {
+    background-position: -420px -560px;
+}
+
+.museum_icon.二氧化硫监测终端.small.alert {
+    background-position: -420px -595px;
+}
+
+.museum_icon.二氧化硫监测终端.small.warn {
+    background-position: -420px -630px;
+}
+
+.museum_icon.二氧化硫监测终端.big {
+    background-position: -624px -298px;
+}
+
+/*------*/
+
+.museum_icon.分体式多参数监测终端 {
+    background-position: -706px -387px;
+}
+
+.museum_icon.分体式多参数监测终端.alert {
+    background-position: -706px -442px;
+}
+
+.museum_icon.分体式多参数监测终端.warn {
+    background-position: -706px -497px;
+}
+
+.museum_icon.分体式多参数监测终端.small {
+    background-position: -455px -560px;
+}
+
+.museum_icon.分体式多参数监测终端.small.alert {
+    background-position: -455px -595px;
+}
+
+.museum_icon.分体式多参数监测终端.small.warn {
+    background-position: -455px -630px;
+}
+
+.museum_icon.分体式多参数监测终端.big {
+    background-position: -682px -298px;
+}
+
+/*------*/
+
+.museum_icon.二氧化氮监测终端 {
+    background-position: -741px -390px;
+}
+
+.museum_icon.二氧化氮监测终端.alert {
+    background-position: -741px -442px;
+}
+
+.museum_icon.二氧化氮监测终端.warn {
+    background-position: -741px -497px;
+}
+
+.museum_icon.二氧化氮监测终端.small {
+    background-position: -490px -560px;
+}
+
+.museum_icon.二氧化氮监测终端.small.alert {
+    background-position: -490px -595px;
+}
+
+.museum_icon.二氧化氮监测终端.small.warn {
+    background-position: -490px -630px;
+}
+
+.museum_icon.二氧化氮监测终端.big {
+    background-position: -740px -298px;
+}
+
+/*------*/
+
+.museum_icon.臭氧监测终端 {
+    background-position: -776px -387px;
+}
+
+.museum_icon.臭氧监测终端.alert {
+    background-position: -776px -442px;
+}
+
+.museum_icon.臭氧监测终端.warn {
+    background-position: -776px -497px;
+}
+
+.museum_icon.臭氧监测终端.small {
+    background-position: -525px -560px;
+}
+
+.museum_icon.臭氧监测终端.small.alert {
+    background-position: -525px -595px;
+}
+
+.museum_icon.臭氧监测终端.small.warn {
+    background-position: -525px -630px;
+}
+
+.museum_icon.臭氧监测终端.big {
+    background-position: -798px -298px;
+}
+
+/*------*/
+
+
+.museum_icon.智能存储柜 {
+    background-position: -776px -387px;
+}
+
+.museum_icon.智能存储柜.alert {
+    background-position: -776px -442px;
+}
+
+.museum_icon.智能存储柜.warn {
+    background-position: -776px -497px;
+}
+
+.museum_icon.智能存储柜.small {
+    background-position: -560px -560px;
+}
+
+.museum_icon.智能存储柜.small.alert {
+    background-position: -560px -630px;
+}
+
+.museum_icon.智能存储柜.small.warn {
+    background-position: -560px -597px;
+}
+
+.museum_icon.智能存储柜.big {
+    background-position: -955px -298px;
+}
+/*---参数图标---*/
+
+.museum_icon.humidity.xsmall {
+    background-position: -807px -242px;
+}
+
+.museum_icon.temperature.xsmall {
+    background-position: -639px -242px;
+}
+
+.museum_icon.voc.xsmall {
+    background-position: -735px -242px;
+}
+
+.museum_icon.co2.xsmall {
+    background-position: -687px -242px;
+}
+
+.museum_icon.light.xsmall {
+    background-position: -447px -242px;
+}
+
+.museum_icon.uv.xsmall {
+    background-position: -591px -242px;
+}
+
+.museum_icon.organic.xsmall {
+    background-position: -566px -242px;
+}
+
+.museum_icon.inorganic.xsmall {
+    background-position: -519px -242px;
+}
+
+.museum_icon.sulfur.xsmall {
+    background-position: -783px -242px;
+}
+
+.museum_icon.broken.xsmall {
+    background-position: -879px -242px;
+}
+
+/*震动传感器的三个参数,加速度,速度,位移*/
+.museum_icon.vibration.xsmall, .museum_icon.accel.xsmall, .museum_icon.speed.xsmall, .museum_icon.displacement.xsmall {
+    background-position: -855px -242px;
+}
+
+.museum_icon.multi_wave.xsmall {
+    background-position: -903px -242px;
+}
+
+.museum_icon.cascophen.xsmall {
+    background-position: -927px -242px;
+}
+
+.museum_icon.pm10.xsmall {
+    background-position: -711px -242px;
+}
+
+.museum_icon.pm25.xsmall {
+    background-position: -543px -242px;
+}
+
+.museum_icon.lighting.xsmall {
+    background-position: -759px -268px;
+}
+
+.museum_icon.wind_direction.xsmall {
+    background-position: -759px -240px;
+}
+
+.museum_icon.wind_speed.xsmall {
+    background-position: -663px -242px;
+}
+
+.museum_icon.rain.xsmall {
+    background-position: -471px -242px;
+}
+
+.museum_icon.air_presure.xsmall {
+    background-position: -495px -242px;
+}
+
+.museum_icon.soil_conductivity.xsmall {
+    background-position: -615px -242px;
+}
+
+.museum_icon.soil_salt.xsmall {
+    background-position: -831px -268px;
+}
+
+.museum_icon.soil_humidity.xsmall {
+    background-position: -735px -268px;
+}
+
+.museum_icon.soil_temperature.xsmall {
+    background-position: -711px -268px;
+}
+
+.museum_icon.so2.xsmall {
+    background-position: -783px -268px;
+}
+
+.museum_icon.no2.xsmall {
+    background-position: -807px -268px;
+}
+
+.museum_icon.o3.xsmall {
+    background-position: -831px -268px;
+}
+
+.museum_icon.oxygen.xsmall {
+    background-position: -855px -268px;
+}

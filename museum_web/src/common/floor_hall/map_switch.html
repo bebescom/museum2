@@ -1,0 +1,123 @@
+<div class="panel panel-default zero" id="map_switch" @mousemove="move">
+
+    <div class="panel-heading zero">
+        <div class="img_btn"></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse0"
+               class="collapsed" aria-expanded="false" v-text="configLanguage.floorHall_mapSwitch"></a>
+        </h4>
+    </div>
+
+    <div id="collapse0" class="panel-collapse collapse" aria-expanded="false">
+        <div class="panel-body">
+            <div class="Legend">
+
+                <div class="tip">
+                    <span>title</span>
+                    <div class="tri_rig triangle"></div>
+                    <div class="tri_rig_b triangle"></div>
+                </div>
+
+                <div id="small_env" class="all_select permissionHidden" v-permission="{name:'设备管理'}" v-show="show_small_env">
+                    <div class="total">
+                        <label>
+                            <input type="checkbox" class="sel_all" data-init v-on:click="sel_all('small_env')"/>小环境设备
+                        </label>
+                        <p>传感器 : <span v-text="small_sensor_total"></span>个
+                            调控设备 : <span v-text="small_controller_total"></span>个
+                            离线设备 : <span v-text="small_offline_total"></span>个
+                        </p>
+                    </div>
+                    <div class="sensor">
+                        <div class="icon_" v-for="(key,item) in small_sensor_list"
+                             v-on:click="show_map('small_env',key)">
+                            <span class="now type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                    <div class="controller">
+                        <div class="icon_" v-for="(key,item) in small_controller_list"
+                             v-on:click="show_map('small_env',key)">
+                            <span class="now  type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                    <div class="sensor">
+                        <div class="icon_" v-for="(key,item) in small_offline_list"
+                             v-on:click="show_map('small_env',key)">
+                            <span class="now type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="micro_env" class="all_select permissionHidden" v-permission="{name:'设备管理'}" v-show="show_micro_env">
+                    <div class="total">
+                        <label>
+                            <input type="checkbox" class="sel_all" data-init v-on:click="sel_all('micro_env')"/>微环境设备
+                        </label>
+                        <p>传感器 : <span v-text="micro_sensor_total"></span>个
+                            调控设备 : <span v-text="micro_controller_total"></span>个
+                            离线设备 : <span v-text="micro_offline_total"></span>个
+                        </p>
+                    </div>
+                    <div class="sensor">
+                        <div class="icon_" v-for="(key,item) in micro_sensor_list"
+                             v-on:click="show_map('micro_env',key)">
+                            <span class="now  type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                    <div class="controller">
+                        <div class="icon_" v-for="(key,item) in micro_controller_list"
+                             v-on:click="show_map('micro_env',key)">
+                            <span class="now  type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+					<div class="sensor">
+                        <div class="icon_" v-for="(key,item) in micro_offline_list"
+                             v-on:click="show_map('micro_env',key)">
+                            <span class="now type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="network" class="all_select permissionHidden" v-permission="{name:'设备管理'}" v-show="show_network">
+                    <div class="total">
+                        <label>
+                            <input type="checkbox" class="sel_all" data-init v-on:click="sel_all('network')"/>网络设备
+                        </label>
+                        <p>设备总数 : <span v-text="network_total"></span>个</p>
+                    </div>
+                    <div class="network">
+                        <div v-for="(key,item) in network_list" class="icon_"
+                             v-on:click="show_map('network',key)">
+                            <span class="now  type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="relic" class="all_select permissionHidden" v-permission="{name:'文物管理'}" v-show="show_relic">
+                    <div class="total">
+                        <label>
+                            <!--没有data-init属性,初始化时不显示-->
+                            <input type="checkbox" class="sel_all" v-on:click="sel_all('relic')"/>文物
+                        </label>
+                        <p>文物总数 : <span v-text="relic_total"></span>个</p>
+                    </div>
+                    <div class="relic" data-area="relic">
+                        <div v-for="(key,val) in relic_list" class="icon_"
+                             v-on:click="show_map('relic',key)">
+                            <span class="type {{key}} small" :data-title="key"><i></i></span>
+                            <span v-text="val" :data-title="key"></span>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+</div>

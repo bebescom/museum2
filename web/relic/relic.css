@@ -1,0 +1,273 @@
+.clear:after{
+    clear:both;
+    display: block;
+    content: '';
+    zoom:1;
+}
+.left .relic_view{
+    padding-bottom:10px;
+}
+.relic_view img {
+    width: 118px;
+    /*height: 118px;*/
+    float: left;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    font-size: 12px;
+    color: #647481;
+}
+
+.relic_view ul {
+    color: #647481;
+    list-style: none;
+}
+
+.relic_view ul li {
+    word-break: break-all;
+    text-overflow: ellipsis;
+    position: relative;
+    font-size: 12px;
+}
+
+.relic_view .content {
+    float: left;
+    line-height: 24px;
+    border-bottom: 1px solid #d7d8cc;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #647481;
+    width: 100%;
+}
+
+.relic_view .describe {
+    float: left;
+    font-size: 12px;
+    color: #647481;
+    display: none;
+}
+
+.relic_view .gray{
+    height: 32px;
+    line-height: 32px;
+}
+.overBox{
+    width: 104px;
+    display: inline-block;
+    height: 100%;
+    padding-left: 15px;
+    position: absolute;
+}
+.typeName{
+    overflow: hidden;
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 72px;
+}
+.changeBox{
+    display: inline-block;
+}
+.modify{
+    width: 32px;
+    height: 22px;
+    float: right;
+    background: url('../common/detail/images/small.png') no-repeat 3px -295px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.exp li{
+    height: 21px;
+}
+.exp .change{
+    position: absolute;
+    /*left: 64px;*/
+    left: 15px;
+    top: 0;
+    /*padding-left: 10px;*/
+    width: 90px;
+    height: 17px;
+    display: none;
+}
+.exp .select.change{
+    height: 21px;
+    /*width: 64px;*/
+    z-index: 100;
+}
+.exp .modify{
+    display: none;
+    height: 21px;
+    width: 32px;
+    position: relative;
+    top: -23px;
+    right: -8px;
+}
+.leftname{
+    float: left;
+}
+.exp li:hover .modify{
+    display: block;
+}
+.gray .modify.active{
+    background-position-y: -264px;
+}
+.gray .modify.close{
+    background-position-y: -326px;
+}
+.gray .modify.active.showOff{
+    background-position-y: -348px;
+    cursor:auto;
+}
+.gray .modify{
+    position: relative;
+    top: 5px;
+}
+.changeData{
+    position: absolute;
+    top: 0;
+}
+.changeData input{
+    width: 39px;
+    height:30px;
+}
+.relative{
+    position: relative;
+}
+.bounced{
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    width: 120px;
+    padding: 0 9px;
+    bottom: 36px;
+    right: -55px;
+    text-align: center;
+    color: #66747f;
+    line-height: 30px;
+    animation-fill-mode: forwards;
+    font-size: 12px;
+    z-index: 999;
+}
+.bounced span{
+    border: solid transparent;
+    position: absolute;
+}
+.bounced .min{
+    border-width: 6px;
+    border-top-color: #fff;
+    bottom: -12px;
+    left: 46%;
+}
+.bounced .max{
+    border-top-color: #ccc;
+    border-width: 7px;
+    left: 45%;
+    bottom: -14px;
+}
+
+.bounced-transition {
+  display: inline-block; /* 否则 scale 动画不起作用 */
+}
+.bounced-enter {
+  animation: bounced-in .5s;
+}
+.bounced-leave {
+  animation: bounced-out .5s;
+}
+.gray.chooceTime .diy_date{
+    top: 40px !important;
+    height: 25px;
+}
+.gray.chooceTime .timePickerLabel{
+    float:left;
+    font-weight: normal;
+    line-height: 32px;
+}
+.gray.chooceTime .diy{
+    float:left;
+    font-size:12px;
+    margin-left: 15px;
+}
+.relic_equip form .icon{
+    top: -5px !important;
+}
+.left .relic_equip form > div{
+    border-left: 0px !important;
+}
+.parent_box .filter {
+    width: 120px !important;
+}
+.two .filter .font{
+    margin-right: 10px;
+}
+.filter .font{
+    width: auto !important;
+}
+@keyframes bounced-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes bounced-out {
+    0% {
+        height: 32px;
+        overflow: hidden;
+    }
+    100% {
+        height: 0;
+        overflow: hidden;
+    }
+}
+
+.lockStatus{
+    width:32px;
+    height:22px;
+    text-align: center;
+    float: right;
+    position: relative;
+    top:4px;
+    cursor:pointer;
+    color:#CACCCD;
+}
+
+.changeRelicImg{
+    width: 118px;
+    height:118px;
+    position: absolute;
+    top: 45px;
+    left: 10px;
+    background: #444444;
+    opacity: 0;
+    z-index: 100;
+}
+.changeRelicImg:hover{
+    opacity: 0.7;
+}
+.changeRelicImg span{
+    display: block;
+    margin-left: 24px;
+    margin-top: 48px;
+    color: #0aa699;
+}
+.changeRelicImg span:hover{
+    cursor: pointer;
+}
+.exp>img{
+    z-index: 99;
+}
+
+#deleteRelic{
+    float: right;
+    position: relative;
+    right: 210px;
+    cursor: pointer;
+}
+#deleteRelic:hover{
+    color: #5a9e6d;
+}
+

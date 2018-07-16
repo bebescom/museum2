@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>平台参数设置</title>
+</head>
+<body>
+<div id="app" v-cloak>
+    __inline(../common/header.html)
+    __inline(../common/left.html)
+    <left></left>
+    <div class="contentContainer">
+        <header class="containerTitle">
+            <p @click="goBack">
+                <Icon type="chevron-left"></Icon>
+                平台参数设置
+            </p>
+            <span :class="['_btn','saveBtn',{_disabled:save_disabled}]" @click="saveHandler">
+                保存
+            </span>
+        </header>
+        <section class="mainContent">
+            <div class="loading"></div>
+            <div class="panelWrap">
+                <div class="_panel">
+                    <header>
+                        <h3 class="_panelTitle">
+                            <span class="_panelTitleBorder"></span>
+                            名称、编号与地址
+                        </h3>
+                    </header>
+                    <table class="_form">
+                        <tbody>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                系统名称
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('app_name')"  @blur="checkData('app_name',configObj.app_name)" v-model="configObj.app_name" :class="['_input',{_error:status.app_name}]" placeholder="请填写系统名称">
+                            </td>
+                            <td :class="['_message',{_error:status.app_name}]">
+                                <p v-show="currTitle==='app_name'||status.app_name">填写系统名称</p>
+                            </td>
+                        </tr>
+
+                        <tr class="_formItem">
+                            <td class="_label">
+                                博物馆名称
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text"  @focus="toggleTitle('museum_name')"  @blur="checkData('museum_name',configObj.museum_name)" v-model="configObj.museum_name" :class="['_input',{_error:status.museum_name}]" placeholder="请填写博物馆名称">
+                            </td>
+                            <td :class="['_message',{_error:status.museum_name}]">
+                                <p v-show="currTitle==='museum_name'||status.museum_name">填写博物馆名称,可使用缩写</p>
+                            </td>
+                        </tr>
+
+                        <tr class="_formItem">
+                            <td class="_label">
+                                博物馆编号
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('museum_no')" v-model="configObj.museum_no" :disabled="configObj.museum_no" :class="['_input',{_error:status.museum_no}]" placeholder="请填写博物馆编号" @blur="checkData('museum_no',configObj.museum_no)">
+                            </td>
+                            <td :class="['_message',{_error:status.museum_no}]">
+                                <p v-show="currTitle==='museum_no'||status.museum_no">填写博物馆编号后不可更改,限定8位数字</p>
+                            </td>
+                        </tr>
+
+                        <tr class="_formItem">
+                            <td class="_label">
+                                所属区域中心编号
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('region_no')" v-model="configObj.region_no" :disabled="configObj.region_no" :class="['_input',{_error:status.region_no}]" placeholder="请填写所属区域中心编号" @blur="checkData('region_no',configObj.region_no)">
+                            </td>
+                            <td :class="['_message',{_error:status.region_no}]">
+                                <p v-show="currTitle==='region_no'||status.region_no">填写所属区域中心编号后不可更改，R+限定8位数字  </p>
+                            </td>
+                        </tr>
+
+                        <tr class="_formItem">
+                            <td class="_label">
+                                消息通讯地址
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('monitor_port')" @blur="checkData('monitor_port',configObj.monitor_port)" v-model="configObj.monitor_port" :class="['_input',{_error:status.monitor_port}]" placeholder="请填写消息通讯地址">
+                            </td>
+                            <td :class="['_message',{_error:status.monitor_port}]">
+                                <p v-show="currTitle==='monitor_port'||status.monitor_port">填写消息通讯地址</p>
+                            </td>
+                        </tr>
+
+                        <tr class="_formItem">
+                            <td class="_label">
+                                APP服务器地址
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('app_port')" @blur="checkData('app_port',configObj.app_port)" v-model="configObj.app_port" :class="['_input',{_error:status.app_port}]" placeholder="请填写APP服务器地址">
+                            </td>
+                            <td :class="['_message',{_error:status.app_port}]">
+                                <p v-show="currTitle==='app_port'||status.app_port">填写APP服务器地址</p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="_panel">
+                    <header>
+                        <h3 class="_panelTitle">
+                            <span class="_panelTitleBorder"></span>
+                            数据上传及展示
+                        </h3>
+                    </header>
+                    <table class="_form">
+                        <tbody>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                设备自动录入
+                            </td>
+                            <td class="_inputWrap">
+                                <Switch :checked="configObj.auto_insert_equip==='1'" @on-change="changeStatus('auto_insert_equip')" @mouseenter="toggleTitle('auto_insert_equip')" @mouseleave="toggleTitle">
+                                    <span slot="open">开</span>
+                                    <span slot="close">关</span>
+                                </Switch>
+                            </td>
+                            <td :class="['_message']">
+                                <p v-show="currTitle==='auto_insert_equip'">设备连入系统后，数据是否自动进入数据库设备列表中 </p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="_form">
+                        <tbody>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                数据最小时间间隔 (s)
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('data_minimum_time_interval')" v-model="configObj.data_minimum_time_interval" :class="['_input',{_error:status.data_minimum_time_interval}]" placeholder="取值范围：0~1800s，0为不限制插入间隔" @blur="checkData('data_minimum_time_interval',configObj.data_minimum_time_interval)">
+                            </td>
+                            <td :class="['_message',{_error:status.data_minimum_time_interval}]">
+                                <p v-show="currTitle==='data_minimum_time_interval'||status.data_minimum_time_interval">系统在一个最小采集时间间隔内的数据只存储1组数据，0~1800s，0为不限制插入间隔，默认60s </p>
+                            </td>
+                        </tr>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                时间轴统一间隔 (s)
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('monitor_time')" v-model="configObj.monitor_time" :class="['_input',{_error:status.monitor_time}]" placeholder="取值范围：0~1800s，0为不限制插入间隔" @blur="checkData('monitor_time',configObj.monitor_time)">
+                            </td>
+                            <td :class="['_message',{_error:status.monitor_time}]">
+                                <p v-show="currTitle==='monitor_time'||status.monitor_time">系统统一数据时间轴的间隔，0~1800s，0为不设置统一间隔时间，默认900s </p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="_panel">
+                    <header>
+                        <h3 class="_panelTitle">
+                            <span class="_panelTitleBorder"></span>
+                            数据异常判定
+                        </h3>
+                    </header>
+                    <table class="_form">
+                        <tbody>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                传输时间超时判定倍数
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('max_acquisition_time_interval')" v-model="configObj.max_acquisition_time_interval" :class="['_input',{_error:status.max_acquisition_time_interval}]" placeholder="请输入倍数" @blur="checkData('max_acquisition_time_interval',configObj.max_acquisition_time_interval)">
+                            </td>
+                            <td :class="['_message',{_error:status.max_acquisition_time_interval}]">
+                                <p v-show="currTitle==='max_acquisition_time_interval'||status.max_acquisition_time_interval">系统允许的最大数据采集时间间隔，n（倍数） x 设备数据采集间隔，0不限制间隔</p>
+                            </td>
+                        </tr>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                采集时间超时判定倍数
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('max_transmission_time_interval')" v-model="configObj.max_transmission_time_interval" :class="['_input',{_error:status.max_transmission_time_interval}]" placeholder="请输入倍数" @blur="checkData('max_transmission_time_interval',configObj.max_transmission_time_interval)">
+                            </td>
+                            <td :class="['_message',{_error:status.max_transmission_time_interval}]">
+                                <p v-show="currTitle==='max_transmission_time_interval'||status.max_transmission_time_interval">系统允许的最大数据传输时间间隔，n（倍数） x 设备数据采集间隔，0不限制间隔</p>
+                            </td>
+                        </tr>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                数据突变界限
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('data_mutation_bounds')" v-model="configObj.data_mutation_bounds" :class="['_input',{_error:status.data_mutation_bounds}]" placeholder="请输入数据突变界限" @blur="checkData('data_mutation_bounds',configObj.data_mutation_bounds)">
+                            </td>
+                            <td :class="['_message',{_error:status.data_mutation_bounds}]">
+                                <p v-show="currTitle==='data_mutation_bounds'||status.data_mutation_bounds">采集数据与前次数据之差大于数据突变界限倍的昨日极值差时，将进行数据突变报警，1~10，默认2 </p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="_panel">
+                    <header>
+                        <h3 class="_panelTitle">
+                            <span class="_panelTitleBorder"></span>
+                            气象站
+                        </h3>
+                    </header>
+                    <table class="_form">
+                        <tbody>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                所在城市
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('city')" @blur="checkData('city',configObj.city)" v-model="configObj.city" :class="['_input',{_error:status.city}]" placeholder="请输入博物馆所在的城市">
+                                <!--<select v-model="city" :class="['_input',{_error:false}]">-->
+                                    <!--<optgroup v-for="province in allProvinces" :label="province.Name">-->
+                                        <!--<option v-for="city in province.Citys" :value="city.Name">{{city.Name}}</option>-->
+                                    <!--</optgroup>-->
+                                <!--</select>-->
+                                <i class="_icon _city">
+
+                                </i>
+                            </td>
+                            <td :class="['_message',{_error:status.city}]">
+                                <p v-show="currTitle==='city'||status.city">输入博物馆所在的城市</p>
+                            </td>
+                        </tr>
+                        <tr class="_formItem">
+                            <td class="_label">
+                                气象信息 API_Key
+                            </td>
+                            <td class="_inputWrap">
+                                <input type="text" @focus="toggleTitle('weather_key')" @blur="checkData('weather_key',configObj.weather_key)" v-model="configObj.weather_key" :class="['_input',{_error:status.weather_key}]" placeholder="请输入API_Key">
+                            </td>
+                            <td :class="['_message',{_error:status.weather_key}]">
+                                <p v-show="currTitle==='weather_key'||status.weather_key">填写博物馆气象信息的API_Key</p>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="_panel">
+                    <header>
+                        <h3 class="_panelTitle">
+                            <span class="_panelTitleBorder"></span>
+                            实时报警设置
+                        </h3>
+                        <table class="_form">
+                            <tbody>
+                                <tr class="_formItem">
+                                    <td class="_label">
+                                        网页消息实时报警
+                                    </td>
+                                    <td class="_inputWrap">
+                                        <Switch @on-change="changeStatus('web_msg')" @mouseenter="toggleTitle('web_msg')" @mouseleave="toggleTitle" class="warning_switch" :checked="configObj.web_msg=='1'" >
+                                            <span slot="open">开</span>
+                                            <span slot="close">关</span>
+                                        </Switch>
+                                        <div class="warning_selectbox" v-show="configObj.web_msg==='1'"  >
+                                            <i-select :model.sync="webModel" placeholder="网页消息实时报警"   filterable multiple >
+                                                <i-option v-for="item in webUser" :value="item.id" >{{ item.real_name }}</i-option>
+                                            </i-select>
+                                        </div>
+                                        <span :class="['_message']" v-show="currTitle==='web_msg'" class="warning_font">网页消息实时报警开关，打开将会发送网页消息给选定用户</span>
+                                    </td>
+                                </tr>
+                                <tr class="_formItem">
+                                    <td class="_label">
+                                        邮件实时报警
+                                    </td>
+                                    <td class="_inputWrap">
+                                        <Switch @on-change="changeStatus('email_msg')" @mouseenter="toggleTitle('email_msg')" @mouseleave="toggleTitle" class="warning_switch" :checked="configObj.email_msg=='1'">
+                                            <span slot="open">开</span>
+                                            <span slot="close">关</span>
+                                        </Switch>
+                                        <div class="warning_selectbox" v-show="configObj.email_msg=='1'"  >
+                                            <i-select :model.sync="emailModel" placeholder="邮件实时报警"  filterable multiple >
+                                                <i-option v-for="item in emailUser" :value="item.id" :disabled="email_disabled(item.email)">{{ item.real_name }}</i-option>
+                                            </i-select>
+                                        </div>
+                                        <row class="warning_date" v-show="configObj.email_msg=='1'">
+                                            <i-col span="12">
+                                                <Time-picker format="HH:mm" type="timerange" placement="bottom-end" placeholder="选择时间" :value.sync="emailTimeModel" style="width: 168px" :disabled="configObj.email_msg=='0'" @on-change="emailTime"></Time-picker>
+                                            </i-col>
+                                        </row>
+                                        <span :class="['_message']" v-show="currTitle==='email_msg'" class="warning_font">邮件实时报警开关，打开将会发送邮件</span>
+                                    </td>
+                                </tr>
+                                <tr class="_formItem">
+                                    <td class="_label">
+                                        短信实时报警
+                                    </td>
+                                    <td class="_inputWrap">
+                                        <Switch @on-change="changeStatus('phone_msg')" @mouseenter="toggleTitle('phone_msg')" @mouseleave="toggleTitle" class="warning_switch" :checked="configObj.phone_msg=='1'">
+                                            <span slot="open">开</span>
+                                            <span slot="close">关</span>
+                                        </Switch>
+                                        <div class="warning_selectbox" v-show="configObj.phone_msg=='1'" >
+                                            <i-select :model.sync="msgModel"  placeholder="短信实时报警"  filterable multiple >
+                                                <i-option v-for="item in msgUser" :value="item.id" :disabled="msg_disabled(item.tel)">{{ item.real_name }}</i-option>
+                                            </i-select>
+                                        </div>
+                                        <row v-show="configObj.phone_msg=='1'" class="warning_date">
+                                            <i-col span="12">
+                                                <Time-picker format="HH:mm" type="timerange" placement="bottom-end" placeholder="选择时间" :value.sync="msgTimeModel" style="width: 168px" :disabled="configObj.phone_msg=='0'" @on-change="msgTime"></Time-picker>
+                                            </i-col>
+                                        </row>
+                                        <span :class="['_message']" v-show="currTitle==='phone_msg'" class="warning_font">短信实时报警开关，打开将会发送短信</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </header>
+                </div>
+                <div class="_panel">
+                    <header>
+                        <h3 class="_panelTitle">
+                            <span class="_panelTitleBorder"></span>
+                            拓展功能开关
+                        </h3>
+                        <table class="_form" style="width: 100%;">
+                            <tbody>
+                                <tr class="_formItem">
+                                    <td class="_label">
+                                        小型气象站
+                                    </td>
+                                    <td class="_inputWrap">
+                                        <Switch :checked="configObj.small_weather==='1'" @on-change="changeStatus('small_weather')" @mouseenter="toggleTitle('small_weather')" @mouseleave="toggleTitle" :class="{warning_switch:true, change_line_switch:configObj.small_weather==='1'}">
+                                            <span slot="open">开</span>
+                                            <span slot="close">关</span>
+                                        </Switch>
+                                        <div style="float: left;">
+                                            <p style="float: left;margin-left: 10px;" v-show="configObj.small_weather==='1'">CO<sub>2</sub>:</p>
+                                            <div class="warning_selectbox" v-show="configObj.small_weather==='1'" >
+                                                <i-select :model.sync="carbonModel" placeholder="二氧化碳监测终端"    >
+                                                    <i-option v-for="item in carbon" :value="item.equip_no" >{{ item.name }}</i-option>
+                                                </i-select>
+                                            </div>
+                                            <p style="float: left;margin-left: 10px;" v-show="configObj.small_weather==='1'">SO<sub>2</sub>:</p>
+                                            <div class="warning_selectbox" v-show="configObj.small_weather==='1'" >
+                                                <i-select :model.sync="sulfurModel" placeholder="二氧化硫监测终端"    >
+                                                    <i-option v-for="item in sulfur" :value="item.equip_no" >{{ item.name }}</i-option>
+                                                </i-select>
+                                            </div>
+                                            <br class="changeLine" v-show="configObj.small_weather==='1'" />
+                                            <p style="float: left;margin-left: 10px;" v-show="configObj.small_weather==='1'">NO<sub>x</sub>:</p>
+                                            <div class="warning_selectbox" v-show="configObj.small_weather==='1'" >
+                                                <i-select :model.sync="nitrogenModel" placeholder="氮氧化物监测终端"    >
+                                                    <i-option v-for="item in nitrogen" :value="item.equip_no" >{{ item.name }}</i-option>
+                                                </i-select>
+                                            </div>
+                                            <p style="float: left;margin-left: 10px;" v-show="configObj.small_weather==='1'" class="param_o">O<sub>3</sub>:</p>
+                                            <div class="warning_selectbox" v-show="configObj.small_weather==='1'" >
+                                                <i-select :model.sync="ozoneModel" placeholder="臭氧监测终端"    >
+                                                    <i-option v-for="item in ozone" :value="item.equip_no" >{{ item.name }}</i-option>
+                                                </i-select>
+                                            </div>
+                                            <span :class="['_message']" v-show="currTitle==='small_weather'" class="warning_font">拓展功能开关，打开之后激活小型气象站相关功能</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="_formItem">
+                                    <td class="_label">
+                                        震动版块
+                                    </td>
+                                    <td class="_inputWrap">
+                                        <Switch :checked="configObj.vibration==='1'" @on-change="changeStatus('vibration')" @mouseenter="toggleTitle('vibration')" @mouseleave="toggleTitle">
+                                            <span slot="open">开</span>
+                                            <span slot="close">关</span>
+                                        </Switch>
+                                        <span :class="['_message']" v-show="currTitle==='vibration'">拓展功能开关，打开之后激活震动监测相关功能  </span>
+                                    </td>
+                                </tr>
+                                <tr class="_formItem">
+                                    <td class="_label">
+                                        囊匣版块
+                                    </td>
+                                    <td class="_inputWrap">
+                                        <Switch :checked="configObj.capsule==='1'" @on-change="changeStatus('capsule')" @mouseenter="toggleTitle('capsule')" @mouseleave="toggleTitle">
+                                            <span slot="open">开</span>
+                                            <span slot="close">关</span>
+                                        </Switch>
+                                        <span :class="['_message']" v-show="currTitle==='capsule'">拓展功能开关，打开之后激活囊匣监测相关功能  </span>
+                                    </td>
+                                </tr>
+                                <tr class="_formItem">
+                                    <td class="_label">
+                                        元智接入版块
+                                    </td>
+                                    <td class="_inputWrap">
+                                        <Switch :checked="configObj.yuanzhi==='1'" @on-change="changeStatus('yuanzhi')" @mouseenter="toggleTitle('yuanzhi')" @mouseleave="toggleTitle">
+                                            <span slot="open">开</span>
+                                            <span slot="close">关</span>
+                                        </Switch>
+                                        <span :class="['_message']" v-show="currTitle==='yuanzhi'">拓展功能开关，打开之后激活元智接入相关功能  </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </header>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<script type="text/javascript">
+    require('./param_setting');
+</script>
+</body>
+</html>

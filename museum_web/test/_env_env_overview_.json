@@ -1,0 +1,59 @@
+{
+  "total": 10,
+  "rows": [
+    {
+      "name": "兵器展厅1",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "81"
+    },
+    {
+      "name": "兵器展厅2",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "82"
+    },
+    {
+      "name": "兵器展厅3",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "83"
+    },
+    {
+      "name": "兵器展厅4",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "84"
+    },
+    {
+      "name": "兵器展厅5",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "85"
+    },
+    {
+      "name": "兵器展厅6",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "86"
+    },
+    {
+      "name": "兵器展厅7",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "87"
+    },
+    {
+      "name": "兵器展厅8",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "88"
+    },
+    {
+      "name": "兵器展厅9",
+      "temperature": "25.00",
+      "humidity": "65.00",
+      "standard": "89"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+	"arr":[
+		{
+			"name":"关注",
+			"rows":{
+				"展厅":[{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"}],
+				"库房":[{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"}]
+			}
+		},
+		{
+			"name":"展厅",
+			"rows":{
+				"一层":[{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"}],
+				"二层":[{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"},{"name":"雅风流韵展厅","temperature":"23.6~26.2°C","humidity":"23.6~26.2%"}]
+			}
+		}
+	]
+}

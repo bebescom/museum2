@@ -1,0 +1,84 @@
+<template id="Environmental_levels">
+	<div class="Environmental_levels">
+		<div class="header">
+			<div class="title">
+				<a href="javascript:window.history.go(-1)" class="goBack"><Icon type="chevron-left" style="margin-right: 10px;"></Icon>环境报警</a>
+			</div>
+			<div class="filterWrap">
+				<filter-component type="env_alert"></filter-component>
+			</div>
+			<div class="ability">
+				<div @click="hidePolice" :class="{active:this.post_data.clear==1}">隐藏已处理报警</div>
+			</div>
+		</div>
+		<div class="body">
+			<div class="tableBox" style="max-height: 785px;">
+				<div class="table_count">
+					<table class="table _content">
+						<thead>
+							<td class="permissionHidden" v-permission="{name:'处理报警'}">处理</td>
+							<td>事件ID</td>
+							<td>报警环境</td>
+							<td>报警设备</td>
+							<td>报警文物</td>
+							<td>报警时间</td>
+							<td>报警参数</td>
+							<td>清除报警时间</td>
+							<td>情况说明</td>
+						</thead>
+						<tbody>
+							<tr v-for="(index,tr) in table_data.rows">
+								<td :style={cursor:tr.clear?'auto':'pointer'} class="permissionHidden" v-permission="{name:'处理报警'}" @click="clearPolice(tr,index)"><span :class="{cleared:tr.clear}"></span></td>
+								<td>{{tr.id}}</td>
+								<td><a  href="javascript:void(0)" @click="goNavDetail(tr.nav,tr.alert_time,tr.alert_param)">{{location(tr.nav)}}</a></td>
+								<td><a  href="javascript:void(0)" @click="goEquipDetail(tr.equip_no,tr.alert_time,tr.equip_type)">{{tr.equip_no}}</a></td>
+								<td>{{tr.relic_name}}</td>
+								<td>{{tr.alert_time}}</td>
+								<!--{{conversion(tr.alert_param)}}-->
+								<td :class="tr.alert_param"> {{tr.content}} </td>
+								<td>{{tr.clear_time}}</td>
+								<td :class="{not_fill:!tr.clear}">{{tr.clear?tr.remark:'待填写'}}</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="shadow" v-show="shadow"></div>
+				</div>
+				<page-list @turn-page="turnPage" :page.sync="post_data.page" :allPage.sync="allPage" :count="table_data.count"></page-list>
+			</div>
+			<div class="shadow" v-show="clear"></div>
+		</div>
+		<div class="fixedShadow" v-show="clear"></div>
+		<clear-police transition="alert" v-if="clear" :clear.sync="clear" :clear-data.sync="clearData"></clear-police>
+	</div>
+</template>
+
+<!-- 清除模板 -->
+<template id="clearPolice">
+	<div class="alertBox remove">
+		<header>
+			清除报警
+			<Icon type="close-round" size="20" class="close" @click="close"></Icon>
+		</header>
+		<section>
+			<div class="alert information left">
+				<h6>报警环境</h6>
+				<p>{{clearData.nav}}</p>
+				<h6>报警类型</h6>
+				<p>{{clearData.type}}</p>
+				<h6>报警起始时间</h6>
+				<p>{{clearData.time}}</p>
+				<h6>关联文物</h6>
+				<p>{{clearData.relic}}</p>
+			</div>
+			<div class="alert information right">
+				<h6>备注</h6>
+				<textarea v-model="text"></textarea>
+			</div>
+		</section>
+		<footer>
+			<div class="btnsContainer">
+				<div class="over" @click="clearAlert">清除警报</div>
+			</div>
+		</footer>
+	</div>
+</template>

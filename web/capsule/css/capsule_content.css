@@ -1,0 +1,317 @@
+
+/*	select*/
+.select{
+    position: relative;
+    z-index: 2;
+    line-height: 21px;
+    top: 11px;
+}
+.realHeight{
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+.selectBox{
+	position: absolute;
+    z-index: 1;
+    display: none;
+    margin-top: 1px;
+}
+.alertBox.remove{
+    width: 600px;
+}
+.information{
+    float: left;
+}
+.alert{
+    margin: 0;
+    width: 270px;
+    padding-left: 13px;
+    padding-top: 30px;
+}
+.alert p{
+    line-height: 20px;
+    margin-bottom: 18px;
+}
+.alert textarea{
+    padding-left: 10px;
+    resize: none;
+    width: 224px;
+    height: 171px;
+}
+.header .selectBox li{
+    list-style: none;
+    background: #fff;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #63727f;
+    position: relative;
+    font-size: 16px;
+    white-space: nowrap;
+}
+.selectBox li:hover{
+    background: #1bbc9b;
+    color: #fff;
+}
+.selectBox,.childList{
+    border: 1px solid #1bbc9b;
+    border-radius: 3px;
+    box-shadow: 1px 1px 8px 1px #ccc;
+}
+.childList{
+    position: absolute;
+    top: 0;
+    left: 100%;
+    display: none;  
+}
+#content .now{
+    background: #1bbc9b url('../images/small.png') no-repeat right 0;
+    height: 28px;
+    display: inline-block;
+    border-radius: 10px;
+    padding-left: 18px;
+    padding: 0 36px 0 18px;
+    font-size: 12px;
+    color: #e9f6f2;
+    line-height: 28px;
+    cursor: pointer;
+}
+#content .now.active{
+	background-position: right -33px;
+}
+/*	overview*/
+#content .overview{
+	float: right !important;
+	font-size: 14px;
+	color: #9fa3ac;
+}
+.overview p{
+    display: inline-block;
+    background: url('../images/small.png') no-repeat left -70px;
+    height: 28px;
+    line-height: 28px;
+    padding-left: 40px;
+    margin-right: 40px;
+}
+.overview p span{
+	color: #ffadad;
+}
+.overview p:last-child{
+	margin-right:0;
+	background-position: left -112px; 
+}
+/*capsuleBox*/
+.capsuleBox{
+    height: 692px;
+    overflow-y: scroll;
+    width: 100%;
+    position: relative;
+    padding-right: 20px;
+    background: url('../images/loading.gif') no-repeat center;
+    margin-top: 8px;
+}
+.capsuleBox .notData{
+    width: 108px;
+    line-height: 25px;
+    height: 25px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    font-size: 18px;
+    color: #a79090;
+}
+.capsuleBox .drag{
+	right: 22px;
+}
+.drag{
+    position: absolute;
+    right: 70px;
+    top: 0;
+    width: 11px;
+    height: 134px;
+    background: #d5d8dd;
+    border-radius: 5px;
+    opacity: 0;
+    transition: opacity 1s;
+    z-index: 2;
+}
+/*	components*/
+.relic,.equip{
+    width: 290px;
+    background: #ffffff;
+    display: inline-block;
+    margin: 0 10px 10px 0px;
+    position: relative;
+}
+.relic:hover,.equip:hover{
+	box-shadow: 0 0 22px 3px #ccc;
+}
+/*  options*/
+.options{
+	height: 42px;
+    position: relative;
+    z-index: 1;
+}
+.options p{
+    height: 100%;
+}
+.options .left{
+    float: left;
+}
+.options .right{
+    float: right;
+}
+.options span{
+    float: left;
+    height: 100%;
+    background: url('../images/small.png') no-repeat 8px 7px;
+    width: 42px;
+    cursor: pointer;
+}
+.options span.heart{
+    background-position-y: -186px;
+}
+.options span.heart.active{
+    background-position-y: -217px;
+}
+.options span.remove{
+    background-position-y: -515px;
+}
+
+.equipView{
+    text-align: center;
+    border-bottom: 1px solid #e8e9e7;
+}
+.equipView img{
+	display: block;
+    height: 175px;
+    margin: 0 auto;
+}
+.equipName{
+    font-size: 16px;
+    color: #657582;
+    height: 34px;
+    line-height: 34px;
+    margin: 0 auto;
+    max-width: 290px;
+}
+.tip{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+.abnormal{
+    color: #fff;
+    font-size: 24px;
+    top: 47%;
+    position: absolute;
+    left: 29%;
+    padding: 0 17px;
+}
+.move_alert{
+    background:rgba(255,162,162,0.6);
+}
+.box_open_alert{
+    background:rgba(255,106,106,0.6);
+}
+.capsuleBox .wrap .temperature,.capsuleBox .wrap .humidity{
+    background:rgba(255,195,51,0.6);
+}
+.move_alert .abnormal{
+    background:url('../images/problem.png') no-repeat;
+}
+.box_open_alert .abnormal{
+    background: url('../images/problem.png') no-repeat 0 -40px;
+    padding-top: 39px;
+    margin-top: -39px;
+}
+.temperature .abnormal,.humidity .abnormal{
+    background: #fff;
+    color: #ffb400;
+}
+.temperature .abnormal p,.humidity .abnormal p{
+    position: absolute;
+    width: 100%;
+    top: -60px;
+    left: 0;
+    color: #fff;
+    text-align: center;
+} 
+.abnormal p span:last-child{
+    font-size: 12px;
+    color: #ffecbd;
+    position: relative;
+    top: -5px;
+}
+.equipLocation{
+    max-width: 193px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: inline-block;
+    text-align: center;
+    font-size: 12px;
+    color: #b8bcc4;
+    padding-left: 26px;
+    height: 29px;
+    line-height: 29px;
+    background: url('../images/small.png') no-repeat left -155px;
+    overflow: hidden;
+}
+/* .footer*/
+.relic .footer,.equip .footer{
+    padding-top: 12px;
+    text-align: center;
+    padding-bottom: 10px;
+}
+.relic .footer p,.equip .footer p{
+	display: inline-block;
+    width: 46%;
+}
+.relic .footer span,.equip .footer span{
+    display: inline-block;
+    width: 49%;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    color: #73818c;
+    padding-left: 24px;
+    background:url('../images/small.png') no-repeat 0 -344px;
+}
+.relic .footer span.temperatureTitle,.equip .footer span.temperatureTitle{
+	background-position:0 -388px;
+}
+.relic .footer p:first-child,.equip .footer p:first-child{
+	border-right: 1px solid #e8e9e7;
+}
+
+/*contentFooter*/
+.contentFooter{
+    text-align: center;
+    color: #3DB38C;
+    height: 48px;
+    line-height: 48px;
+    margin-top: -5px;
+}
+.contentFooter.active{
+    background: url('../images/loading.gif') center center no-repeat;
+}
+
+/*设备对比功能新增按钮*/
+.equip_content .ability .operationWrap .operation{
+    display: none;
+}
+.equip_content .ability .operationWrap .operation ul{
+    max-height:220px;
+    overflow-y: scroll;
+}
+.equip_content .ability .operationWrap:hover .operation{
+    display: block;
+}
+.equip_content .ability .operationWrap .operation .ivu-btn{
+    margin: 10px 0 10px 0;
+}

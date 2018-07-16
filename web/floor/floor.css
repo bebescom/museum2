@@ -1,0 +1,38 @@
+.map_view .img_box{
+    z-index: 100;
+}
+
+.color_distinguish{
+    width: 15px;
+    height: 180px;
+    position: absolute;
+    z-index: 101;
+    bottom: 50px;
+    right: 20px;
+}
+.temperatureColor,
+.humidityColor{
+    width: 100%;
+    height: 100%;
+}
+.temperatureColor div,
+.humidityColor div{
+    width: 15px;
+    height: 20px;
+}
+.tooltip_fox{
+    position: absolute;
+    border: 1px solid #ddd;
+    background-color: lightgrey;
+    border-radius: 4px;
+    text-align: center;
+    width: 100px;
+    height: 20px;
+    top: 0;
+    left: -105px;
+    overflow: hidden;
+    box-shadow: -2px 0 2px #999, /*左边阴影*/
+    2px 0 2px #999, /*右边阴影*/
+    0 -2px 2px #999, /*顶部阴影*/
+    0 2px 2px #999;
+}

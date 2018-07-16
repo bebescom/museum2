@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.mapper.EquipOperationMapper">
+    <resultMap id="BaseResultMap" type="com.museum.pojo.EquipOperation">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="equip_no" jdbcType="VARCHAR" property="equipNo"/>
+        <result column="operation" jdbcType="VARCHAR" property="operation"/>
+        <result column="operator" jdbcType="VARCHAR" property="operator"/>
+        <result column="operation_time" jdbcType="INTEGER" property="operationTime"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, equip_no, operation, operator, operation_time, remark
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from equip_operation
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据设备编号查询操作记录 -->
+    <select id="getRecordsByEquipNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from equip_operation
+        where equip_no = #{equipNo,jdbcType=VARCHAR}
+        ORDER BY operation_time DESC
+    </select>
+
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from equip_operation
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.museum.pojo.EquipOperation">
+        insert into equip_operation (id, equip_no, operation,
+        operator, operation_time, remark
+        )
+        values (#{id,jdbcType=INTEGER}, #{equipNo,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR},
+        #{operator,jdbcType=VARCHAR}, #{operationTime,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!--  向设备操作记录表中添加一条操作记录 -->
+    <insert id="insertSelective" parameterType="com.museum.pojo.EquipOperation">
+        insert into equip_operation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="equipNo != null">
+                equip_no,
+            </if>
+            <if test="operation != null">
+                operation,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+            <if test="operationTime != null">
+                operation_time,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="equipNo != null">
+                #{equipNo,jdbcType=VARCHAR},
+            </if>
+            <if test="operation != null">
+                #{operation,jdbcType=VARCHAR},
+            </if>
+            <if test="operator != null">
+                #{operator,jdbcType=VARCHAR},
+            </if>
+            <if test="operationTime != null">
+                #{operationTime,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.museum.pojo.EquipOperation">
+        update equip_operation
+        <set>
+            <if test="equipNo != null">
+                equip_no = #{equipNo,jdbcType=VARCHAR},
+            </if>
+            <if test="operation != null">
+                operation = #{operation,jdbcType=VARCHAR},
+            </if>
+            <if test="operator != null">
+                operator = #{operator,jdbcType=VARCHAR},
+            </if>
+            <if test="operationTime != null">
+                operation_time = #{operationTime,jdbcType=INTEGER},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.museum.pojo.EquipOperation">
+        update equip_operation
+        set equip_no = #{equipNo,jdbcType=VARCHAR},
+        operation = #{operation,jdbcType=VARCHAR},
+        operator = #{operator,jdbcType=VARCHAR},
+        operation_time = #{operationTime,jdbcType=INTEGER},
+        remark = #{remark,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

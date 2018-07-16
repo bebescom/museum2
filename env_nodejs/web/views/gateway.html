@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>网关连接与断开列表</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="js/init.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorgrid'>
+</table>
+
+<div id="sensortool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+
+        网关No:<input size="10" type="text" name="gatewayNo" id="gatewayNo" value=""/>
+
+        <button type="submit" class="easyui-linkbutton">查询</button>
+    </form>
+
+</div>
+
+
+<script type="text/javascript">
+
+    $('#sensorgrid').datagrid({
+        url: 'sensor/gateway',
+        toolbar: '#sensortool',
+        singleSelect: true,
+        rownumbers: true,
+        pagination: true,
+        pagePosition: 'top',
+//        fitColumns: true,
+        fit: true,
+        pageSize: 50,
+        pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+        idField: '_id',
+        remoteSort: false,
+        columns: [
+            [
+                {field: 'gateway_no', width: 200, title: '网关No'},
+                {field: 'ip_port', width: 200, title: 'IP:PORT'},
+                {field: 'status', width: 200, title: '状态'},
+                {field: 'connect_time', width: 150, title: '连接时间'},
+                {field: 'disconnect_time', width: 150, title: '断开时间'}
+            ]
+        ]
+
+    });
+
+    function searchSensor() {
+        var gatewayNo = $('#gatewayNo').val();
+
+        $('#sensorgrid').datagrid('load', {
+            gatewayNo: gatewayNo
+        });
+    }
+
+
+</script>
+</body>
+</html>

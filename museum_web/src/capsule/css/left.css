@@ -1,0 +1,61 @@
+#left{
+    position: absolute;
+    top: 83px;
+    width: 94px;
+    display: inline-block;
+    font-size: 16px;
+    font-family: '微软雅黑';
+	background:#282a33;
+}
+#left ul{
+	width: 100%;
+}
+#left ul li{
+    position: relative;
+    height: 87px;
+    list-style: none;
+    cursor: pointer;
+    border-left:3px solid transparent;
+}
+#left ul li.v-link-active{
+	background: #17181e;
+	color: #1bbc9b !important;
+    border-left:3px solid #1bbc9b;
+}
+#left ul li.v-link-active span{
+    color:#ffffff;
+    background-position-x:-62px;
+}
+#left ul li:hover{
+	background: #17181e;
+}
+#left ul li a{
+    color: #ced7fd;
+    height: 87px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    line-height: 15px;
+    text-decoration:none
+}
+#left ul li.v-link-active a{
+    color: #1bbc9b;
+}
+#left ul li span{
+    display: inline-block;
+    height: 52px;
+    width: 100%;
+    background: url('../images/left_silder.png') no-repeat 33px 0;
+}
+#left .integrated span{
+    background-position-y: -217px;
+}
+#left .monitoring span,#left .vibration span{
+    background-position-y: -52px;
+}
+#left .relic_ span{
+    background-position-y: -104px;
+}
+#left .equipment span{
+    background-position-y: -156px;
+}

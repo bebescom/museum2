@@ -1,0 +1,200 @@
+<div class="Integrated">
+    <div class="header">
+        <div class="title">
+            <a class="lt_back" href="#/env/'+env_no"><span style="font-size: 24px;">&lt;</span><span v-show="env.name" v-text="'编辑布局 -- '+env.name" style="font-size: 16px;position: relative;top: -2px;left: 6px;"></span></a>
+        </div>
+        <div id="select_env_layout">
+            <span class="t" data-title="点击这里切换环境" style="position: relative;top:-2px">切换环境</span>
+            <div class="env_tree">
+                <ul id="env_tree_ul" class="ztree">
+
+                </ul>
+            </div>
+        </div>
+
+        <div class="ability">
+            <div>
+                <a href="javascript:history.back()" class="back">返回</a>
+            </div>
+        </div>
+    </div>
+    <div id="Integrated">
+        <div class="map_view_mask">
+            <div class="map_view">
+                <div class="btn_view"></div>
+                <div class="img_box">
+                    <img :src="env.map" style="width:100%" @load="loadImg"/>
+                    <svg id="svg_map" class="svg_Area" width="100%" height="100%">
+
+                    </svg>
+                    <div id="svg_map_div"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="menu_box_mask">
+            <div id="menu_box" class="menu_box">
+                <ul class="tab">
+                    <li :class="{active:type=='env'}" @click="change_type('env')">热区</li>
+                    <li :class="{active:type=='equip'}" @click="change_type('equip')">设备</li>
+                    <li :class="{active:type=='relic'}" @click="change_type('relic')">文物</li>
+                </ul>
+                <div class="box">
+                    <div :class="['env',{hide:type!='env'}]">
+
+                        <div class="t" data-title="点击环境名称进入编辑">
+                            未勾热区
+                        </div>
+                        <hr>
+                        <ul class="list no">
+                            <li v-for="item in no_locate_env_list"
+                                track-by="$index"
+                                @mouseover="env_mouseover(item.env_no)"
+                                @mouseout="env_mouseout(item.env_no)"
+                                @click="env_click(item.env_no)"
+                                :class="{'active':(edit_env_no==item.env_no)}">
+                                <span :data-title="item.name" class="name" v-text="item.name"></span>
+                                <span :data-title="item.env_no" class="name env_name" v-text="item.env_no"></span>
+                            </li>
+                        </ul>
+                        <div class="t" data-title="点击环境名称进入编辑">
+                            已勾热区
+                        </div>
+                        <hr>
+                        <ul class="list">
+                            <li v-for="item in locate_env_list"
+                                track-by="$index"
+                                @mouseover="env_mouseover(item.env_no)"
+                                @mouseout="env_mouseout(item.env_no)"
+                                @click="env_click(item.env_no)"
+                                :class="{'active':(edit_env_no==item.env_no)}">
+                                <span :data-title="item.name" class="name" v-text="item.name"></span>
+                                <span :data-title="item.env_no" class="name env_name" v-text="item.env_no"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div :class="['equip',{hide:type!='equip'}]">
+                        <ul class="equip_type_list">
+                            <li v-for="item in equip_type_list">
+                                <span v-for="it in item"
+                                      :data-title="it" :class="['museum_icon','small',it,{active:in_equip_type(it)}]"
+                                      @click="change_equip_type(it)">
+                                    <i></i>
+                                </span>
+                            </li>
+                        </ul>
+                        <div class="clear"></div>
+                        <div class="t">
+                            <span data-title="点击设备名称即可添加到地图上并拖动位置">待部署设备</span>
+                            <i v-text="no_locate_equip_list_filter.length"></i>
+                            <i>个</i>
+                        </div>
+
+                        <div class="search_box">
+                            <input class="text hide" type="text" v-model="equip_search"
+                                   @click.stop="" @keydown.enter.stop.prevent=""
+                                   placeholder="搜索设备名称">
+                            <i class="icon iconfont" @click.stop="show_search($event)">&#xe614;</i>
+                        </div>
+                        <hr>
+                        <ul class="list no equip">
+                            <li v-for="item in no_locate_equip_list_filter  | limitBy 14"
+                                @mouseover.stop.prevent="equip_mouseover(item.equip_no)"
+                                @mouseout.stop.prevent="equip_mouseout(item.equip_no)"
+                                @click.stop.prevent="equip_click(item.equip_no)"
+                                :data-equip_no="item.equip_no"
+                                :class="{'active':(edit_equip_no==item.equip_no)}">
+                                <span :data-title="item.equip_type+'-'+item.equip_no"
+                                      :class="['museum_icon','small',item.equip_type]"></span>
+                                <span class="name" :data-title="item.name" v-text="item.name"></span>
+                            </li>
+                        </ul>
+                        <div class="clear"></div>
+                        <div class="t">
+                            <span>已部署设备</span>
+                            <i v-text="locate_equip_list_filter.length"></i>
+                            <i>个</i>
+                        </div>
+                        <hr>
+                        <ul class="list relic">
+                            <li v-for="item in locate_equip_list_filter"
+                                @mouseover.stop.prevent="equip_mouseover(item.equip_no)"
+                                @mouseout.stop.prevent="equip_mouseout(item.equip_no)"
+                                @click.stop.prevent="equip_click(item.equip_no)"
+                                :data-equip_no="item.equip_no"
+                                :class="{'active':(edit_equip_no==item.equip_no),no:(!item.locate)}">
+                                <span :data-title="item.equip_type+'-'+item.equip_no"
+                                      :class="['museum_icon','small',item.equip_type]"></span>
+                                <span class="name" :data-title="item.name" v-text="item.name"></span>
+                                <span class="name env_name" :data-title="item.env_name" v-text="item.env_name"></span>
+                                <i class="del" data-title="清空部署信息，以便重新部署" @click.stop="equip_delete(item.equip_no)">x</i>
+                            </li>
+                        </ul>
+                    </div>
+                    <div :class="['relic',{hide:type!='relic'}]">
+                        <ul class="relic_type_list">
+                            <li>
+                                <span v-for="it in relic_type_list"
+                                      :data-title="it" :class="['museum_icon','small',it,{active:in_relic_type(it)}]"
+                                      @click="change_relic_type(it)">
+                                    <i></i>
+                                </span>
+                            </li>
+                        </ul>
+                        <div class="clear"></div>
+                        <div class="t">
+                            <span data-title="点击文物名称即可添加到地图上并拖动位置">待部署文物</span>
+                            <i v-text="no_locate_relic_list_filter.length"></i>
+                            <i>个</i>
+                        </div>
+                        <div class="search_box">
+                            <input class="text hide" type="text" v-model="relic_search"
+                                   @click.stop="" @keydown.enter.stop.prevent=""
+                                   placeholder="搜索文物名称">
+                            <i class="icon iconfont" @click.stop="show_search($event)">&#xe614;</i>
+                        </div>
+                        <hr>
+                        <ul class="list no equip">
+                            <li v-for="item in no_locate_relic_list_filter | limitBy 14"
+                                @mouseover="relic_mouseover(item.relic_no)"
+                                @mouseout="relic_mouseout(item.relic_no)"
+                                @click="relic_click(item.relic_no)"
+                                :data-relic_no="item.relic_no"
+                                :class="{'active':(edit_relic_no==item.relic_no)}">
+                                <span :data-title="(item.level||'')+'-'+item.relic_no"
+                                      :class="['museum_icon','small',item.level]"></span>
+                                <span class="name" :data-title="item.name" v-text="item.name"></span>
+                            </li>
+                        </ul>
+                        <div class="clear"></div>
+                        <div class="t">
+                            <span>已部署文物</span>
+                            <i v-text="locate_relic_list_filter.length"></i>
+                            <i>个</i>
+                        </div>
+                        <hr>
+                        <ul class="list relic">
+                            <li v-for="item in locate_relic_list_filter"
+                                @mouseover="relic_mouseover(item.relic_no)"
+                                @mouseout="relic_mouseout(item.relic_no)"
+                                @click="relic_click(item.relic_no)"
+                                :data-relic_no="item.relic_no"
+                                :class="{'active':(edit_relic_no==item.relic_no),no:(!item.locate)}">
+                                <span :data-title="(item.level||'')+'-'+item.relic_no"
+                                      :class="['museum_icon','small',item.level]"></span>
+                                <span class="name" :data-title="item.name" v-text="item.name"></span>
+                                <span class="name env_name" :data-title="item.env_name" v-text="item.env_name"></span>
+                                <i class="del" data-title="清空部署信息，以便重新部署" @click.stop="relic_delete(item.relic_no)">x</i>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>

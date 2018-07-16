@@ -1,0 +1,81 @@
+* {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#wrap {
+    width: 100%;
+    height: 200%;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+/*第一页*/
+
+#content {
+    width: 100%;
+    height: 50%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+}
+
+#content img.backgroundImg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -999;
+}
+
+#svg_area {
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
+    /*border:1px solid red;*/
+}
+
+#canvas_area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
+    /*border:1px solid red;*/
+}
+
+#svg_area polygon {
+    fill: #1eb16d;
+    fill-opacity: 0;
+    cursor: pointer;
+}
+#svg_area polygon:hover{
+    fill-opacity:0.5;
+}
+#svg_area polyline {
+    stroke: #1eb16d;
+    stroke-width: 2;
+    fill: #1eb16d;
+}
+
+#svg_area line {
+    stroke: #1eb16d;
+    stroke-width: 2;
+}

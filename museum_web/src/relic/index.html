@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>博物馆综合管理平台</title>
+    <style>
+        .header{
+            height: 49px;
+            padding: 0 17px 0 15px;
+            margin-left: -15px;
+            background: #fff;
+            border-bottom: 1px solid #fff;
+            line-height: 50px;
+            position: relative;
+            z-index: 12;
+            box-shadow: -1px 1px 3px 1px #ccc;
+        }
+        #deleteRelic{
+            height: 28px;
+            color: #6a707f;
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            border: 1px solid #c5c9ce;
+            border-radius: 6px;
+            width: 60px;
+            text-align: center;
+            line-height: 28px;
+        }
+        #deleteRelic:hover{
+            background: #d4eae9;
+            border-color: #d4eae9;
+            color: #31bfa1;
+        }
+    </style>
+</head>
+<body v-cloak>
+
+__inline("/common/header.html")
+__inline("/common/left.html")
+
+<div id="nav" class="nav_box detail">
+    <div class="title" style="float: left;position: relative;left: 10px;margin-top:15px;">
+        <a @click="goBack" class="goBack">
+            <Icon type="chevron-left" style="margin-right: 10px;"></Icon>
+            <!-- <span id="relic_name"></span> -->
+            {{relicView.name}}
+        </a>
+    </div>
+    
+    <div id="deleteRelic" style="margin-top:15px;" class="ability" @click="deleteRelic()">删除</div>
+    <!-- <a href="javascript:history.back()" class="back">返回</a> -->
+</div>
+
+<!-- <div id="relicName">
+    <span v-text="relicView.name"></span>
+    <div class="star"></div>
+</div> -->
+
+<!--当前文物信息-->
+<div id="contentBox" class="clear">
+    
+      __inline("left.html")
+      __inline("right.html")
+    </div>
+</div>
+
+<script type="text/javascript">
+    require('relic');
+</script>
+</body>
+</html>

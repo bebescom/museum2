@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>报警列表</title>
+</head>
+<body>
+<div id="app" v-cloak>
+    __inline(/common/header.html)
+    __inline(/common/left.html)
+    __inline(/common/components/pageList.html)
+    __inline(/common/components/filterComponent.html)
+    <left></left>
+    <div class="contentContainer" @click="hideOverlay">
+        <header class="containerTitle">
+            <p @click="goBack">
+                <Icon type="chevron-left"></Icon>
+                报警列表
+            </p>
+            <div class="filterWrap">
+                <filter-component type="equip_alert"></filter-component>
+            </div>
+        </header>
+        <section class="mainContent">
+            <div class="tableContainer">
+                <div class="tableWrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>设备名称</th>
+                            <th>设备ID</th>
+                            <th>报警类型</th>
+                            <th>设备位置</th>
+                            <th>报警时间</th>
+                            <th>消除报警时间</th>
+                            <th>情况说明</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="alert_item in tableData">
+                            <td>{{alert_item.id}}</td>
+                            <td>
+                                <a class="hiddenContent" href="javascript:void(0)" @click="goEquipDetail(alert_item.equip_no)">{{alert_item.name}}</a>
+                            </td>
+                            <td>
+                                <a class="hiddenContent" href="javascript:void(0)" @click="goEquipDetail(alert_item.equip_no)">{{alert_item.equip_no}}</a>
+                            </td>
+                            <td>
+                                {{alert_item.type}}
+                            </td>
+                            <td>
+                                <a class="hiddenContent" href="javascript:void(0)" @click="goEquipDetail(alert_item.equip_no,'nav')">
+                                    <Icon v-if="alert_item.map&&alert_item.nav" type="location" size="20" style="position:relative;top:1px;margin-right: 5px;"></Icon>{{initNav(alert_item.nav)}}
+                                </a>
+                            </td>
+                            <td>{{alert_item.alert_time}}</td>
+                            <td>{{alert_item.clear_time}}</td>
+                            <td>{{alert_item.alert_remark}}</td>
+                        </tr>
+                        </tbody>
+                        <tbody>
+                        <tr v-show="limit===0">
+                            <td colspan="8">暂无数据</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!--显示分页页码-->
+                <footer>
+                    <page-list class="permissionHidden" @turn-page="turnPage" :page.sync="page" :allPage="allPage" :count.sync="count" v-permission="{name:'设备管理'}"></page-list>
+                </footer>
+                <div class="loading" v-show="tableLoading"></div>
+            </div>
+        </section>
+    </div>
+</div>
+<script type="text/javascript">
+    require('./alert_list');
+</script>
+</body>
+</html>

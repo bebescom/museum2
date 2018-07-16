@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.relics.api.mapper.CollectInventoryDetailMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.museum.relics.api.entity.CollectInventoryDetail">
+		<id column="id" property="id" />
+		<result column="task_id" property="taskId" />
+		<result column="relic_no" property="relicNo" />
+		<result column="box_no" property="boxNo" />
+		<result column="time" property="time" />
+		<result column="operator_username" property="operatorUsername" />
+		<result column="result" property="result" />
+		<result column="timestamp" property="timestamp" />
+	</resultMap>
+
+	<update id="upload">
+		<foreach collection="list" index="index" item="detail" open="" separator=";" close="">
+			update inventory_detail set result=#{detail.result},`time`=#{detail.time},operator_username=#{detail.operatorUsername}
+			where relic_no=#{detail.relicNo} and task_id=#{taskId}
+		</foreach>
+	</update>
+
+	<insert id="insertOne" useGeneratedKeys="true" keyProperty="id">
+		insert into inventory_detail(task_id,relic_no,box_no,`time`,operator_username,result,`timestamp`)
+		values(#{taskId}, #{relicNo}, #{boxNo}, #{time}, #{operatorUsername}, #{result}, #{timestamp})
+	</insert>
+</mapper>

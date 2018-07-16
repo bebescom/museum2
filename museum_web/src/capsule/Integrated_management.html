@@ -1,0 +1,224 @@
+<template id="integratedTemplate">
+    <div class="Integrated">
+        <div class="header">
+            <div class="title" v-text="title" @click="comeBack" :style={cursor:((partName&&!searchValue)?'pointer':'')}
+                 :class="{change:(partName&&!searchValue)}"></div>
+            <input class="searchBox" type="text" placeholder="请输入环境名称" v-model="searchValue">
+            <div class="ability">
+                <div class="permissionHidden" v-permission="{name:'设置环境'}"><a href="__uri(/setting/#/env)">设置环境</a>
+                </div>
+            </div>
+            <!--<div class="ability">-->
+            <!--<div @click="export_Integrated">数据导出</div>-->
+            <!--</div>-->
+            <!--<Modal-->
+            <!--:visible.sync="modal_export"-->
+            <!--title="环境数据导出"-->
+            <!--&gt;</Modal>-->
+        </div>
+
+        <div id="Integrated">
+            <div id="Integrated_left" class="content">
+                <!--style="border: 1px solid deepskyblue"-->
+                <div class="viewBox" @scroll="scroll('left')">
+                    <div class="specialWrap">
+                        <div class="scrollBox clear">
+                            <div class="allViewWrap" v-show="!partName&&!searchValue">
+                                <div class="floor atten" id="atten" v-show="attention">
+                                    <p class="titleNoProper">关注</p>
+                                    <p class="title" @click.stop.prevent="setName('关注','follow')"
+                                       v-show="all_envs_data.follow && all_envs_data.follow.rows && all_envs_data.follow.rows.length === 0 ? false : true">
+                                        更多 > </p>
+                                    <div class="boxList clear">
+                                        <each-box v-for="region in attention" :part-type="partName" typekey="attention"
+                                                  :region="region"></each-box>
+                                    </div>
+                                </div>
+                                <template v-for="(name,obj) in allData">
+                                    <div class="floor" v-for="(floorName,floorObj) in obj"
+                                         v-show="floorObj.length!==0">
+                                        <p class="titleNoProper" v-text="floorObj.name"></p>
+                                        <p class="title" @click="setName(floorObj.name,floorObj.env_no,floorName)" v-text="configLanguage.integrated_more + ' >'" v-show="floorObj.rows.length!=0"></p>
+                                        <div class="boxList clear" v-if="floorObj.rows.length">
+                                            <each-box v-for="region in floorObj.rows" :part-type="partName"
+                                                      :region="region"></each-box>
+                                        </div>
+                                        <div class="boxList clear" v-else>
+                                            <each-box :part-type="partName"
+                                                      :region="floorObj"></each-box>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div class="floor" v-if="other">
+                                    <p class="titleNoProper">其他</p>
+                                    <p class="title" @click.stop.prevent="setName('其他','other')" v-text="configLanguage.integrated_more + ' >'"></p>
+                                    <div class="boxList clear">
+                                        <each-box v-for="region in other" :part-type="partName"
+                                                  :region="region"></each-box>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--进入展厅-->
+                            <div class="partViewWrap" v-show="partName&&!searchValue" >
+                                <template  v-for="(name,obj) in partData">
+                                    <div class="floor" v-if="env_no!='follow'" >
+                                        <p class="titleNoProper" v-text="obj.name"></p>
+                                        <!-- <p class="title" @click.stop.prevent="hrefFloor(obj.name)" v-text="configLanguage.integrated_more + ' >'"></p> -->
+                                        <div class="boxList" v-if="obj.children.length" >
+                                            <each-box v-for="region in obj.children" :part-type="partName"
+                                                      :region="region"></each-box>
+                                        </div>
+                                        <div class="boxList" v-else>
+                                            <each-box  :part-type="partName"
+                                                       :region="obj"></each-box>
+                                        </div>
+                                    </div>
+                                    <each-box v-else  :part-type="partName"
+                                              :region="obj" style="margin-top: 17px" ></each-box>
+                                </template>
+                            </div>
+                            <!--搜索-->
+                            <div class="The_search_results" v-show="searchValue">
+                                <each-box v-for="region in concatArr|filterBy searchValue in 'name' "
+                                          :part-type="partName" :region="region"></each-box>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="drag"></div>
+                    <div class="shadow leftShadow" v-show="partName&&!partData"></div>
+                </div>
+                <div id="Integrated_right" class="content">
+                    <div class="viewBox" @scroll="scroll('right')">
+                        <div class="scrollBox clear">
+                            <div class="panoramic pieces">
+                                <div class="partPanoramic" :class="weatherType">
+                                    <p>
+                                        <span class="timer">{{weather.today}}</span>
+                                        <span class="detail" @click="jumpPage">详情 > </span>
+                                        <span class="timeDetail" style="display: block" v-text="detailTimes"></span>
+                                    </p>
+                                    <font class="gifShadow"></font>
+                                    <div class="left_content con">
+                                        <div class="img"></div>
+                                        <div v-if="from =='网络数据'" class="quality"
+                                             :class="{'optimal':isOptimal,'good':isGood,'mild':isMild,'moderate':isModerate,'severe':isSevere,'serious':isSerious,'havent':isHavent}">
+                                            {{weather.aqi.level}}
+                                        </div>
+                                        <!--<div class="optimal">{{weather.aqi.level}}</div>-->
+                                    </div>
+                                    <div class="right_content con">
+                                        <div>
+                                            <p class="imghave"><span>{{weather.temperature.val}}°C</span></p>
+                                            <p class="imghave two"><span>{{weather.humidity.val}}%</span></p>
+                                        </div>
+                                        <div>
+                                            <p class="font"><span>PM2.5</span><span>{{weather.pm25.val}} μg/m³</span>
+                                            </p>    <!--500-->
+                                            <p class="view"><span :style="{width:pm25_width}"></span></p>
+                                        </div>
+                                        <div>
+                                            <p class="font"><span>PM1.0</span><span>{{weather.pm10.val}} μg/m³</span>
+                                            </p>    <!--500-->
+                                            <p class="view"><span :style="{width:pm10_width}"></span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comprehensive clear">
+                                    <div class="wind"
+                                         v-if="hideWeather.wind.wind_direction.level&&hideWeather.wind.wind_speed.val">
+                                        {{hideWeather.wind.wind_direction.level}}</br><span class="color">{{hideWeather.wind.wind_speed.val}}m/s</span>
+                                    </div>
+                                    <div :class="type" v-for="(type,obj) in hideWeather"
+                                         v-show="type!='wind'&&obj!=''&&obj" :data-title="obj.name">
+                                        {{obj.val}}</br><span class="color">{{obj.unit}}</span>
+                                    </div>
+                                </div>
+                                <div class="extension"></div>
+                            </div>
+                            <div class="Temperature_and_humidity pieces">
+                                <h3><span v-text ="configLanguage.integrated_yestodayTemHum"></span></h3>
+                                <div class="view_temperature box">
+                                    <div class="typeName"><span v-text="configLanguage.common_temperature"></span>
+                                        <hr>
+                                    </div>
+                                    <p class="color"><span class="extreme">极大</span><span class="num"
+                                                                                          :class="equalClass(Temperature_and_humidity_extremum.temperature.max.mark)">{{Temperature_and_humidity_extremum.temperature.max.val}}°C</span><span
+                                            class="time">{{Temperature_and_humidity_extremum.temperature.max.time}}</span><span
+                                            class="floor">{{Temperature_and_humidity_extremum.temperature.max.env_name}}</span>
+                                    </p>
+                                    <p class="color"><span class="extreme">极小</span><span class="num"
+                                                                                          :class="equalClass(Temperature_and_humidity_extremum.temperature.min.mark)">{{Temperature_and_humidity_extremum.temperature.min.val}}°C</span><span
+                                            class="time">{{Temperature_and_humidity_extremum.temperature.min.time}}</span><span
+                                            class="floor">{{Temperature_and_humidity_extremum.temperature.min.env_name}}</span>
+                                    </p>
+                                </div>
+                                <div class="view_humidity box">
+                                    <div class="typeName"><span v-text="configLanguage.common_humidity"></span>
+                                        <hr>
+                                    </div>
+                                    <p class="color"><span class="extreme">极大</span><span class="num"
+                                                                                          :class="equalClass(Temperature_and_humidity_extremum.humidity.max.mark)">{{Temperature_and_humidity_extremum.humidity.max.val}}%</span><span
+                                            class="time">{{Temperature_and_humidity_extremum.humidity.max.time}}</span><span
+                                            class="floor">{{Temperature_and_humidity_extremum.humidity.max.env_name}}</span>
+                                    </p>
+                                    <p class="color"><span class="extreme">极小</span><span class="num"
+                                                                                          :class="equalClass(Temperature_and_humidity_extremum.humidity.min.mark)">{{Temperature_and_humidity_extremum.humidity.min.val}}%</span><span
+                                            class="time">{{Temperature_and_humidity_extremum.humidity.min.time}}</span><span
+                                            class="floor">{{Temperature_and_humidity_extremum.humidity.min.env_name}}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="Equipment_generalization pieces">
+                                <h3><span v-text="configLanguage.integrated_equipSituation"></span></h3>
+                                <p class="cumulative">累计收到监测数据</p>
+                                <div class="accumulated_data">
+                                    <changes-digital :num="data_total"><span class="last">条</span></changes-digital>
+                                </div>
+                                <div>
+                                    <!--<p class="allData"><span>设备类型统计</span></br>{{Equipment_status.equip_total||0}}个</p>-->
+                                    <p class="norma"><span>所有设备</span></br>{{Equipment_status.equip_total||0}}个</p>
+                                    <p class="backup"><span>传感器</span></br>{{Equipment_status.sensor||0}}个</p>
+                                    <p class="stop"><span>调控设备</span></br>{{Equipment_status.controller||0}}个</p>
+                                    <p class="other"><span>网络设备</span></br>{{Equipment_status.network||0}}个</p>
+                                </div>
+                            </div>
+                            <div class="Cultural_relics_generalization pieces">
+                                <h3><span  v-text="configLanguage.integrated_relicSituation"></span></h3>
+                                <div>
+                                    <p class="allRelic"><span>文物总数</span></br>{{Cultural_relics_survey.total||0}}个</p>
+                                    <p class="norRelic"><span>在展文物</span></br>{{Cultural_relics_survey.show||0}}个</p>
+                                    <p class="oldRelic"><span>库藏文物</span></br>{{Cultural_relics_survey.store||0}}个</p>
+                                </div>
+                            </div>
+                            <p v-show="feed">没有我想要的数据？ <span @click="feedback">点我反馈</span></p>
+                            <div class="pieces feedBox" :translation="expand" v-else>
+                                <textarea class="Feedback_information" style="resize:none;" placeholder="请输入反馈信息"
+                                          v-model="textareaVal"></textarea>
+                                <p><span class="cancel" @click="feedCancel">取消</span><span class="OK"
+                                                                                           @click="feedSubmit">提交</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="drag"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="shadow wholeShadow" v-show="!attention"></div>
+        </div>
+    </div>
+</template>
+
+<template id="eachBox">
+    <div class="eachBox" :class="region.env_no" @click="browse(region.env_no)">
+        <!--<img :src="region.image" alt="">-->
+        <div class="bgImg"
+             :style="{background: 'url('+(region.image||'/uploads/no_pic.png')+') no-repeat center'}"></div>
+        <span class="attention_to_cancel" @click.stop="attention(region.env_no)" v-if="!region['关注']">关注</span>
+        <span class="attention_to_cancel" @click.stop="cancelAttention(region.env_no)" v-else>取消关注</span>
+        <div class="footer_information">
+            <p class="floor_name ellipsis" v-text="region.name"></p>
+            <span v-text="temperature_humidity(region.temperature)" class="temperature"></span>
+            <span v-text="temperature_humidity(region.humidity)" class="humidity"></span>
+        </div>
+    </div>
+</template>

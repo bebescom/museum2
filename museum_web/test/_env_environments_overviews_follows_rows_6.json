@@ -1,0 +1,13 @@
+{
+	"total":4,
+	"rows":[
+		{"id":"2","user_id":"1","name":"\u7891\u523b","no":"6250000001010302","type":"area","sort":"10","status":"\u5f02\u5e38"},
+		{"id":"1","user_id":"1","name":"\u8fb9\u8336\u8fd0\u8f93","no":"6250000001010111","type":"area","sort":"9","status":"\u5f02\u5e38"},
+		{"id":"4","user_id":"1","name":"\u5c01\u795e\u699c","no":"003","type":"relic","sort":"2","status":"\u6b63\u5e38"},
+		{"id":"3","user_id":"1","name":"\u9020\u5316\u7389\u789f","no":"001","type":"relic","sort":"1","status":"\u6b63\u5e38"},
+		{"id":"4","user_id":"1","name":"\u5c01\u795e\u699c","no":"003","type":"relic","sort":"2","status":"\u6b63\u5e38"},
+		{"id":"3","user_id":"1","name":"\u9020\u5316\u7389\u789f","no":"001","type":"relic","sort":"1","status":"\u6b63\u5e38"},
+		{"id":"4","user_id":"1","name":"\u5c01\u795e\u699c","no":"003","type":"relic","sort":"2","status":"\u6b63\u5e38"},
+		{"id":"3","user_id":"1","name":"\u9020\u5316\u7389\u789f","no":"001","type":"relic","sort":"1","status":"\u6b63\u5e38"}
+	]
+}

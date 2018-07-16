@@ -1,0 +1,71 @@
+<template id="environment_template">
+	<div class="environment">
+		<div class="header">
+			<div class="title">
+				<a href="javascript:window.history.go(-1)"  class="goBack"><Icon type="chevron-left" style="margin-right: 10px;"></Icon>环境详情与对比</a>
+			</div>
+			<div class="ability">
+				<!--<div @click="timeChange">按时间对比</div>-->
+				<!--<div>设置阈值</div>-->
+				<!--<div class="operationWrap">更多<span class="dragImg"></span>-->
+					<!--<ul class="operation">-->
+						<!--<li>设置阈值</li>-->
+					<!--</ul>-->
+				<!--</div>-->
+			</div>
+			<div class="diy">
+				<Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" class="timePicker" :value="timeArr" placeholder="选择日期和时间" :clearable="false" :options="timePickerOption" style="width: 300px" @on-change="changeTime" placement="bottom-end" :editable="false" @on-clear="resetTime" @on-ok="requireData" @on-open-change="saveOldTime"></Date-picker>
+				<!--<input placeholder="请输入日期" v-model="pick_time.start" class="start_time laydate-icon" @click="openTimePicker('start')" > 至-->
+				<!--<input placeholder="请输入日期" v-model="pick_time.end" class="end_time laydate-icon" @click="openTimePicker('end')" >-->
+				<!--<div class="button">确定</div>-->
+			</div>
+		</div>
+		<div class="body">
+			<div class="left_environment">
+				<div class="function">
+					<span class="floatL searchKey"></span>
+					<div class="floatL spanShow">
+						<div class="floatL hidden_function">
+							<input type="text" placeholder="请输入搜索条件" v-model="filterInput" @keyup.prevent.stop.down="keyDown" @keyup.prevent.stop.up="keyUp" @keyup.prevent.stop.enter="keyEnter($event)">
+							<div class="operation" v-show="filterInput">
+								<ul id="searchUl">
+									<li v-for="(num,obj) in filterContent | filterBy filterInput in 'name'" :class="{active:(who===num)}"  @click="clickSearch(obj.name,obj.env_no)">
+										{{filter_filterInput(obj.name,filterInput)}}
+									</li>
+								</ul>
+							</div>
+							<div class="clear_env" >
+								<span @click="clearEnv()">清空</span>
+							</div>
+						</div>
+						<!--<div class="spanWrap">
+							<span class="allWheae active">所有位置</span><span class="selected">已选[0]</span>
+						</div>-->
+					</div>
+				</div>
+				<div class="tree_box">
+					<tree-list :tree_list="tree_list" :keyword="keyword" :sel_list.sync="sel_env"></tree-list>
+				</div>
+			</div>
+			<div class="right_environment">
+				<p class="title" v-show="sel_env==''?false:true">
+					<span :class="{active:com=='environment_curve'}" @click="check_component('curve')">监测曲线</span>
+					<span :class="{active:com=='environment_data'}"  @click="check_component('data')">原始数据</span>
+					<span :class="{active:com=='environment_relic'}"  @click="check_component('relic')">文物</span>
+					<span :class="{active:com=='environment_equipment'}"  @click="check_component('equipment')">设备</span>
+					<span :class="{active:com=='environment_map'}"  @click="check_component('map')">地图</span>
+				</p>
+				<!--<div class="shadow" v-show="shadowKey" :style="{height:shadowHeight+'px'}"></div>-->
+				<component :is="com" :time.sync="timeStr" :envs.sync="envs" :shadow-key.sync="shadowKey" :env_name.sync="env_name" :in_detail_b:sync="inDetailB" :has_envs.sync="hasEnvs"  keep-alive  v-if="sel_env==''?false:true"></component>
+					<p  class="hintMsg" v-if="envsShow" >请选择环境</p>
+			</div>
+		</div>
+	</div>
+</template>
+
+
+__inline("/environmentalMonitoring/components/environment_curve.html")
+__inline("/environmentalMonitoring/components/environment_data.html")
+__inline("/environmentalMonitoring/components/environment_equipment.html")
+__inline("/environmentalMonitoring/components/environment_relic.html")
+__inline("/environmentalMonitoring/components/environment_map.html")

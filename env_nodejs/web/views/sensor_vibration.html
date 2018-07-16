@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>振动数据</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorGrid'>
+</table>
+
+<div id="sensorTool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-chart'" id="grid"
+           href="grid.html#/data_sensor_vibration" target="_blank">形成曲线图(勾选)</a>
+
+        设备编号No:<input class="easyui-textbox" type="text" name="no" id="no" value=""/>
+        <!--IP:<input size="10" type="text" name="ip" id="ip" value=""/>-->
+        接收起始时间：
+        <input type="text" size="16" class="easyui-datetimebox" name="ktime" id="ktime" value=""/>
+        接收结束时间：
+        <input type="text" size="16" class="easyui-datetimebox" name="dtime" id="dtime" value=""/>
+        <button type="submit" class="easyui-linkbutton">查询</button>
+
+        <label for="near_total">
+            <input type="checkbox" name="near_total" id="near_total" value="1" checked/>
+            总记录数为近似值
+        </label>
+
+        <a href="vibration/count_all" target="_blank">重新统计所有数据</a>
+
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+    $(function () {
+
+        $('#ktime').datetimebox('setValue', new Date().Format('yyyy-MM') + '-01 00:00:00');
+        $('#no_repeat').click(searchSensor);
+        $('#near_total').click(searchSensor);
+        searchSensor();
+
+    });
+
+    function searchSensor() {
+        var json = {};
+        json.table = 'data_sensor_vibration';
+        json.no = $('#no').textbox('getValue');
+        json.ip = '';//$('#ip').val();
+        json.no_repeat = $('#no_repeat:checked').val();
+        json.near_total = $('#near_total:checked').val();
+        json.ktime = $('#ktime').datetimebox('getValue');
+        json.dtime = $('#dtime').datetimebox('getValue');
+
+        $('#sensorGrid').datagrid({
+            url: 'sensor/sensorList',
+            queryParams: json || {},
+            rownumbers: true,
+            pagination: true,
+            pagePosition: 'top',
+//        fitColumns: true,
+            fit: true,
+            pageSize: 30,
+            pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+            remoteSort: false,
+            onSelect: function (index, row) {
+                set_env_equip_nos(row, true);
+            },
+            onUnselect: function (index, row) {
+                set_env_equip_nos(row, false);
+            },
+            onSelectAll: function (rows) {
+                set_env_equip_nos(rows, true);
+            },
+            onUnselectAll: function (rows) {
+                set_env_equip_nos(rows, false);
+            },
+            frozenColumns: [
+                [
+                    {field: 'id', checkbox: true},
+                    {
+                        field: 'server_time', width: 130, title: '服务器时间',
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {field: 'equip_no', width: 130, title: '设备编号(No)'}
+                ]
+            ],
+            columns: [
+                [
+                    {
+                        field: 'accel', width: 110, title: '加速度 0x55 m/s²'
+                    },
+                    {
+                        field: 'speed', width: 110, title: '速度 0x56 mm/s'
+                    },
+                    {
+                        field: 'displacement', width: 110, title: '位移 0x57 mm'
+                    },
+
+                    {field: 'ip_port', width: 150, title: 'ip:port', align: 'right'},
+                    {
+                        field: 'equip_time', width: 130, title: '设备时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'server_time', width: 130, title: '服务器时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'raw_data', title: '原始数据',
+                        formatter: function (value, row, index) {
+                            if (value) {
+                                return value.replace(/(.{2})/g, "$1 ");
+                            }
+                        }
+                    }
+                ]
+            ],
+            toolbar: '#sensorTool'
+        });
+    }
+
+    var nos = [];
+
+    function set_env_equip_nos(rows, is_push) {
+
+        if (!_.isArray(rows)) {
+            rows = [rows];
+        }
+        var equip_nos = _.pluck(rows, 'equip_no');
+
+        if (is_push) {
+            nos = _.union(nos, equip_nos);
+        } else {
+            nos = _.difference(nos, equip_nos);
+        }
+        nos = _.uniq(nos);
+
+        $('#grid').attr('href', 'grid.html#/data_sensor_vibration/' + nos.join(','));
+
+    }
+
+
+</script>
+</body>
+</html>

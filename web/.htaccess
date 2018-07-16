@@ -1,0 +1,7 @@
+# 开启mod_headers.so
+<FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf|css|js)$">
+    Header set Cache-Control "max-age=0"
+</FilesMatch>
+
+DirectoryIndex index.html index.php
+

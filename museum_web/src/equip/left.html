@@ -1,0 +1,139 @@
+<div class="left">
+    <div class="overview">
+        <div class="title">设备概况
+            <span class="status " v-bind:class="['status',equip.status=='正常'?'normal':'abnormal']"
+                  v-text="equip.status"></span>
+        </div>
+        <div class="new">最新数据<i></i></div>
+        <ul class="surround">
+            <li v-for="item in param_list" v-bind:class="item">
+                <span v-text="equip[item]"></span>
+                <span v-text="param_unit[item]"></span>
+            </li>
+        </ul>
+        <div class="wrapper">
+            <table width="100%">
+                <tr>
+                    <td width="100">设&nbsp;备&nbsp;ID&nbsp; :</td>
+                    <td v-text="equip.equip_no"></td>
+                </tr>
+                <tr>
+                    <td>设备类型 :</td>
+                    <td v-text="equip.equip_type"></td>
+                </tr>
+                <tr>
+                    <td>数据发送间隔 :</td>
+                    <td v-text="equip.sleep&&equip.sleep / 60+'分钟'"></td>
+                </tr>
+                <tr>
+                    <td>电&nbsp;压&nbsp;值&nbsp; :</td>
+                    <td>
+                        <span class="num first" v-text="equip.voltage||'-'+'v'"></span>
+                        <p class="battery"></p>
+                        <p class="caveat"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>信号质量 :</td>
+                    <td>
+                        <span class="num last" v-text="equip.rssi||'-'+'db'"></span>
+                        <div class="signal"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+<!-- <div class="basic"><span></span></div> -->
+
+
+
+
+<div class="relic_equip one">
+    <div class="title">同柜文物</div>
+    <form>
+        <div class="parent_box">
+            <input type="text" placeholder="请输入你要查找的设备" @click.stop="" @keydown.enter.stop.prevent="search('relic')" v-model="relic_searchTxt">
+            <i class="icon iconfont" @click.stop="show($event)">&#xe614;</i>
+        </div>
+        <div class="parent_box">
+            <div class="filter" style="width:150px;">
+                <div class="font">材质
+                    <ul>
+                        <li v-for="name in relic.material" v-text="name" @click.stop="addChooce('material',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+                <div class="font">年代
+                    <ul>
+                        <li v-for="name in relic.age" v-text="name" @click.stop="addChooce('age',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+                <div class="font">类别
+                    <ul>
+                        <li v-for="name in relic.category" v-text="name" @click.stop="addChooce('category',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+            </div>
+            <i class="icon iconfont" @click.stop="show($event)">&#xe650;</i>
+        </div>
+    </form>
+    <p class="fliter_box">
+        <template v-for="(type,val) in relic_condition" track-by="$index">
+            <span v-for="name in val" v-text="name" @click="removeChooce(type,name)" track-by="$index"></span>
+        </template>
+    </p>
+    <div class="relic_menu">
+        <a v-for="item in relic_list" href="../relic?relic_no={{item.relic_no}}" :data-title="item.name" v-text="item.name" track-by="$index"></a>
+    </div>
+    <div class="drag"></div>
+    <div class="shadow"></div>
+</div>
+<div class="relic_equip two">
+    <div class="title">同柜设备<font class="totle"></font></div>
+    <form>
+        <div class="parent_box">
+            <input type="text" placeholder="请输入你要查找的设备" @click.stop="" @keydown.enter.stop.prevent="search('equip')" v-model="equip_searchTxt">
+            <i class="icon iconfont" @click.stop="show($event)">&#xe614;</i>
+        </div>
+        <div class="parent_box">
+            <div class="filter" style="width:120px;">
+                <div class="font">传感器
+                    <ul>
+                        <li v-for="name in equip.sensor" v-text="name" @click.stop="addChooce('sensor',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+                <div class="font">调控器
+                    <ul>
+                        <li v-for="name in equip.controller" v-text="name" @click.stop="addChooce('controller',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+            </div>
+            <i class="icon iconfont" @click.stop="show($event)">&#xe650;</i>
+        </div>
+    </form>
+    <p class="fliter_box">
+        <template v-for="(type,val) in equip_condition" track-by="$index">
+            <span v-for="name in val" v-text="name" @click="removeChooce(type,name)" track-by="$index"></span>
+        </template>
+    </p>
+    <div class="equip_menu">
+        <h4>调控器</h4>
+        <a v-for="item in controller" href="../equip?equip_no={{item.equip_no}}" :data-title="item.name" v-text="item.name" track-by="$index"></a>
+    </div>
+    <div class="equip_menu sensor">
+        <h4>传感器</h4>
+        <a v-for="item in sensor" href="../equip?equip_no={{item.equip_no}}" :data-title="item.name" v-text="item.name" track-by="$index"></a>
+    </div>
+
+    <div class="position">
+        <div class="title">展柜位置图</div>
+        <div class="shadow"></div>
+    </div>
+
+    <div class="roomView">
+        <div class="title">展柜内部位置图</div>
+        <div class="barnar"></div>
+        <i class="iconfont leftNav">&#xe732;</i>
+        <i class="iconfont rightNav">&#xe731;</i>
+    </div>
+</div>
+</div>

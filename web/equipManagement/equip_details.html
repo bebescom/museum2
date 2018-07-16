@@ -1,0 +1,287 @@
+<template id="equip_details_template">
+    <div id="equip_details">
+        <div class="header">
+            <div class="title">
+                <a @click="goBack" class="goBack">
+                    <Icon type="chevron-left" style="margin-right: 10px;" v-text="equip_name"></Icon>
+                </a>
+            </div>
+            <div class="ability">
+                <!--<div @click="compareTime">按时间对比</div>-->
+                <!--<div @click="exportDataDetail(true)" class="permissionHidden" v-permission="{name:'导出设备数据'}">导出数据</div>-->
+                <!--<div @click="compareJoin">加入对比</div>-->
+            </div>
+            <div class="data_select">
+                <Date-picker type="datetimerange" @on-change="changeTime" @on-ok="requireData"
+                             @on-open-change="saveOldTime" :clearable="clear" :editable="edit" :value="dataTime"
+                             format="yyyy-MM-dd HH:mm" :options="options1" placement="bottom-end" placeholder="选择日期"
+                             style="width: 260px"></Date-picker>
+            </div>
+        </div>
+        <div class="scrollWrap">
+            <div class="body">
+                <div class="shadow" v-show="bza"></div>
+                <left-information :collection_info="collection_info"></left-information>
+                <right-information :collection_info="collection_info"></right-information>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+</template>
+<template id="leftInformation_template" >
+	<div id="leftInformation">
+		<div class="left">
+			<div class="situation">
+				<div class="title_bf">
+					<span>{{configLanguage.integrated_equipSituation}}<Icon class="permissionHidden" type="compose" @click="Modal=true" v-permission="{name:'修改设备信息'}"/></span>
+					<span class="equip_type" :class="changeEname()" v-cloak></span>
+					<b v-text="equip_type"></b>
+				</div>
+				<div class="content">
+					<div class="sensor_name">
+						<span v-text=""></span>
+					</div>
+					<div class="sensor_con">
+						<span style="color: #282a33">状态<i v-text = "equip_status"></i></span>
+						<span style="color: #282a33">电压<i v-text = "equip_voltage"></i>V</span>
+						<span style="color: #282a33">信号<i v-text = "equip_rssi"></i>dBm</span>
+						<span style="color: #282a33">位置<i v-text = "equip_locate"></i></span>
+						<span style="color: #282a33">数据间隔<i v-text = "data_interval"></i>s</span>
+						<span style="color: #282a33"  v-show="humidityShow">目标湿度<i v-text = "total_humidity"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="latestData">
+				<div class="title_bf">
+					<span>{{configLanguage.equipdetail_newData}}</span>
+				</div>
+				<div class="wrap_content">
+					<div class="content" v-show="basicDateShow">
+						<div class="new_con" v-for="(item,value) in basicData" >
+							<span class="late_data" :class="item"></span>
+							<span  v-text="changeName(item)" class="new_con_key"></span>
+							<i class="new_con_value">{{value}}</i>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="arkCollection">
+				<div class="title_bf">
+					<span>{{configLanguage.withArkRelic}}</span>
+				</div>
+				<div class="wrap_content">
+					<div class="content" v-show="relic_arr_show">
+						<div class="collection_con" v-for="(item,value) in relic_arr" >
+							<span class="relic_type" :class="changeRelicName(value.level)"></span>
+							<span class="vname" v-text="value.name" :data-title = "value.name"></span>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<div class="arkEquip">
+				<div class="title_bf">
+					<span>{{configLanguage.withArkEquip}}</span>
+				</div>
+				<div class="wrap_content">
+					<div class="content" v-show="equip_arr_show">
+						<div class="equip_con" v-for="(item,value) in equip_arr" v-show="value.name!=name" >
+							<span class="type" :class="changeTEname(value.equip_type)"></span>
+							<span v-text="value.name" class="vname" @click="herfEquipDetail(value.equip_no)" :data-title = "value.name"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+    </div>
+    <Modal
+            title="设备概况修改"
+            :visible.sync="Modal"
+            :mask-closable="false"
+            @on-ok="ok"
+            @on-cancel="cancel"
+    >
+        <div @click.stop="upload_layout()" class="equip_add_image">添加设备图片</div>
+
+        <div class="editName">
+            <span class="modal-title">修改名称</span>
+            <Input placeholder="请输入..." style="width: 300px" v-model="modify_name"></Input>
+        </div>
+        <div class="editSleep">
+            <span class="modal-title">修改间隔</span>
+            <Input placeholder="请输入..." style="width: 300px" v-model="modify_sleep"></Input>
+        </div>
+        <!--修复BUG#50,设备详情页面编辑功能,不再能够修改设备状态-->
+        <!--<div class="editStatus">-->
+        <!--<span class="modal-title">修改状态</span>-->
+        <!--<Select v-model="modify_status" style="width:300px">-->
+        <!--<Option v-for="item in statusList" :value="item.value" :key="item">{{ item.label }}</Option>-->
+        <!--</Select>-->
+        <!--</div>-->
+        <div class="editPosition">
+            <span class="modal-title">修改位置</span>
+            <Tree :data="baseData" @on-select-change="getSelectedNodes"></Tree>
+        </div>
+    </Modal>
+</template>
+
+<template id="rightInformation_template">
+	<div id="rightInformation">
+		<div class="right_r">
+			<div class="toggleMenu">
+				<span :class="{active:toggle=='equip_detection'}" @click="toggle_component('detection')">{{configLanguage.monitorQuxian}}</span>
+				<span :class="{active:toggle=='equip_original'}" @click="toggle_component('original')">{{configLanguage.initData}}</span>
+				<span :class="{active:toggle=='equip_history'}" @click="toggle_component('history')">{{configLanguage.equipdetail_historyInfo}}</span>
+				<span :class="{active:toggle=='equip_locate'}" @click="toggle_component('locate')">{{configLanguage.equipdetail_equiplocation}}</span>
+			</div>
+			<component :is="toggle" :collection_info.sync = "collection_info" keep-alive></component>
+		</div>
+	</div>
+</template>
+
+<template id="equip_detection">
+    <div id="detection_content">
+        <div class="shadow"></div>
+        <!--<p>这是检测曲线</p>-->
+        <div class="dataSelect">
+            <p>
+                <font style="margin-right:5px;font-size: 16px;color: #282a33">环境参数 :</font>
+                <span @click="showChart(key)" v-for="key in datas" :class="[key,{active:selectParam.indexOf(key)!=-1}]">{{changeName(key)}}<i></i></span>
+            </p>
+        </div>
+        <div class="diyButton">
+            <i-button type="ghost" class="diyYAxis" v-show="datas.length!=0" @click="showDiyModal = true">自定义Y轴
+            </i-button>
+        </div>
+        <div class="monitoring_data" id="monitoring_data" v-cloak>
+
+        </div>
+        <div class="filter_content filter">
+            <div class="card_shows">
+                <div v-for="(key,obj) in data_sort" v-show="judgeFilter(key)"
+                     :class="[key,{active:judgeFilter(key)==true}]" v-if='data_sort'>
+                    <div v-for="(type,zValue) in obj" track-by="$index">
+                        <div class="name_box">
+                            <p class="name"> {{changeName(key)}} {{changeType(type)}} :</p>
+                            <p class="value">{{valFormatter(zValue,key)}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <Modal
+                title="自定义Y轴"
+                :visible.sync="showDiyModal"
+                :mask-closable="false"
+                @on-ok="changeY"
+                @on-cancel="cancelChangeY"
+        >
+            <i-form :model="yAreaData" :label-width="80">
+                <form-item v-for="(key,item) in yAreaData" :label="changeName(key)" :prop="key">
+                    <row>
+                        <i-col :span="item.status=='self-adaptive'?24:10">
+                            <Radio-group :model.sync="item.status">
+                                <Radio value="self-adaptive">自适应</Radio>
+                                <Radio value="user-defined">自定义</Radio>
+                            </Radio-group>
+                        </i-col>
+                        <i-col :span="item.status=='self-adaptive'?0:6" v-show="item.status=='user-defined'">
+                            <i-input :value.sync="item.min" :class="{error:!yAreaValidate[key].min}"
+                                     @on-change="validateY(key,'min',item.min)"></i-input>
+                            <div class="errorMessage" v-show="!yAreaValidate[key].min">{{errorMsg[key].min}}</div>
+                        </i-col>
+                        <i-col :span="item.status=='self-adaptive'?0:2" style="text-align: center"
+                               v-show="item.status=='user-defined'">-
+                        </i-col>
+                        <i-col :span="item.status=='self-adaptive'?0:6" v-show="item.status=='user-defined'">
+                            <i-input :value.sync="item.max" :class="{error:!yAreaValidate[key].max}"
+                                     @on-change="validateY(key,'max',item.max)"></i-input>
+                            <div class="errorMessage" v-show="!yAreaValidate[key].max">{{errorMsg[key].max}}</div>
+                        </i-col>
+                    </row>
+                </form-item>
+            </i-form>
+        </Modal>
+    </div>
+</template>
+
+<template id="equip_original">
+    <div id="original_content">
+        <div class="original_data">
+            <table class="table" v-show="showhas">
+                <thead>
+                <td width="160"><p>时间</p></td>
+                <td v-for="row in columns">
+                    {{row.name}}<br/><span>{{row.unit}}</span>
+                </td>
+                </thead>
+                <tbody>
+                <tr v-for="rows in table_data.rows">
+                    <td>{{rows.equip_time}}</td>
+                    <td v-for="row in columns">
+                        {{rows[row.param]}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="shadow"></div>
+        </div>
+        <div class="noHas" v-show="!showhas">暂无数据</div>
+        <page-list @turn-page="turnPage" :page.sync="data_params.page" :allPage.sync="allPage" :count="table_data.total"
+                   v-show="showhas"></page-list>
+    </div>
+</template>
+
+<template id="equip_history">
+    <div id="history_content">
+        <div class="history_data">
+            <table class="table" v-show="showhas">
+                <thead>
+                <td><p>时间</p></td>
+                <td>操作</td>
+                <td>操作者</td>
+                <td>详情与备注</td>
+                </thead>
+                <tbody>
+                <tr v-for="rows in table_data.rows">
+                    <td>{{rows.operation_time}}</td>
+                    <td>{{rows.operation}}</td>
+                    <td>{{rows.operator}}</td>
+                    <td>{{rows.remark}}</td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="shadow"></div>
+        </div>
+        <div class="noHas" v-show="!showhas">暂无数据</div>
+        <page-list @turn-page="turnPage" :page.sync="data_params.page" :allPage.sync="allPage" :count="table_data.count"
+                   v-show="showhas"></page-list>
+    </div>
+</template>
+
+<template id="equip_locate">
+    <div id="locate_parent">
+        <div id="locate_nav" style="height: 40px;width: 97%; margin: auto">
+			<span v-for="(item,value) in collection_info.nav">
+				<b @click="href_location(value.env_no,value.type)" v-text="value.name"></b>
+				<Icon type="arrow-right-b"></Icon>
+			</span>
+        </div>
+        <div id="locate_content">
+            <div class="locate_data">
+                <div class="imgView" @mousewheel="scaleImg" @mousedown="dragStart">
+                    <div class="imgBox" id="imgBox" :style="imgStyle">
+                        <span class="type tipMap"></span>
+                        <img :src="imgUrl" alt="图片无法正常加载..." v-show="imgUrl" :style="imgClass">
+                        <div id="box_point" :style="pointStyle">
+                            <div id="mapPoint"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+

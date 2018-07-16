@@ -1,0 +1,292 @@
+<div class="panel panel-default active permissionHidden" id="monitor_box" v-permission="{name:'环境监控'}" v-cloak>
+    <div class="panel-heading env_icon">
+        <div class="img_btn"></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"
+               aria-expanded="false" class="collapsed" v-text="configLanguage.floorHall_monitor"></a>
+        </h4>
+    </div>
+
+    <div id="collapse1" class="panel-collapse collapse in" >
+        <div class="panel-body">
+            <div class="area_lister">
+                <div class="toggle_box">
+                    <span class="small_area active" v-text = "configLanguage.floorHall_micMonitor"></span>
+                    <span class="equip"  v-text = "configLanguage.floorHall_equip">设备</span>
+                </div>
+
+                <div class="area_content">
+                    <div class="row_name" style="display: none;"><p>环境达标率</p></div>
+                    <div class="echarts_box" style="display: none;">
+                        <div id="gauge_chart" class="dashboard active">
+
+                        </div>
+                        <div id="radar_chart" class="radar">
+
+                        </div>
+                    </div>
+
+                    <div class="row_name"><p v-text="configLanguage.floorHall_peakVal">均峰值</p></div>
+                    <p class="switching">
+                        <span data-param="temperature" class="active">温度</span>
+                        <span data-param="humidity">湿度</span>
+                    </p>
+                    <div class="timeLine">
+                        <div class="now_time"><span></span><span>24小时</span></div>
+                        <div class="time_wrap"><div class="shadow"></div><p class="time_box"><span data-time="24h" class="active">24小时</span><span data-time="yesterday">昨天</span><span data-time="today">今天</span><span data-time="week">本周</span><span data-time="month">本月</span></p></div>
+                    </div>
+                    <table class="temper_view">
+                        <thead>
+                        <tr>
+                            <td :width="100/tableHead.length+'%'" v-for="item in tableHead" @click="changeSortType(item.col)" :class="{'textLeft':item.col=='min'||item.col=='SD','textRight':item.col=='max'}">
+                                {{item.cn_name}}<span v-show="item.col!='env_name'">{{currUnit}}</span>
+                                <Icon type="chevron-up" v-show="sort.col==item.col&&sort.type"></Icon>
+                                <Icon type="chevron-down" v-show="sort.col==item.col&&!sort.type"></Icon>
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!--包含下阶环境-->
+                        <tr v-if="poles_list.floor">
+                            <td>
+                                {{poles_list.floor.name}}
+                                <!--<a href="#">-->
+                                    <!--{{poles_list.floor.name}}-->
+                                <!--</a>-->
+                            </td>
+                            <td colspan="2">
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td width="50%" class="textLeft">
+                                            {{poles_list.floor.min}}
+                                            <!--{{poles_list.floor.unit}}-->
+                                        </td>
+                                        <td width="50%" class="textRight">
+                                            {{poles_list.floor.max}}
+                                            <!--{{poles_list.floor.unit}}-->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="barContainer">
+                                            <env-bar :min="poles_list.floor.min" :max="poles_list.floor.max" :param="currParam"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                                {{(poles_list.floor.max-poles_list.floor.min).toFixed(2)}}
+                                <!--{{poles_list.floor.unit}}-->
+                            </td>
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td class="textLeft">
+                                            <!--:class="{'max':contrast.SDCol.max==poles_list.floor.SD,'min':contrast.SDCol.min==poles_list.floor.SD}"-->
+                                            <span>
+                                                 {{poles_list.floor.SD}}
+                                                <!--{{poles_list.floor.unit}}-->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="barContainer">
+                                            <env-bar :min="0" :max="contrast.SDbarMax" :s-d-val="poles_list.floor.SD" :param="currParam" type="noBg"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <!--不含下阶环境-->
+                        <tr v-if="poles_list.self">
+                            <td>
+                               {{poles_list.self.name}}
+                                <!--<a href="#">-->
+                                    <!--{{poles_list.self.name}}-->
+                                <!--</a>-->
+                            </td>
+                            <td colspan="2">
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td width="50%" class="textLeft">
+                                            {{poles_list.self.min}}
+                                            <!--{{poles_list.self.unit}}-->
+                                        </td>
+                                        <td width="50%" class="textRight">
+                                            {{poles_list.self.max}}
+                                            <!--{{poles_list.self.unit}}-->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="barContainer">
+                                            <env-bar :min="poles_list.self.min" :max="poles_list.self.max" :param="currParam"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                                {{(poles_list.self.max-poles_list.self.min).toFixed(2)}}
+                                <!--{{poles_list.self.unit}}-->
+                            </td>
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td class="textLeft">
+                                            <!--:class="{'max':contrast.SDCol.max==poles_list.self.SD,'min':contrast.SDCol.min==poles_list.self.SD}"-->
+                                            <span>
+                                                 {{poles_list.self.SD}}
+                                                <!--{{poles_list.self.unit}}-->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="barContainer">
+                                            <env-bar :min="0" :max="contrast.SDbarMax" :s-d-val="poles_list.self.SD" :param="currParam" type="noBg"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tbody>
+                        <tr v-for="(key,item) in filteredPolesList" class="tableHover" :data-env="item.env_no" @click="clickEnv($event,item.env_no)" @mouseenter="intoEnv($event,item.env_no)" @mouseleave="leaveEnv($event,item.env_no)">
+                            <td>
+                                <a :href="goEnvUrl(item.type,item.env_no)">
+                                    {{item.name}}
+                                </a>
+                                <!--{{item.type}}-->
+                                <!--{{item.name}}-->
+                                <!--{{item.env_no}}-->
+                            </td>
+                            <td colspan="2">
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td width="50%" class="textLeft">
+                                            <span :class="{'max':contrast.minCol.max==item.min,'min':contrast.minCol.min==item.min}">
+                                                {{item.min}}
+                                                <!--{{item.unit}}-->
+                                            </span>
+                                        </td>
+                                        <td width="50%" class="textRight">
+                                            <span :class="{'max':contrast.maxCol.max==item.max,'min':contrast.maxCol.min==item.max}">
+                                                {{item.max}}
+                                                <!--{{item.unit}}-->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="barContainer">
+                                            <env-bar :min="item.min" :max="item.max" :param="currParam"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                                <span :class="{'max':contrast.rangeCol.max==(item.max-item.min).toFixed(2),'min':contrast.rangeCol.min==(item.max-item.min).toFixed(2)}">
+                                    {{(item.max-item.min).toFixed(2)}}
+                                    <!--{{item.unit}}-->
+                                </span>
+                            </td>
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td class="textLeft">
+                                            <span :class="{'max':contrast.SDCol.max==item.SD,'min':contrast.SDCol.min==item.SD}">
+                                                {{item.SD}}
+                                                <!--{{item.unit}}-->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="barContainer">
+                                            <env-bar :min="0" :max="contrast.SDbarMax" :s-d-val="item.SD" :param="currParam" type="noBg"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!--div class="row_name">标量场显示</div>
+                    <div class="scalar"><span class="small_area">温度场</span><span class="components">湿度场</span></div-->
+                </div>
+
+                <div class="equip_content">
+                    <!--<div class="row_name"><p>设备运行状况</p></div>
+                    <div class="information">
+                        <div class="line">
+                            <p :style="{background: sensor_total?'#ff6060':'#ccc'}"><span v-bind:style="{width:100*(normal_total/sensor_total)+'%'}"></span></p>
+                            <div class="edges_div" v-bind:style="{left:50*(normal_total/sensor_total)+'%'}">
+                                正常<span class="num" v-text="normal_total"></span>个
+                            </div>
+                            <div class="edges_div" v-bind:style="{right:50*(abnormal_total/sensor_total)+'%'}">
+                                异常<span class="num" v-text="abnormal_total"></span>个
+                            </div>
+                        </div>
+                    </div>-->
+                    <div class="row_name">
+                        <p v-text="configLanguage.floorHall_equip">设备列表</p>
+                    </div>
+                    <form>
+                        <div>
+                            <input type="text" placeholder="请输入你要查找的设备" v-model="searchTxt" @keydown.enter.stop.prevent="search">
+                            <i class="icon iconfont">&#xe614;</i>
+                        </div>
+                        <div>
+                            <div class="filter">
+                                <div class="font">类别
+                                    <ul>
+                                        <li v-for="type in chooce" v-text="type" @click.stop="addChooce(type)"></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <i class="icon iconfont">&#xe650;</i>
+                        </div>
+                    </form>
+                    <div class="row_name">
+                        <p class="p_detail">共 <span v-text="env_sensor_total"></span> 个设备　
+                            <template v-if="filter_num>=0">
+                                <span v-text="filter_num"></span>个符合筛选
+                            </template>　
+                            
+                        </p>
+                    </div>
+                    <p class="fliter_box">
+                        <span v-for="type in condition" v-text="type" @click="removeChooce(type)"></span>
+                    </p>
+                    <div class="equip_overview">
+                        <div class="data_view small" v-if="small_env_sensor_list" v-show="small_env_sensor_list.length!=0">
+                            <p class="title" v-text ="configLanguage.floorHall_micMonitor"></p>
+                            <span v-for="item in small_env_sensor_list">
+                                <a :href="goEquipUrl(item)" data-title="{{item.name}}" :style="{color:check_status(item.status)}">{{item.name}}</a>
+                            </span>
+                        </div>
+                        <div class="data_view micro" v-show="micro_env_sensor_list">
+                            <p class="title">微环境</p>
+                            <span v-for="item in micro_env_sensor_list" >
+                                <a :href="goEquipUrl(item)" data-title="{{item.name}}" :style="{color:check_status(item.status)}">{{item.name}}</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="visualization permissionHidden" v-permission="{name:'环境监控'}">
+                <div class="row_name" style="text-indent: 0;"><p v-text="configLanguage.floorHall_contrast"></p></div>
+                <span class="hotsPot" v-for="(item,value) in selectStandard">
+                    <button type="primary" v-text="value.cn_name" class="btnSelect" :class="{active:selectBtn == value.cn_name}" @click="selectBtnFun(value.col)"></button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

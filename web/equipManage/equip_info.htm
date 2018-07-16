@@ -1,0 +1,3999 @@
+<div class="header">
+    <div class="title cursor_pointer" @click="goBack">
+        <Icon type="chevron-left"></Icon>
+        {{equip_info.name}}
+    </div>
+    <div class="componentWrap">
+        <Date-picker
+                type="datetimerange"
+                placeholder="选择日期和时间"
+                :options="dateOpitons"
+                confirm
+                format="yyyy-MM-dd HH:mm"
+                :value.sync="dateTime"
+                @on-ok="ok_time"
+                @on-change="change_time"
+                style="width: 300px">
+        </Date-picker>
+    </div>
+    <div class="right_area">
+        <i-button @click="exportData">导出数据</i-button>
+        <i-button @click="set_equip">设置设备</i-button>
+    </div>
+</div>
+
+<div class="body">
+
+    <Row :gutter="8">
+
+        <i-col span="5" class="info-left">
+
+            <equip-left v-ref:equip_left :edit_equip="set_equip"></equip-left>
+
+        </i-col>
+
+        <i-col span="19" class="info-right">
+            <Card dis-hover>
+                <Tabs :animated="false" v-if="equip_info.monitor_type !== '网络设备'">
+                    <Tab-pane label="监测曲线" key="monitorCurve">
+                        <monitor-curve v-ref:echart></monitor-curve>
+                    </Tab-pane>
+                    <Tab-pane label="原始数据" key="originalData">
+                        <original-data v-ref:raw_data></original-data>
+                    </Tab-pane>
+                    <Tab-pane label="历史信息" key="historyInfo">
+                        <history-info v-ref:history></history-info>
+                    </Tab-pane>
+                    <Tab-pane label="设备位置" key="equipPosition">
+                        <equip-position v-ref:position></equip-position>
+                    </Tab-pane>
+                </Tabs>
+                <Tabs :animated="false" v-if="equip_info.monitor_type === '网络设备'">
+                    <Tab-pane label="路由信息" key="routerInfo">
+                        <router-info v-ref:router_info></router-info>
+                    </Tab-pane>
+                    <Tab-pane label="历史信息" key="historyInfo">
+                        <history-info v-ref:history></history-info>
+                    </Tab-pane>
+                    <Tab-pane label="设备位置" key="equipPosition">
+                        <equip-position v-ref:position></equip-position>
+                    </Tab-pane>
+                </Tabs>
+            </Card>
+        </i-col>
+
+    </Row>
+</div>
+<set-equip v-ref:set_equip></set-equip>
+
+<template id="equip_left">
+
+    <Card dis-hover>
+        <p slot="title">设备概况</p>
+
+        <p class="p" style="margin-bottom: 10px;">
+            <i :class="['museum_icon','big',equip_info.equip_type]"></i>
+            <span class="equip_type_name" v-text="equip_info.equip_type"></span>
+        </p>
+        <p class="p">
+            位置：<span v-show="equip_info.nav && equip_info.nav.length > 0"
+                     v-for="(index,item) in equip_info.nav"
+                     v-text="index > 0 ? ' > ' + item.name : item.name"></span>
+            <span v-show="!equip_info.nav || equip_info.nav.length === 0" v-text="'暂无'"></span>
+        </p>
+        <p class="p">
+            编号：{{equip_info.equip_no}}
+        </p>
+        <p class="p" v-show="equip_info.quantity">
+            用量：{{equip_info.quantity}}kg
+        </p>
+        <p class="p" v-show="equip_info.volume">
+            调控体积：{{equip_info.volume}}kg
+        </p>
+        <p class="p" v-show="equip_info.effect">
+            每立方用量：{{equip_info.effect}}kg
+        </p>
+        <p class="p" v-show="equip_info.status">
+            状态：{{equip_info.status}}
+        </p>
+        <p class="p" v-show="equip_info.sleep">
+            数据间隔：{{equip_info.sleep}}s
+        </p>
+        <p class="p" v-show="equip_info.voltage">
+            电压：{{equip_info.voltage}}V
+        </p>
+        <p class="p" v-show="equip_info.rssi!=null">
+            信号：{{equip_info.rssi}}dBm
+        </p>
+        <p class="p" v-show="equip_info.equip_type=='网关'&&equip_info.ip_port!=null">
+            IP：{{equip_info.ip_port}}
+        </p>
+        <p class="p" v-show="equip_info.model">
+            型号：{{equip_info.model}}
+        </p>
+        <p class="p" v-show="equip_info.manufacturer">
+            厂商：{{equip_info.manufacturer}}
+        </p>
+        <p class="p" v-show="equip_info.applicability">
+            适用条件：{{equip_info.applicability}}
+        </p>
+        <p class="p" v-show="equip_info.target">
+            目标值：{{equip_info.target}}
+        </p>
+        <p class="p">
+            备注：{{equip_info.remark}}
+        </p>
+    </Card>
+
+    <Card dis-hover>
+        <p slot="title">最新数据</p>
+        <p class="p" v-show="!equip_info.new_data_time">暂无</p>
+        <p class="p">
+            <span v-text="equip_info.new_data_time ? equip_info.new_data_time : ''"></span>
+        </p>
+        <div class="new_data">
+            <Row class="p" v-for="(key,item) in new_data">
+                <i-col span="12">
+                    <i :class="['museum_icon','xsmall',key]"></i>
+                    {{item.name}}
+                </i-col>
+                <i-col span="12" style="text-align: right">
+                    {{item.val}}{{item.unit}}
+                </i-col>
+            </Row>
+        </div>
+
+    </Card>
+
+    <Card dis-hover v-show="['网关'].indexOf(equip_info.equip_type) !== -1">
+        <p slot="title">常用操作</p>
+
+        <p>
+            <ping :equip_info="equip_info"></ping>
+        </p>
+
+    </Card>
+
+    <Card dis-hover v-show="['调湿机','充氮调湿柜','灯光调控终端'].indexOf(equip_info.equip_type) !== -1">
+        <div slot="title">
+            <Row>
+                <i-col span="12">
+                    <b>常用操作</b>
+                </i-col>
+                <i-col span="12" style="text-align: right">
+                    <div v-if="!target_lock_key">
+                        <Icon @click="save_target" type="checkmark" class="cursor_pointer" size="20"
+                              style="margin-right: 10px;"></Icon>
+                        <Icon @click="lock_target" type="close" class="cursor_pointer" size="20"></Icon>
+                    </div>
+                    <Icon @click="lock_target" type="locked" class="cursor_pointer" size="20"
+                          v-else></Icon>
+
+                </i-col>
+            </Row>
+
+        </div>
+        <div v-if="['调湿机','充氮调湿柜'].indexOf(equip_info.equip_type)!==-1">
+            <Row class="p">
+                <i-col span="12">目标湿度</i-col>
+                <i-col span="12" style="text-align: right">{{target_val||''}}%</i-col>
+            </Row>
+            <Row class="p">
+                <i-col span="24">
+                    <Slider :value.sync="target_val" :disabled="target_lock_key"></Slider>
+                </i-col>
+            </Row>
+        </div>
+        <div v-if="equip_info.equip_type=='灯光调控终端'">
+            <Row class="p">
+                <i-col span="12">目标光照强度</i-col>
+                <i-col span="12" style="text-align: right">{{target_val||''}}%</i-col>
+            </Row>
+            <Row class="p">
+                <i-col span="24">
+                    <Slider :value.sync="target_val" :disabled="target_lock_key"></Slider>
+                </i-col>
+            </Row>
+        </div>
+
+    </Card>
+
+
+    <Card dis-hover v-show="['调控材料'].indexOf(equip_info.equip_type) !== -1">
+        <div slot="title">
+            <Row>
+                <i-col span="12">
+                    <b>常用操作</b>
+                </i-col>
+                <i-col span="12" style="text-align: right">
+                    <div v-if="!target_lock_key">
+                        <Icon @click="save_ctr" type="checkmark" class="cursor_pointer" size="20"
+                              style="margin-right: 10px;"></Icon>
+                        <Icon @click="lock_target" type="close" class="cursor_pointer" size="20"></Icon>
+                    </div>
+                    <Icon @click="lock_target" type="locked" class="cursor_pointer" size="20"
+                          v-else></Icon>
+
+                </i-col>
+            </Row>
+        </div>
+
+        <p class="p">
+            用量:
+            <i-input :value.sync="ctr_quantity" style="width: 100px" placeholder="请输入..."
+                     :disabled="target_lock_key"></i-input>
+            单位：kg
+        </p>
+        <p class="p">
+            使用日期:
+            <Date-picker type="daterange" :value.sync="ctr_kdate"
+                         placeholder="选择使用日期时间段" :disabled="target_lock_key"
+                         style="width: 200px"></Date-picker>
+        </p>
+
+    </Card>
+
+    <Card dis-hover v-show="route_list.length">
+        <p slot="title">下属设备</p>
+        <Row class="p" v-for="(key,item) in route_list">
+            <i-col span="10">
+                <a :href="'#/equip_info/'+item.equip_no">{{item.name}}</a>
+            </i-col>
+            <i-col span="14" style="text-align: right">
+                {{item.server_time}}
+            </i-col>
+        </Row>
+    </Card>
+
+
+    <Card dis-hover v-show="similar_relic.length && ['网络设备'].indexOf(equip_info.monitor_type) === -1">
+        <p slot="title">同环境藏品</p>
+        <p class="p" v-for="(index,item) in similar_relic">
+            <i :class="['museum_icon','small',item.level]" :data-title="item.level"></i>
+            <a :href="'../relic/index.html?relic_no='+item.relic_no">{{item.name}}</a>
+        </p>
+
+    </Card>
+
+    <Card dis-hover v-if="similar_equip.length > 1 && ['网络设备'].indexOf(equip_info.monitor_type) === -1">
+        <p slot="title">同环境设备</p>
+        <p class="p" v-for="(index,item) in similar_equip" v-show="item.equip_no!=equip_info.equip_no">
+            <i :class="['museum_icon','small',item.equip_type]" :data-title="item.equip_type"></i>
+            <a :href="'#/equip_info/'+item.equip_no">{{item.name}}</a>
+        </p>
+    </Card>
+
+    <Card dis-hover v-if="img_list.length">
+        <p slot="title">设备图片</p>
+        <div class="img" v-for="(index,item) in img_list">
+            <a :href="item.url" target="_blank"><img :src="item.url"/></a>
+            <Icon type="android-close"
+                  @click="del_img(item.id)"></Icon>
+        </div>
+    </Card>
+
+</template>
+<style type="text/css">
+    .ping_pop, .ping_pop .ivu-poptip-rel {
+        display: block;
+    }
+</style>
+<template id="ping_template">
+    <Poptip title="Ping" placement="top-start" class="ping_pop">
+        <i-button @click="ping" long>PING</i-button>
+        <div slot="content">
+            <Spin fix v-if="spinShow">
+                <Icon type="load-c" size=18></Icon>
+                <div>Loading</div>
+            </Spin>
+            <div style="width: 500px;height: 200px;overflow: auto;">
+                {{{ping_data}}}
+            </div>
+        </div>
+    </Poptip>
+</template>
+<script type="text/javascript">
+    Vue.component('ping', {
+        template: '#ping_template',
+        props: ['equip_info'],
+        data: function () {
+            return {
+                ping_data: 'a',
+                spinShow: true
+            };
+        },
+        methods: {
+            ping: function () {
+                var _this = this;
+                _this.ping_data = '';
+                _this.spinShow = true;
+                $.get("/2.2.05_P001/base_api/env/equipments/operation/ping/" + _this.equip_info.equip_no+"", function (data) {
+                    _this.spinShow = false;
+                    _this.ping_data = data;
+                }).error(function () {
+                    _this.spinShow = false;
+                });
+            }
+        }
+    });
+</script>
+
+<script type="text/javascript">
+    Vue.component('equip-left', {
+        template: '#equip_left',
+        props: ['edit_equip'],
+        data: function () {
+            return {
+                equip_info: {},//设备信息
+                new_data: {},//最新数据
+                similar_relic: [],//同柜文物
+                similar_equip: [],//同柜设备
+                img_list: [],//设备图片
+                route_list: [],//下属设备
+                target_val: 0,//目标值
+                target_lock_key: true,//不可编辑
+                ctr_quantity: '',//用量
+                ctr_kdate: [],//使用日期
+            }
+        },
+        methods: {
+            init: function (equip) {
+                var _this = this;
+                _this.equip_info = equip;
+                _this.target_val = equip.target * 1;
+                _this.ctr_quantity = equip.quantity;
+
+                // if (_.isDate(equip.control_time) && _.isDate(equip.replace_time)) {
+                _this.ctr_kdate = [equip.control_time * 1000, equip.replace_time * 1000];
+                // }
+
+                _this.get_new_data();
+
+                _this.get_img();//获取设备图片
+                _this.get_router();//获取下属设备
+
+                _this.get_env_equip();//获取同柜设备
+                _this.get_env_relic();//获取同柜文物
+
+            },
+            edit_remark: function () {
+                var _this = this;
+                var equip = _this.equip_info;
+                console.log('edit_remark', equip);
+                if (!equip) {
+                    return;
+                }
+                layer.prompt({title: '输入备注信息', value: equip.remark, formType: 2}, function (text, layer_index) {
+                    layer.close(layer_index);
+                    if (text) {
+                        $.post('/2.2.05_P001/base_api/env/equipments/manage/edit/', {
+                            equip_no: equip.equip_no,
+                            remark: text
+                        }, function (data) {
+                            _this.$Message.info(data.msg);
+                            equip.remark = text;
+                        });
+                    }
+                });
+            },
+            get_new_data: function () {
+                var _this = this;
+                var equip = _this.equip_info;
+                if (!equip || !equip.new_data) {
+                    return;
+                }
+                var new_data = {};
+                _.each(equip.new_data, function (val, key) {
+                    var param = window.get_param_unit_name(key);
+                    if (!param || _.contains(['voltage', 'rssi'], key)) {
+                        return;
+                    }
+                    param.val = (val !== undefined || val !== null) ? val : '';
+                    new_data[key] = param;
+                });
+                _this.new_data = new_data;
+            },
+            get_env_equip: function () {
+                var _this = this;
+                //无关联环境
+                if (!_this.equip_info.env_no) {
+                    return;
+                }
+                $.get('/2.2.05_P001/base_api/env/environments/cabinet/equips/' + _this.equip_info.env_no+'', function (data) {
+                    var similar_equip = [];
+                    _.each(data, function (row) {
+                        if (!row || !row.rows || !row.rows.length) {
+                            return;
+                        }
+                        _.each(row.rows, function (elem) {
+                            similar_equip.push(elem);
+                        });
+                    });
+                    _this.similar_equip = similar_equip;
+                });
+            },
+            get_env_relic: function () {
+                var _this = this;
+                //无关联环境
+                if (!_this.equip_info.env_no) {
+                    return;
+                }
+
+                //获取同柜藏品
+                $.get('/2.2.05_P001/base_api/env/environments/cabinet/relics/' + _this.equip_info.env_no+'', function (data) {
+                    if (!data.rows || data.rows.length === 0) return;
+                    _this.similar_relic = data.rows;
+
+                });
+            },
+            get_img: function () {
+                var _this = this;
+                $.get('/2.2.05_P001/base_api/env/equipments/images' + '?no=' + _this.equip_info.equip_no, function (data) {
+                    if (!data.rows || data.rows.length === 0) return;
+                    _this.img_list = data.rows;
+                });
+
+            },
+            get_router: function () {
+                var _this = this;
+
+                if (_this.equip_info.monitor_type !== '网络设备') {
+                    return;
+                }
+                $.get('/2.2.05_P001/base_api/env/equipments/detail/branch/' + _this.equip_info.equip_no+'', function (data) {
+                    if (!data.rows || data.rows.length === 0) return;
+                    _this.route_list = data.rows;
+                });
+
+            },
+            lock_target: function () {
+                this.target_lock_key = !this.target_lock_key;
+            },
+            save_target: function () {
+                var _this = this;
+                var setting = {};
+                setting.equip_no = _this.equip_info.equip_no;
+                setting.instruct = '31';
+                setting.send_type = 1;
+                setting.operation = '设定调控目标值(0x31)';
+                setting.remark = '';
+
+                var json = {};
+                json.control = '';
+                if (['调湿机', '充氮调湿柜'].indexOf(_this.equip_info.equip_type) !== -1) {
+                    json.control = 'humidity';
+                } else if (['灯光调控终端'].indexOf(_this.equip_info.equip_type) !== -1) {
+                    json.control = 'lighting';
+                }
+                json.min = _this.target_val * 1;
+
+                if (json.min == '') {
+                    _this.$Message.error('请输入调控值');
+                    return;
+                }
+                if (json.control == 'humidity' && (json.min > 70 || json.min < 30)) {
+                    _this.$Message.error('调控值(30~70)');
+                    return;
+                }
+                if (json.control == 'lighting' && (json.min > 100 || json.min < 0)) {
+                    _this.$Message.error('调控值(0~100)');
+                    return;
+                }
+                json.max = json.min;
+                setting.send_data = json;
+
+                $.post('/2.2.05_P001/base_api/env/equipments/setting', {settings: [setting]}, function (data) {
+                    if (data.error) {
+                        _this.$Message.error(data.error);
+                        return;
+                    }
+                    _this.$Message.info(data.msg + ',等待数据下发');
+                    _this.equip_info.target = json.min * 1;
+                    _this.target_lock_key = true;
+                }, 'json').error(function () {
+                    _this.$Message.error('保存失败');
+                });
+
+
+            },
+            save_ctr: function () {
+                var _this = this;
+                var setting = {};
+                setting.equip_no = _this.equip_info.equip_no;
+                setting.instruct = 'ctr_info';
+                setting.operation = '修改投放信息';
+                setting.remark = '';
+                if (!_.isDate(new Date(_this.ctr_kdate[0])) || !_.isDate(new Date(_this.ctr_kdate[1]))) {
+                    _this.$Message.error('日期格式错误');
+                    return;
+                }
+
+                var json = {};
+                setting.quantity = _this.ctr_quantity;
+                setting.control_time = parseInt(new Date(_this.ctr_kdate[0]).getTime() / 1000);
+                setting.replace_time = parseInt(new Date(_this.ctr_kdate[1]).getTime() / 1000);
+
+                $.post('/2.2.05_P001/base_api/env/equipments/setting', {settings: [setting]}, function (data) {
+                    if (data.error) {
+                        _this.$Message.error(data.error);
+                        return;
+                    }
+                    _this.$Message.info(data.msg);
+                    _this.target_lock_key = true;
+                }, 'json').error(function () {
+                    _this.$Message.error('保存失败');
+                });
+
+
+            },
+            del_img: function (id) {
+                var _this = this;
+                layer.confirm('确认删除', {btn: ['删除', '取消']}, function (index) {
+                    $.post('/2.2.05_P001/base_api/env/equipments/images/del_images', {id: id}, function (data) {
+                        _this.get_img();
+                    });
+                    layer.close(index);
+                });
+            }
+        }
+    });
+</script>
+
+
+<style>
+    .show_table{
+        width: 100%;
+        background-color: #FFFFFF;
+        border-collapse:collapse;
+    }
+    .show_table thead tr td{
+        line-height: 20px;
+        background-color:#f5f7f9;
+        font-weight: bold;
+    }
+    .show_table tr{
+        background-color: #FFFFFF;
+    }
+    .show_table tr td{
+        text-align: left;
+        background-color: #FFFFFF;
+        border:1px solid #e3e8ee;
+        padding-left: 10px;
+        color: #000000;
+    }
+    .info-right .ivu-tabs{
+        overflow: inherit;
+    }
+    .info-right .ivu-tooltip-inner{
+        padding: 12px;
+    }
+</style>
+
+<template id="monitorCurve">
+    <div class="monitorCurve" style="min-height: 500px;">
+        <Row class="monitor_param">
+            <i-col span="2">
+                环境参数:
+            </i-col>
+            <i-col span="19">
+                <span class="curve-param"
+                      :class="[params_arr_selected.indexOf(item.key) === -1 ? '' : 'active']"
+                      @click.stop="select_param(item.key)"
+                      v-for="item in params_arr_zh">{{item.name}}
+                    <Icon v-show="params_arr_selected.indexOf(item.key) !== -1" type="checkmark-round"></Icon>
+                </span>
+                &nbsp;
+            </i-col>
+            <i-col span="3" v-show="params_arr_zh.length">
+                <div style="float: right">
+                    <custom-yaxis :params_arr_zh="params_arr_zh" :echart_init="echart_init"></custom-yaxis>
+                </div>
+
+
+            </i-col>
+        </Row>
+        <div style="width: 100%;background: rgb(248, 248, 248);margin:auto;" class="content-charts">
+            <div style="width: 100%;position: relative;" class="monitorCurve-charts"
+                 id="monitorCurve-charts">
+
+            </div>
+        </div>
+
+        <Card dis-hover class="equip_threshold">
+            <i-table size="small" :columns="equip_threshold_columns" :data="equip_threshold_data"></i-table>
+        </Card>
+
+        <div class="noData" style="position:absolute;top: 35%;left: 48%;" v-show="!curves_data.length">
+            暂无数据
+        </div>
+        <Spin fix v-show="loading_show">
+            <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+            <div>加载中...</div>
+        </Spin>
+    </div>
+</template>
+
+<template id="custom_yaxis">
+    <i-button @click.stop="custom_yaxis">自定义Y轴</i-button>
+
+    <Modal title="自定义Y轴" :visible.sync="showDiyModal" :mask-closable="false">
+        <div class="yAreaContainer">
+            <i-form :model="yAreaData" :label-width="90">
+                <form-item v-for="(key,item) in params_arr_zh" :label="item.name">
+                    <row>
+                        <i-col span="10">
+                            <Radio-group :model.sync="item.status">
+                                <Radio value="default">自适应</Radio>
+                                <Radio value="user-defined">自定义</Radio>
+                            </Radio-group>
+                        </i-col>
+                        <i-col span="6" v-show="item.status=='user-defined'">
+                            <i-input :value.sync="item.min"></i-input>
+                        </i-col>
+                        <i-col span="2" style="text-align: center"
+                               v-show="item.status=='user-defined'">-
+                        </i-col>
+                        <i-col span="6" v-show="item.status=='user-defined'">
+                            <i-input :value.sync="item.max"></i-input>
+                        </i-col>
+                    </row>
+                </form-item>
+            </i-form>
+        </div>
+        <div slot="footer">
+            <i-button type="primary" @click="ok">确定</i-button>
+            <i-button @click="cancel">取消</i-button>
+        </div>
+    </Modal>
+</template>
+
+<script type="application/javascript">
+    Vue.component('custom-yaxis', {
+        template: '#custom_yaxis',
+        props: ['echart_init', 'params_arr_zh'],
+        data: function () {
+            return {
+                showDiyModal: false,
+                yAreaData: {}
+            };
+        },
+        methods: {
+            custom_yaxis: function () {
+                this.showDiyModal = true;
+            },
+            ok: function () {
+                var _this = this;
+                console.log(_this.params_arr_zh);
+                _.each(_this.params_arr_zh, function (row) {
+                    if (row.status === 'user-defined' && (!_.isNumber(row.min * 1) || !_.isNumber(row.max * 1))) {
+                        _this.Message.error(row.name + '自定义必须为数字');
+                        return;
+                    }
+                    store(row.key + '_status', row.status);
+                    if (row.status === 'user-defined') {
+                        store(row.key + '_min', row.min);
+                        store(row.key + '_max', row.max);
+                    } else {
+                        store(row.key + '_min', null);
+                        store(row.key + '_max', null);
+                    }
+                });
+                _this.showDiyModal = false;
+                _this.echart_init && _this.echart_init();
+            },
+            cancel: function () {
+                this.showDiyModal = false;
+            }
+        }
+    });
+</script>
+
+
+
+<script type="text/javascript">
+    Vue.component('monitor-curve', {
+        template: '#monitorCurve',
+        props: [],
+        data: function () {
+            return {
+                equip: {},
+                params_arr_zh: [],//中文参数数组
+                params_arr_selected: [],//已选择参数数组
+                curves_data: [],//曲线数据数组
+                loading_show: false,
+
+                equip_threshold_columns: this.get_equip_threshold_columns(),
+                equip_threshold_data: [],//设备阈值数据
+                qcm_self:this,
+                qcm_details:this.qcm_data()
+
+            }
+        },
+        methods: {
+            init: function (equip, stampTime) {
+                var _this = this;
+                var chart_height = ($('.body').height() - 100 - 50 - Math.round(_.size(equip.new_data) / 2) * 40);
+                if (chart_height < 300) {
+                    chart_height = 300;
+                }
+                console.log(Math.round(_.size(equip.new_data) / 2) * 40);
+                $('#monitorCurve-charts').height(chart_height);
+
+                _this.equip = equip;
+                _this.loading_show = true;
+                $.get('/2.2.05_P001/base_api/env/equipments/param_lines/' + equip.equip_no + '/' + stampTime.join(','), function (data) {
+                    if (!data || data.error) {
+                        _this.$Message.error('加载曲线错误');
+                        _this.loading_show = false;
+                        return;
+                    }
+                    if (!_.size(data)) {
+                        $('#monitorCurve-charts').empty();
+                        _this.curves_data = [];
+                        _this.loading_show = false;
+                        return;
+                    }
+
+                    _this.line_init(data);
+                    _this.loading_show = false;
+                }).error(function () {
+                    _this.loading_show = false;
+                    _this.$Message.error('加载曲线错误');
+                });
+
+                //获取设备阈值
+                $.get('/2.2.05_P001/base_api/env/equipments/detail/statistic', {
+                    equip_no: equip.equip_no,
+                    time: stampTime.join(',')
+                }, function (data) {
+                    if (!data || data.error) {
+                        _this.$Message.error('加载曲线错误');
+                        return;
+                    }
+                    _this.get_equip_threshold(data);
+                });
+
+            },
+            line_init: function (data) {
+                var _this = this;
+
+                var params_arr_zh = [], curves_data = [];
+
+                _.each(data, function (val, key) {
+                    var _obj = window.get_param_unit_name(key);
+                    if (!_obj || _.contains(['voltage', 'rssi'], key)) {
+                        return;
+                    }
+                    params_arr_zh.push(_obj);
+                    var data_val = [];
+                    _.each(val.value, function (v) {
+                        data_val = _.union(data_val, v);
+                    });
+                    curves_data.push(_.extend(_obj, {val: data_val}));
+                });
+                console.log(curves_data);
+                _this.params_arr_zh = params_arr_zh;
+                if (!_this.params_arr_selected.length) {
+                    var first_param = _.first(params_arr_zh);
+                    _this.params_arr_selected.push(first_param.key);
+                }
+                _this.curves_data = curves_data;
+                _this.echart_init();
+
+            },
+            select_param: function (key) {
+                var _this = this;
+                if (_this.params_arr_selected.indexOf(key) === -1) {
+                    _this.params_arr_selected.push(key);
+                } else {
+                    if (_this.params_arr_selected.length === 1) {
+                        _this.$Message.info('请至少选择一个参数');
+                        return;
+                    }
+                    _this.params_arr_selected = _.without(_this.params_arr_selected, key);
+                }
+                console.log(_this.params_arr_selected);
+                _this.echart_init();
+            },
+            echart_init: function () {
+                var _this = this;
+                var my_chart = echarts.init(document.getElementById('monitorCurve-charts'));
+
+                $('#monitorCurve-charts').width($('.info-right').width() - 32);
+
+                var yaxisValue = [], seriesValue = [];
+
+                var params_color = {
+                    temperature: {color: '#3db38c'},
+                    humidity: {color: '#2756FF'},
+                    voc: {color: '#ae9a2e'},
+                    co2: {color: '#99351f'},
+                    light: {color: '#ff9000'},
+                    lighting: {color: '#f48902'},
+                    so2: {color: '#89203f'},
+                    uv: {color: '#ff5fdb'},
+                    organic: {color: '#677c0e'},
+                    inorganic: {color: '#94b046'},
+                    sulfur: {color: '#b6bf8e'},
+                    soil_humidity: {color: '#b24d08'},
+                    soil_temperature: {color: '#b5733c'},
+                    soil_conductivity: {color: '#8c6239'},
+                    broken: {color: '#ed1e79'},
+                    vibration: {color: '#6c3cd9'},
+
+                    multi_wave: {color: '#a415ff'},
+                    cascophen: {color: '#087D8C'},
+                    soil_salt: {color: '#8C612B'},
+                    oxygen: {color: '#a415ff'},
+                    o3: {color: '#a415ff'},
+                    no2: {color: '#a415ff'},
+                };
+                var colors = [], index = 0;
+                _.each(_this.curves_data, function (param) {
+                    var _obj = window.get_param_unit_name(param.key);
+                    //console.log(_obj);
+                    if (_this.params_arr_selected.indexOf(param.key) === -1) {
+                        return;
+                    }
+                    var color = params_color[param.key] ? params_color[param.key].color : '';
+                    colors.push(color);
+                    yaxisValue[index] = {
+                        boundaryGap: [0, '50%'],
+                        axisLine: {
+                            lineStyle: {
+                                color: color
+                            }
+                        },
+                        type: 'value',
+                        min: _obj.min || function (value) {
+                            return value.min - 20;
+                        },
+                        max: _obj.max || function (value) {
+                            return value.max - 20;
+                        },
+                        name: param.name,
+                        position: index % 2 === 0 ? 'left' : 'right',
+                        offset: index === 0 || index === 1 ? 0 : (index % 2 === 0 ? index / 2 * 70 : ((index - 1) / 2) * 70),
+                        splitNumber: 10,
+                        splitLine: {
+                            show: false,        // 默认显示，属性show控制显示与否
+                        }
+                    };
+                    seriesValue[index] = {
+                        showSymbol: false,
+                        name: param.key,
+                        type: 'line',
+                        // step: 'middle',
+                        data: param.val,
+                        yAxisIndex: index,
+                        smooth: true
+                    };
+                    index++;
+                });
+
+                var option = {
+                    title: {
+                        show: false
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: function (params) {
+                            var str = '';
+                            for (var i = 0; i < params.length; i++) {
+                                var param = window.get_param_unit_name(params[i].seriesName);
+                                if (params[i] && params[i].value) {
+                                    var date = new Date(params[i].value[0]);
+                                    str += date.getFullYear() + '-'
+                                        + (date.getMonth() + 1) + '-'
+                                        + date.getDate() + ' '
+                                        + date.getHours() + ':'
+                                        + date.getMinutes();
+                                    str += '<br/>'
+                                        + '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + (params[i].color || '') + '"></span>'
+                                        + param.name + ':' + params[i].value[1] + param.unit + '</br>';
+                                }
+                            }
+                            return str;
+                        }
+                    },
+                    color: colors,
+                    legend: {
+                        data: _this.params_arr_zh,
+                        show: false
+                    },
+                    grid: {
+                        show: false,
+                        left: '4%',
+                        right: '4%',
+                        bottom: 40,
+                        top: 40,
+                        containLabel: true
+                    },
+                    xAxis: {
+                        show: true,
+                        boundaryGap: false,
+                        type: 'time',
+                        axisLabel: {
+                            textStyle: {
+                                color: "#9fa6ac",
+                                fontFamily: "微软雅黑"
+                            }
+                        },
+                        splitLine: {
+                            show: false,        // 默认显示，属性show控制显示与否
+                        },
+                        bottom: '40',
+                        splitNumber: 15
+                    },
+                    dataZoom: [
+                        {
+                            show: true,
+                            realtime: true,
+                            xAxisIndex: [0],
+                            bottom: '5px'
+                        },
+                        {
+                            type: 'inside',
+                            realtime: true,
+                            xAxisIndex: [0],
+                        }
+                    ],
+                    yAxis: yaxisValue,
+                    series: seriesValue
+                };
+                // console.log(option);
+                my_chart.setOption(option);
+            },
+            get_equip_threshold_columns: function () {
+                var qcm_html=this.qcm_data();
+                return [
+                    {
+                        title: '所属环境阈值',
+                        key: 'threshold',
+                        align: 'center',
+                        render: function (row, column, index) {
+                            var table_code='<div style="text-align: left">' + row.name + '(' + row.unit + ')</div>' + row.threshold;
+                            if(row.qcm){
+                                console.log(row.qcm)
+                                table_code='<div style="text-align: left;position: absolute;vertical-align: middle">' + row.name+'(' + row.unit + ')&nbsp;&nbsp;<Tooltip  placement="top" ><Icon type="help-circled" size=18></Icon><div slot="content"><p style="padding-bottom: 10px;">根据Sauerbrey方程：∆f = −2.26 × 10<sup>-13</sup>f<sup>2</sup> ∆m/A</p><p style="padding-bottom: 10px">式中f为晶体的固有谐振频率，又叫做基频率（Hz），本设备f=9000000Hz，m为晶体表<br/>面涂层质量（mg），∆f为晶体谐振频率的变化量，A为涂层面积（m²）。</p>'+qcm_html+'</div></Poptip></div>' +'<div style="padding-top: 25px">'+ row.threshold+'</div>';
+                            }
+                            return table_code;
+                        }
+                    },
+                    {
+                        title: '实际值',
+                        key: 'extremum',
+                        align: 'center',
+                        render: function (row, column, index) {
+                            return '<br/>' + row.extremum;
+                        }
+                    },
+                    {
+                        title: '达标率',
+                        key: 'standard_reach',
+                        align: 'center',
+                        render: function (row, column, index) {
+                            return '<br/>' + row.standard_reach;
+                        }
+                    },
+                    {
+                        title: '所属环境阈值',
+                        key: 'threshold2',
+                        align: 'center',
+                        render: function (row, column, index) {
+                            return row.name2 ? '<div style="text-align: left;position: absolute;vertical-align: middle;">' + row.name2 + '(' + row.unit2 + ')</div>' + '<div style="padding-top: 25px">'+row.threshold2+'</div>' : '';
+                        }
+                    },
+                    {
+                        title: '实际值',
+                        key: 'extremum2',
+                        align: 'center',
+                        render: function (row, column, index) {
+                            return '<br/>' + (row.extremum2 !== undefined ? row.extremum2 : '');
+                        }
+                    },
+                    {
+                        title: '达标率',
+                        key: 'standard_reach2',
+                        align: 'center',
+                        render: function (row, column, index) {
+                            return '<br/>' + (row.standard_reach2 !== undefined ? row.standard_reach2 : '');
+                        }
+                    }
+                ];
+            },
+            get_equip_threshold: function (data) {
+                var _this = this;
+                var equip_threshold_data = [];
+                var index = 0, row;
+                _.each(data, function (row, key) {
+                    if(data.qcm_organic){
+                        data.qcm_inorganic.qcm=true;
+                    }
+
+                    if (index % 2 === 0) {
+                        equip_threshold_data.push(row);
+                    } else {
+                        var length = equip_threshold_data.length;
+                        equip_threshold_data[length - 1].key2 = row.key;
+                        equip_threshold_data[length - 1].name2 = row.name;
+                        equip_threshold_data[length - 1].unit2 = row.unit;
+                        equip_threshold_data[length - 1].extremum2 = row.extremum;
+                        equip_threshold_data[length - 1].standard_reach2 = row.standard_reach;
+                        equip_threshold_data[length - 1].threshold2 = row.threshold;
+                    }
+
+                    index++;
+                });
+                _this.equip_threshold_data = equip_threshold_data;
+            },
+            custom_yaxis: function () {
+
+            },
+            qcm_data:function () {
+                // debugger
+                // return {
+                //     tableKey: [
+                //         {
+                //             title: '无机污染物级别',
+                //             key: 'level',
+                //             render: function (row, column, index) {
+                //                 return 'aaaaa'
+                //             }
+                //         },
+                //         {
+                //             title: '铜反应累计当量(30d),mg/m2',
+                //             key: 'equivalent',
+                //             render: function (row, column, index) {
+                //                 return 'aaaaa'
+                //             }
+                //         },
+                //         {
+                //             title: '对应频率变化(30d),Hz',
+                //             key: 'hertz',
+                //             render: function (row, column, index) {
+                //                 return 'aaaaa'
+                //             }
+                //         }
+                //     ],
+                //     tableValue: [
+                //         {
+                //             level: 'C1 非常洁净',
+                //             equivalent: '< 1.5',
+                //             hertz: '< 27'
+                //         },
+                //         {
+                //             level: 'C2 洁净',
+                //             equivalent: '< 3.5',
+                //             hertz: '< 64'
+                //         },
+                //         {
+                //             level: 'C3 清洁',
+                //             equivalent: '< 7.5',
+                //             hertz: '< 137'
+                //         },
+                //         {
+                //             level: 'C4 轻度污染',
+                //             equivalent: '< 15',
+                //             hertz: '< 275'
+                //         },
+                //         {
+                //             level: 'C5 污染',
+                //             equivalent: '≥ 3.5',
+                //             hertz: '≥ 275'
+                //         }
+                //     ]
+                // }
+                return  '<table class="show_table" border="0" cellspacing="0" cellpadding="0" ><thead><tr><td>无机污染物级别</td><td style="width: 40%;">铜反应累计当量(30d),mg/m2</td><td>对应频率变化(30d),Hz</td></tr></thead><tbody><tr><td>C1 非常洁净</td><td>< 1.5</td><td>< 64</td></tr>'+'<tr><td>C2 洁净</td><td>< 3.5</td><td>< 64</td></tr>'+'<tr><td>C3 清洁</td><td>< 7.5</td><td>< 137</td></tr>'+'<tr><td>C4 轻度污染</td><td>< 15</td><td>< 275</td></tr>'+'<tr><td>C5 污染</td><td>≥ 3.5</td><td>≥ 275</td></tr></tbody></table>'
+            }
+        }
+    });
+</script>
+
+
+
+
+<template id="originalData">
+
+    <div class="raw_data" style="min-height: 500px;">
+        <i-table size="small" :columns="columns" :data="data"
+                 v-if="columns && columns.length > 0"></i-table>
+
+        <Page show-total :total="tableTotal" :page-size="pageSize" v-if="tableTotal > 0" :current.sync="currentPage"
+              @on-change="changePage"></Page>
+
+        <Spin fix v-show="spinShow">
+            <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+            <div>加载中...</div>
+        </Spin>
+
+    </div>
+</template>
+
+<script type="text/javascript">
+    Vue.component('original-data', {
+        template: '#originalData',
+        props: [],
+        data: function () {
+            return {
+                equip: {},
+                stampTime: [],
+                spinShow: false,
+                tableTotal: 0,
+                currentPage: 1,
+                pageSize: 10,//每页显示条数
+                columns: [{
+                    title: '时间',
+                    key: 'equip_time',
+                    align: 'center'
+                }],//
+                data: [],//
+            }
+        },
+        methods: {
+            init: function (equip, stampTime) {
+                var _this = this;
+                _this.equip = equip;
+                _this.stampTime = stampTime;
+                _this.get_data(1);
+            },
+            get_data: function (page) {
+                var _this = this;
+                _this.spinShow = true;
+                _this.pageSize = Math.floor(($('.body').height() - 35 - 90) / 40);
+                //获取原始数据
+                $.get('/2.2.05_P001/base_api/env/equipments/data_lists/' + _this.equip.equip_no+'', {
+                    page: page || 1,
+                    limit: _this.pageSize,
+                    time: _this.stampTime.join(',')
+                }, function (data) {
+                    if (!data || data.error) {
+                        _this.$Message.error('加载原始数据错误');
+                        _this.spinShow = false;
+                        return;
+                    }
+                    if (_this.columns.length === 1 && data && data.rows && data.rows.length) {
+                        _.each(data.rows[0], function (val, key) {
+                            var param = window.get_param_unit_name(key);
+                            if (param) {
+                                var _header = {
+                                    title: (param ? param.name + ' ' + param.unit : ''),
+                                    key: key,
+                                    align: 'center'
+                                };
+                                _this.columns.push(_header);
+                            }
+                        });
+                    }
+                    _this.data = data.rows;
+                    _this.tableTotal = data.total;
+                    _this.spinShow = false;
+                });
+
+            },
+            changePage: function (page) {
+                this.get_data(page);
+            }
+        }
+    });
+</script>
+
+<template id="historyInfo">
+    <div class="raw_data" style="min-height: 500px;">
+        <div class="componentWrap">
+            <new-filter-component :search="history_search" v-ref:history_search
+                                  placeholder="操作、操作者"></new-filter-component>
+        </div>
+
+        <i-table size="small" :columns="columns" :data="data"></i-table>
+
+        <Page show-total :total="tableTotal" :page-size="pageSize" :current.sync="currentPage"
+              @on-change="changePage"></Page>
+        <Spin fix v-show="spinShow">
+            <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+            <div>加载中...</div>
+        </Spin>
+
+    </div>
+</template>
+
+<script type="text/javascript">
+    Vue.component('history-info', {
+        template: '#historyInfo',
+        props: [],
+        data: function () {
+            return {
+                equip: {},
+                stampTime: [],
+                spinShow: false,
+                tableTotal: 0,
+                currentPage: 1,
+                pageSize: 10,//每页显示条数
+                columns: this.get_columns(),//
+                data: [],//
+                search_data: {},
+            }
+        },
+        methods: {
+            init: function (equip) {
+                var _this = this;
+                _this.equip = equip;
+                _this.search_data = {};
+                _this.get_data(1);
+
+                var search_data = {
+                    show_env_tree: false,
+                    key: '',
+                    env_no: [],
+                    param: {}
+                };
+                search_data.save_history_func = function (history) {
+                    my_store('equip_history_search_history', history);
+                };
+                search_data.history = my_store('equip_history_search_history') || [];
+
+                search_data.right_list = [];
+                $.get('/2.2.05_P001/base_api/env/equipments/operation/filter' + '?equip_no=' + equip.equip_no, function (data) {
+                    if (data.equip_alert && data.equip_alert.length) {
+                        search_data.right_list.push({
+                            type: 'status', key: 'operation', name: '报警类型', data: data.equip_alert,
+                        });
+                    }
+                    if (data.equip_opt && data.equip_opt.length) {
+                        search_data.right_list.push({
+                            type: 'status', key: 'operation', name: '操作', data: data.equip_opt,
+                        });
+                    }
+                    if (data.operator && data.operator.length) {
+                        search_data.right_list.push({
+                            type: 'status', key: 'operator', name: '操作者', data: data.operator,
+                        });
+                    }
+                    search_data.right_list.push({
+                        type: 'datetimerange', key: 'time', name: '时段', data: []
+                    });
+
+                });
+                _this.$refs.history_search.init(search_data);//有筛选条件获取列表数据
+
+            },
+            get_columns: function () {
+                return [
+                    {
+                        title: '时间',
+                        key: 'operation_time',
+                        width: 200
+                    }, {
+                        title: '操作',
+                        key: 'operation',
+                        width: 200
+                    }, {
+                        title: '操作者',
+                        key: 'operator',
+                        width: 200
+                    }, {
+                        title: '详情与备注',
+                        key: 'remark'
+                    }
+                ];
+            },
+            get_data: function () {
+                var _this = this;
+                _this.spinShow = true;
+                _this.pageSize = Math.floor(($('.body').height() - 35 - 128) / 40);
+                //获取原始数据
+                var param = {
+                    page: _this.currentPage || 1,
+                    limit: _this.pageSize,
+                    // time: _this.stampTime.join(',')
+                };
+                param.id = _this.search_data.key;
+                _.each(_this.search_data.param, function (val, key) {
+
+                    if (_.isArray(val)) {
+                        if (param[key]) {
+                            param[key] += val.join(',');
+                        } else {
+                            param[key] = val.join(',');
+                        }
+                        if (param[key] === ',') {
+                            param[key] = '';
+                        }
+                    } else {
+                        param[key] = val;
+                    }
+                });
+                console.log(param);
+
+                $.post('/2.2.05_P001/base_api/env/equipments/detail/opt_record/' + _this.equip.equip_no+'', param, function (data) {
+                    _this.spinShow = false;
+                    if (!data || data.error) {
+                        _this.$Message.error('加载历史信息错误');
+                        return;
+                    }
+                    _this.data = data.rows;
+                    _this.tableTotal = data.count;
+                    _this.spinShow = false;
+                }).error(function () {
+                    _this.spinShow = false;
+                });
+
+            },
+            changePage: function (page) {
+                this.currentPage = page;
+                this.get_data();
+            },
+            history_search: function (json) {
+                var _this = this;
+                console.log(json);
+                _this.search_data = json;
+                _this.get_data(json);
+            }
+        }
+    });
+</script>
+
+<template id="equipPosition">
+    <div class="equipPosition" style="min-height: 500px;">
+        <div class="nav-position">
+            <span>设备位置：</span>
+            <span v-show="equip.nav && equip.nav.length > 0"
+                  v-for="(index,item) in equip.nav"
+                  v-text="index > 0 ? ' > ' + item.name : item.name"></span>
+            <span v-show="!equip.nav || equip.nav.length === 0" v-text="'暂无'"></span>
+        </div>
+        <div class="map_view" v-show="equip.map">
+            <span id="now_equip" :class="['museum_icon',equip.equip_type]"
+                  :style="{position: 'absolute','z-index':100,cursor:'move',margin:'-55px 0 0 -17px',left:locate.x?locate.x+'px':0,top:locate.y?locate.y+'px':0}"></span>
+            <img id="env_map" :src="equip.map ? equip.map :''"
+                 :style="{width: locate.width?locate.width + 'px':'auto'}"
+            >
+        </div>
+    </div>
+</template>
+<script type="text/javascript">
+    Vue.component('equip-position', {
+        template: '#equipPosition',
+        props: [],
+        data: function () {
+            return {
+                equipPositionData: [],//
+                equip: {},//
+                locate: {},
+                is_init: false,
+            }
+        },
+        methods: {
+            init: function (equip) {
+                var _this = this;
+                _this.equip = equip;
+                var locate = {x: 17, y: 55, width: $('.info-right').width() - 50};
+                if (equip.locate != '' && equip.locate) {
+                    try {
+                        locate = JSON.parse(equip.locate);
+                        var xy = locate.area[0].split(',');
+                        locate.x = xy[0];
+                        locate.y = xy[1];
+                    } catch (e) {
+                    }
+                }
+                _this.locate = locate;
+                console.log(_this);
+
+                $('#now_equip').mousedown(function (e) {
+                    var $this = $(this);
+                    var old_x = e.clientX;
+                    var old_y = e.clientY;
+                    var pos = $(this).position();
+
+                    function doc_mousemove(ev) {
+                        var new_top = pos.top + ev.clientY - old_y;
+                        var new_left = pos.left + ev.clientX - old_x;
+                        $this.css({top: new_top + 'px', left: new_left + 'px'});
+                        ev.stopPropagation();
+                        return false;
+                    }
+
+                    $(document).bind('mousemove', doc_mousemove);
+
+                    $(document).one('mouseup', function () {
+                        _this.save_locate({
+                            icon_width: $this.width(),
+                            icon_height: $this.height(),
+                            x: $this.position().left.toFixed(0),
+                            y: $this.position().top.toFixed(0)
+                        });
+                        $(document).unbind('mousemove', doc_mousemove);
+                    });
+                    e.stopPropagation();
+                    return false;
+                });
+
+            },
+            save_locate: function (json) {
+                var _this = this;
+                var locate = JSON.stringify({
+                    area: [json.x + "," + json.y],
+                    width: $('#env_map').width(),
+                    height: $('#env_map').height()
+                });
+
+                var param = {no: _this.equip.equip_no, locate: locate};
+                console.log(locate);
+
+                $.post('/2.2.05_P001/base_api/env/setting/save_locate', param, function (data) {
+                    _this.$Message.info(data.msg);
+                });
+
+
+            }
+        }
+    });
+</script>
+
+<style type="text/css">
+    .set_equip_modal .ivu-modal-footer {
+        display: none;
+    }
+
+    .set_equip_modal .ivu-modal-header {
+        border-bottom: none;
+        padding: 14px 16px 0 16px;
+    }
+
+    .set_equip_modal .ivu-modal-header-inner {
+        font-size: 16px;
+    }
+
+    .set_equip_modal .ivu-tabs-bar {
+        margin-bottom: 10px;
+    }
+
+    .set_equip_modal .ivu-table-small th {
+        height: 35px;
+    }
+
+    .set_equip_modal .ivu-tabs-mini .ivu-tabs-tab {
+        font-size: 14px;
+    }
+
+    .set_equip_modal .ivu-page {
+        margin-top: 0;
+    }
+
+</style>
+
+<template id="set_equip">
+
+    <Modal class-name="set_equip_modal"
+           :visible.sync="show_modal"
+           title="设置设备"
+           :mask-closable="false"
+           :style="{top: '20px'}"
+           width="1200">
+
+        <Tabs :animated="false" size="small" :active-key="tab_key" @on-click="change_tab">
+            <Tab-pane label="设置设备" key="set_key">
+                <Row style="margin-bottom: 10px;">
+                    <!--<i-col span="2" style="vertical-align: middle">-->
+                    <!--设备编号列表：-->
+                    <!--</i-col>-->
+                    <i-col span="24">
+                        <i-select :model.sync="sel_equips"
+                                  @on-change="sel_equip"
+                                  filterable multiple placeholder="设备编号">
+                            <i-option v-for="row in all_equips" :value="row.equip_no">{{ row.equip_no.slice(-11) }}
+                            </i-option>
+                        </i-select>
+                    </i-col>
+                </Row>
+
+                <div class="set_equip_table ivu-table-wrapper ivu-table-with-header" style="height:400px;">
+                    <div class="ivu-table ivu-table-small ivu-table-with-fixed-top">
+                        <div class="ivu-table-title">
+                            <table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+                                <colgroup>
+                                    <col width="60">
+                                    <col width="160">
+                                    <col width="180">
+                                    <col>
+                                    <col width="60">
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th class="ivu-table-column-center">
+                                        <div class="ivu-table-cell">#</div>
+                                    </th>
+                                    <th>
+                                        <div class="ivu-table-cell">设备编号</div>
+                                    </th>
+                                    <th>
+                                        <div class="ivu-table-cell">配置类型</div>
+                                    </th>
+                                    <th>
+                                        <div class="ivu-table-cell">配置参数</div>
+                                    </th>
+                                    <th>
+                                        <div class="ivu-table-cell"></div>
+                                    </th>
+                                </tr>
+                                <tr class="equip_table_param">
+                                    <td class="ivu-table-column-center">
+                                        <div class="ivu-table-cell"></div>
+                                    </td>
+                                    <td>
+                                        <div class="ivu-table-cell">全部</div>
+                                    </td>
+                                    <td>
+                                        <div class="ivu-table-cell">
+                                            <i-select :model.sync="type" style="width: 160px;" @on-change="change_type">
+                                                <Option-group :label="group.name" v-for="group in type_list">
+                                                    <i-option v-for="item in group.options" :value="item.key">
+                                                        {{item.name}}
+                                                    </i-option>
+                                                </Option-group>
+                                            </i-select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="ivu-param-cell">
+                                            <param-data :type.sync="type" :param.sync="param"
+                                                        :tree_list="tree_list" :all_equips="all_equips"></param-data>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="ivu-param-cell">
+                                        </div>
+                                    </td>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="ivu-table-body" style="height: 320px;">
+                            <table cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
+                                <colgroup>
+                                    <col width="60">
+                                    <col width="160">
+                                    <col width="180">
+                                    <col>
+                                    <col width="60">
+                                </colgroup>
+                                <tbody class="ivu-table-tbody">
+                                <tr class="ivu-table-row" v-for="(index,item) in sel_equips_data">
+                                    <td class="ivu-table-column-center">
+                                        <div class="ivu-table-cell">{{index+1}}</div>
+                                    </td>
+                                    <td>
+                                        <div class="ivu-table-cell list_equip_name_cell">
+                                            <span :class="['museum_icon','small',item.equip_type]"
+                                                  :data-title="item.equip_type"></span>
+                                            <span :data-title="'设备名称:'+item.name"
+                                                  v-text="item.equip_no.slice(-11)"></span>
+
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="ivu-table-cell">
+                                            {{get_type_name(item.type)}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="ivu-param-cell">
+                                            <param-data :type.sync="item.type" :param.sync="item.param"
+                                                        :no_support.sync="item.no_support"
+                                                        :tree_list="tree_list" :all_equips="all_equips"></param-data>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="ivu-param-cell">
+                                            <Tooltip style="margin-right: 5px;" placement="top"
+                                                     :content="item.remark || '点击编辑备注'">
+                                                <Icon class="cursor_pointer"
+                                                      type="document-text" size="22"
+                                                      @click="edit_remark(index)"></Icon>
+                                            </Tooltip>
+
+                                            <Tooltip placement="top" :content="'点击取消选择'+item.equip_no.slice(-11)">
+                                                <Icon class="cursor_pointer" type="android-delete" size="22"
+                                                      @click="del_equip(index)"></Icon>
+                                            </Tooltip>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <Spin fix v-show="equip_spin_key">
+                        <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+                        <div>加载中...</div>
+                    </Spin>
+                </div>
+
+
+                <Row style="margin-top: 10px;">
+                    <i-col span="12">
+                        下发方式:
+                        <Radio-group :model.sync="send_type">
+                            <Radio value="1">被动</Radio>
+                            <Radio value="2">主动(立即群发)</Radio>
+                        </Radio-group>
+                    </i-col>
+                    <i-col span="12" style="text-align: right">
+                        <i-button type="primary" size="large" :loading="send_loading" @click.stop="ok">确认</i-button>
+                        &nbsp;
+                        <i-button size="large" @click.stop="cancel">取消</i-button>
+                    </i-col>
+                </Row>
+
+            </Tab-pane>
+            <Tab-pane label="设置历史" key="history_key">
+                <Row style="margin-bottom: 10px;">
+                    <i-col span="12">
+                        <new-filter-component :search="history_search" v-ref:history_search
+                                              placeholder="设备ID"></new-filter-component>
+                    </i-col>
+                    <i-col span="12">
+
+                    </i-col>
+                </Row>
+
+                <div style="min-height: 450px;">
+                    <Spin fix v-show="history_spin_key">
+                        <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+                        <div>加载中...</div>
+                    </Spin>
+                    <i-table class="set_history_table" :columns="send_history_columns" :data="send_history_data"
+                             border highlight-row>
+                    </i-table>
+                    <Row style="margin-top: 10px;">
+                        <i-col span="16">
+                            <Page :total="history_count" :current.sync="history_page" :page-size.sync="history_limit"
+                                  @on-change="get_history"
+                                  @on-page-size-change="get_history"
+                                  show-total></Page>
+                        </i-col>
+                        <i-col span="8" style="text-align: right">
+                            <Checkbox :checked.sync="auto_load_history">自动刷新(10s)&nbsp;
+                            </Checkbox>
+                            <i-button size="large" type="primary" @click.stop="history_search">刷新</i-button>
+                            &nbsp;
+                            <i-button size="large" @click.stop="cancel">取消</i-button>
+                        </i-col>
+                    </Row>
+                </div>
+
+
+            </Tab-pane>
+        </Tabs>
+
+        <div slot="footer">
+        </div>
+
+    </Modal>
+</template>
+
+<script type="text/javascript">
+    var default_param = {
+        id: '',
+        equip_status: '',
+        equip_clear_env: false,//当状态为备用或停用时可选择清空设备位置
+        equip_name: '',
+        equip_type: '',
+        equip_remark: '',
+        equip_env_no: [],
+        equip_model: '',
+        equip_manufacturer: '',
+        equip_applicability: '',
+        equip_effect: '',
+        equip_img: [],
+        replace_no: "",
+
+        ctr_kdate: '',
+        ctr_quantity: '',
+        box_model: '正常',
+        box_open_kdate: '',
+        box_move_kdate: '',
+
+        model: '休眠',//0x01
+        sleep_period: '',//0x02
+        unit: 'minute',//0x02
+        equip_no: '',//0x04
+        area_no: '',//0x05,已取消
+
+        //0x30
+        c_model: '停止',
+
+        //0x31
+        control: 'humidity',
+        min: '',
+
+        //0x32
+        control_inner: 'humidity',
+        c_order: '1',
+        c_value: '',
+
+        //0x20 0x21
+        correction: 'humidity',
+        crt_value: '',
+        send_repeat: false,//重复
+        send_cycle: 1,//周期
+
+        //0x12
+        f_rate: '0',
+        b_rate: '1',
+
+        //other
+        other: '',
+
+        //0x22
+        parameter: '--',
+        func: '',
+        set_value: '',
+        set_value2: '',
+        set_value3: '',
+        set_unit: 'minute',
+
+        //0x10
+        range_param: 'humidity',
+        range_value1: '',
+        range_value2: '',
+
+        //0x11
+        alert_param: 'humidity',
+        alert_value1: '',
+        alert_value2: '',
+
+    };
+    Vue.component('set-equip', {
+        template: '#set_equip',
+        props: [],
+        data: function () {
+            return {
+                tab_key: 'set_key',
+                init_key: false,
+                show_modal: false,//
+                equip_spin_key: false,
+                sel_equips: [],//选择的设备编号列表
+                sel_equips_data: [],//选择的设备的参数列表
+                all_equips: [],//所有设备编号列表
+                all_equips_obj: {},//所有设备，设备编号为key
+                type: '',//默认配置类型
+                type_list: [],//配置类型
+                type_obj: {},//配置类型名称
+                param: {},//全部设备选择的参数
+                send_loading: false,
+                send_type: '1',//被动下发
+                tree_list: [],
+                ok_end: function () {
+
+                },
+
+                history_page: 1,
+                history_limit: 10,
+                history_count: 0,
+                auto_load_history: true,
+                send_history_columns: this.get_send_history_columns(),
+                send_history_data: [],
+                search_data: {},
+                history_spin_key: true,
+            }
+        },
+        watch: {
+            param: {
+                handler: function (val) {
+                    var _this = this;
+                    console.log(val);
+                    _.each(_this.sel_equips_data, function (row, no) {
+                        if (row && row.param) {
+                            // row.param = _.extend({}, val);//去除多余set/get方法
+
+                            _.each(val, function (v, k) {
+                                if (_this.type_obj[_this.type].val && _this.type_obj[_this.type].val.indexOf(k) !== -1) {
+                                    row.param[k] = v;
+                                }
+                            });
+                        }
+                    });
+                },
+                deep: true
+            }
+        },
+        methods: {
+            init: function (equips, ok_end) {
+                var _this = this;
+                _this.tab_key = 'set_key';
+                _this.type = 'equip_status';
+                _this.param = _.extend({}, default_param);
+                _this.show_modal = true;
+                _this.equip_spin_key = true;
+                _this.get_all_equip(function (data) {
+                    setTimeout(function () {
+                        _this.sel_equips = equips;
+                        var sel_equips_data = [];
+                        _.each(equips, function (equip_no) {
+                            var row = _this.get_equip_row(equip_no);
+                            if (row) {
+                                sel_equips_data.push(row);
+                            }
+                        });
+                        _this.sel_equips_data = sel_equips_data;
+                        _this.init_key = true;
+                        console.log(_this);
+                        _this.get_history();
+                        _this.equip_spin_key = false;
+                    }, 0);
+                });
+                if (!_this.init_key) {
+                    _this.get_types();
+                    if (ok_end) {
+                        _this.ok_end = ok_end;
+                    }
+                    _this.auto_load_history_fn();
+                }
+                _this.auto_load_history = true;
+                _this.get_history_filter();
+                _this.search_data = {};
+            },
+            change_tab: function (key) {
+                this.tab_key = key;
+            },
+            get_equip_row: function (equip_no) {
+                var _this = this;
+                if (!_this.all_equips_obj[equip_no]) {
+                    return false;
+                }
+                var equip = _this.all_equips_obj[equip_no];
+                if (equip.status !== '备用' && equip.status !== '停用') {
+                    equip.status = '启用';
+                }
+                var row = {
+
+                    equip_no: equip_no,
+                    type: _this.type,
+                    param: _.extend({}, default_param),
+                    name: equip.name || '',
+                    equip_type: equip.equip_type || '',
+                    remark: equip.remark || '',
+                    no_support: false,//不支持配置类型
+                };
+                row.param.id = equip.equip_no;
+                row.param.equip_type = equip.equip_type;
+                row.param.equip_name = equip.name;
+                row.param.equip_remark = equip.remark;
+                row.param.equip_status = equip.status;
+                row.param.equip_clear_env = false;
+                if (equip.env_no && equip.nav) {
+                    var env_no = [];
+                    _.each(equip.nav, function (env) {
+                        env_no.push(env.env_no);
+                    });
+                    row.param.equip_env_no = env_no;
+                }
+                row.param.equip_model = equip.model;
+                row.param.equip_manufacturer = equip.manufacturer;
+                row.param.equip_applicability = equip.applicability;
+                row.param.equip_effect = equip.effect;
+                var sleep = equip.sleep * 1;
+                if (sleep >= 3600) {
+                    row.param.sleep_period = parseInt(sleep / 3600);
+                    row.param.unit = 'hour';
+                } else if (sleep >= 60 && sleep < 3600) {
+                    row.param.sleep_period = parseInt(sleep / 60);
+                    row.param.unit = 'minute';
+                } else {
+                    row.param.sleep_period = parseInt(sleep);
+                    row.param.unit = 'second';
+                }
+                if (equip.target) {
+                    row.param.min = equip.target;
+                }
+
+                console.log(row);
+                return row;
+            },
+            get_all_equip: function (callback) {
+                var _this = this;
+                $.get('/2.2.05_P001/base_api/env/equipments/manage/all_equip', function (data) {
+                    if (data.error) {
+                        _this.$Message.error('获取设备列表出错');
+                        return;
+                    }
+                    var all_equips = [], all_equips_obj = {};
+                    _.each(data.rows, function (row) {
+                        all_equips_obj[row.equip_no] = row;
+                        all_equips.push({equip_no: row.equip_no, name: row.name});
+                    });
+                    _this.all_equips = all_equips;
+                    _this.all_equips_obj = all_equips_obj;
+
+                    if (_this.tree_list.length) {
+                        callback && callback();
+                        return;
+                    }
+                    $.get('/2.2.05_P001/base_api/base/envs/tree/', function (data) {
+                        _this.tree_list = makeTree(data);
+
+                        //生成环境树方法
+                        function makeTree(data) {
+                            var result = [];
+                            _.each(data, function (item, index) {
+                                var node = {
+                                    label: item.name,
+                                    children: [],
+                                    value: item.env_no
+                                };
+                                if (item.children && item.children.length !== 0) {
+                                    node.children = makeTree(item.children);
+                                }
+                                result.push(node);
+                            });
+                            return result;
+                        }
+
+                        callback && callback();
+                    });
+
+                }, 'json');
+
+            },
+            edit_remark: function (index) {
+                var _this = this;
+                var equip = _this.sel_equips_data[index];
+                console.log('edit_remark', index, equip);
+                if (!equip) {
+                    return;
+                }
+                layer.prompt({title: '输入备注信息', value: equip.remark, formType: 2}, function (text, layer_index) {
+                    layer.close(layer_index);
+                    if (text) {
+                        $.post('/2.2.05_P001/base_api/env/equipments/manage/edit/', {
+                            equip_no: equip.equip_no,
+                            remark: text
+                        }, function (data) {
+                            _this.$Message.info(data.msg);
+                            _this.sel_equips_data[index].remark = text;
+                            _this.all_equips_obj[equip.equip_no].remark = text;
+                        });
+                    }
+                });
+            },
+            del_equip: function (index) {
+                this.sel_equips_data.splice(index, 1);
+                this.sel_equips.splice(index, 1);
+            },
+            ok: function () {
+                var _this = this;
+                var settings = [];
+                var err;
+                var is_send_instruct = false;//是否是下发指令
+                if (_this.type === 'other' || /^[0-9a-fA-F]{2}$/.test(_this.type)) {
+                    is_send_instruct = true;
+                }
+
+                _.each(_this.sel_equips_data, function (row) {
+                    if (!_this.type_obj[row.type]) {
+                        return;
+                    }
+                    if (row.no_support) {
+                        return;//不支持此参数
+                    }
+                    var rt = {};
+                    if (_this.type_obj[row.type].valid) {
+                        rt = _this.type_obj[row.type].valid(row.param);
+                    }
+                    if (rt.err) {
+                        err = rt.err;
+                        return;
+                    }
+                    console.log(rt);
+                    var setting = {};
+                    setting.equip_no = row.equip_no;
+                    setting.instruct = row.type;
+                    setting.operation = _this.type_obj[row.type].name;
+                    setting.remark = rt.remark || '';
+                    if (is_send_instruct) {
+                        setting.send_type = rt.send_type || _this.send_type;
+                        if (setting.send_type === 3) {
+                            setting.send_cycle = rt.send_cycle || 0;
+                        }
+                        setting.send_data = rt.data || '';
+                    } else {
+                        setting = _.extend(setting, rt.data);
+                    }
+                    settings.push(setting);
+                });
+                console.log(settings);
+                if (err) {
+                    _this.$Message.error(err);
+                    return;
+                }
+                if (!settings.length) {
+                    _this.$Message.error('无设备进行操作');
+                    return;
+                }
+
+                _this.send_loading = true;
+
+                $.post('/2.2.05_P001/base_api/env/equipments/setting', {settings: settings}, function (data) {
+                    _this.send_loading = false;
+                    if (data.error) {
+                        _this.$Message.error(data.error);
+                        return;
+                    }
+                    if (is_send_instruct) {
+                        _this.$Message.info(data.msg + ',等待数据下发');
+                        if (_this.send_type === '2') {
+                            require('common/socket.io').emit('nowSendDown');
+                            console.log('nowSendDown');
+                        }
+                    } else {
+                        _this.$Message.info(data.msg);
+                    }
+                    _this.tab_key = 'history_key';
+                    _this.get_history_filter();
+                    _this.get_history();
+                    _this.ok_end && _this.ok_end();
+                }, 'json').error(function () {
+                    _this.send_loading = false;
+                    _this.$Message.error('保存失败');
+                });
+            },
+            cancel: function () {
+                this.show_modal = false;
+                this.auto_load_history = false;
+            },
+            sel_equip: function () {
+
+                var _this = this;
+                var new_equip_no = [];
+                var old_equip_no = _.pluck(_this.sel_equips_data, 'equip_no');
+                console.log(old_equip_no, _this.sel_equips);
+                var del_equip_no = _.difference(old_equip_no, _this.sel_equips);//移除
+                _.each(_this.sel_equips, function (equip_no) {
+                    if (equip_no && !_.contains(old_equip_no, equip_no)) {
+                        new_equip_no.push(equip_no);
+                    }
+                });
+                console.log(new_equip_no);
+                _.each(del_equip_no, function (equip_no) {
+                    if (equip_no !== '全部') {
+                        _this.sel_equips_data.splice(_.indexOf(old_equip_no, equip_no), 1);
+                    }
+                });
+                console.log(del_equip_no);
+                _.each(new_equip_no, function (equip_no) {
+                    var row = _this.get_equip_row(equip_no);
+                    if (row) {
+                        _this.sel_equips_data.push(row);
+                    }
+                });
+                console.log(_this.sel_equips_data);
+
+            },
+            get_types: function () {
+                var _this = this;
+
+                function is_float(f) {
+                    var reg = /(^-?(\d+|\d+\.\d+$))(?!.)/;
+                    var ret = reg.exec(f);
+                    if (ret && ret.index == 0) {
+                        return true;
+                    }
+                    return false;
+                }
+
+                var type_list = [
+                    {
+                        name: '修改设备信息',
+                        options: [
+                            {
+                                key: 'equip_status', name: "设定使用状态",
+                                val: ['equip_status', 'equip_clear_env'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.status = param.equip_status;
+                                    if (param.equip_clear_env) {
+                                        json.clear_env = param.equip_clear_env;
+                                    }
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'equip_name', name: "修改设备名称",
+                                val: ['equip_name'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.name = param.equip_name;
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'equip_env_no', name: "修改设备位置",
+                                val: ['equip_env_no'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.env_no = _.last(param.equip_env_no);
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'equip_model', name: "修改型号",
+                                val: ['equip_model'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.model = param.equip_model;
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'equip_manufacturer', name: "修改厂商",
+                                val: ['equip_manufacturer'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.manufacturer = param.equip_manufacturer;
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'equip_applicability', name: "修改适用条件",
+                                val: ['equip_applicability'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.applicability = param.equip_applicability;
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'equip_remark', name: "修改备注",
+                                val: ['equip_remark'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.remark = param.equip_remark;
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'equip_img', name: "添加图片",
+                                val: ['equip_img'],
+                                valid: function (param) {
+                                    var json = {};
+                                    // console.log(param);
+                                    var equip_img = window.temp_equip_imags[param.id];
+                                    console.log('equip_img', equip_img);
+                                    if (equip_img) {
+                                        json.file = equip_img;
+                                    }
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'box_open_auth', name: "开盖授权",
+                                equip_types: ['智能囊匣'],
+                                val: ['box_open_kdate'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    if (!param.box_open_kdate) {
+                                        return {err: '请选择时间'};
+                                    }
+                                    console.log(param.box_open_kdate);
+                                    json.start_time = parseInt(new Date(param.box_open_kdate[0]).getTime() / 1000);
+                                    json.end_time = parseInt(new Date(param.box_open_kdate[1]).getTime() / 1000);
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'box_move_auth', name: "震动授权",
+                                equip_types: ['智能囊匣'],
+                                val: ['box_move_kdate'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    if (!param.box_move_kdate) {
+                                        return {err: '请选择时间'}
+                                    }
+                                    console.log(param.box_move_kdate);
+                                    json.start_time = parseInt(new Date(param.box_move_kdate[0]).getTime() / 1000);
+                                    json.end_time = parseInt(new Date(param.box_move_kdate[1]).getTime() / 1000);
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'ctr_info', name: "修改投放信息",
+                                equip_types: ['调控材料'],
+                                val: ['ctr_quantity', 'ctr_kdate'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    if (!param.ctr_quantity || !param.ctr_kdate) {
+                                        return {err: '请选择时间和用量'}
+                                    }
+                                    console.log(param.ctr_kdate);
+                                    json.quantity = param.ctr_quantity;
+                                    json.control_time = parseInt(new Date(param.ctr_kdate[0]).getTime() / 1000);
+                                    json.replace_time = parseInt(new Date(param.ctr_kdate[1]).getTime() / 1000);
+                                    return {data: json};
+                                }
+                            },
+                            {
+                                key: 'equip_effect', name: "修改调控效果",
+                                equip_types: ['调控材料', '调湿机', '充氮调湿柜'],
+                                val: ['equip_effect'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.effect = param.equip_effect;
+                                    return {data: json};
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        name: '下发指令',
+                        options: [
+                            // {
+                            //     key: '01', name: '设置工作模式(0x01)',
+                            //     val: ['model'],//监听变化
+                            //     info: function (param) {
+                            //         return param.model;
+                            //     },
+                            //     valid: function (param) {
+                            //         var json = {};
+                            //         json.model = param.model;
+                            //         return {data: json};
+                            //     }
+                            // },
+                            {
+                                key: '02', name: '设置休眠周期(0x02)',
+                                val: ['sleep_period', 'unit'],//监听变化
+                                info: function (param) {
+                                    return param.sleep_period + '' + param.unit;
+                                },
+                                valid: function (param) {
+                                    var json = {};
+                                    json.sleep_period = param.sleep_period * 1;
+                                    json.unit = param.unit;
+                                    if (parseInt(json.sleep_period) != json.sleep_period) {
+                                        return {err: '休眠周期必须为整数'};
+                                    }
+                                    if (json.unit === 'hour') {
+                                        if (json.sleep_period > 55 || json.sleep_period < 1) {
+                                            return {err: '休眠周期为1~55'};
+                                        }
+                                    } else {
+                                        if (json.sleep_period > 100 || json.sleep_period < 1) {
+                                            return {err: '休眠周期为1~100'};
+                                        }
+                                    }
+                                    return {data: json};
+                                }
+                            },
+                            {key: '03', name: "同步系统时间(0x03)"},
+                            // {
+                            //     key: '04', name: '设置设备编号(0x04)',
+                            //     val: ['equip_no'],//监听变化
+                            //     info: function (param) {
+                            //         return param.equip_no;
+                            //     },
+                            //     valid: function (param) {
+                            //         var json = {};
+                            //         json.equip_no = param.equip_no + '';
+                            //         var reg = /\d{11}/;
+                            //         if (json.equip_no.length != 11) {
+                            //             return {err: '设备编号应为11位'};
+                            //         }
+                            //         if (reg.exec(json.equip_no) == false) {
+                            //             return {err: '设备编号应为11位数字'};
+                            //         }
+                            //         return {data: json};
+                            //     }
+                            // }
+                            //     ]
+                            // },
+                            // {
+                            //     name: '调控指令',
+                            //     options: [
+                            // {
+                            //     key: "30", name: "设置调控模式(0x30)",
+                            //     val: ['c_model'],//监听变化
+                            //     info: function (param) {
+                            //         return param.c_model;
+                            //     },
+                            //     valid: function (param) {
+                            //         var json = {};
+                            //         json.c_model = param.c_model;
+                            //         return {data: json};
+                            //     }
+                            // },
+                            {
+                                key: "31", name: "设定调控目标(0x31)",
+                                val: ['control', 'min'],//监听变化
+                                info: function (param) {
+                                    return param.control + ':' + param.min;
+                                },
+                                valid: function (param) {
+                                    var json = {};
+                                    json.control = param.control;
+                                    json.min = param.min * 1;
+
+                                    if (json.min == '') {
+                                        return {err: '请输入调控值'};
+                                    }
+                                    if (json.control == 'humidity' && (json.min > 70 || json.min < 30)) {
+                                        return {err: '调控值(30~70)'};
+                                    }
+                                    if (json.control == 'lighting' && (json.min > 100 || json.min < 0)) {
+                                        return {err: '调控值(0~100)'};
+                                    }
+                                    json.max = json.min;
+                                    return {data: json};
+                                }
+                            },
+                            // {
+                            //     key: "32", name: "设置调控内部参数(0x32)",
+                            //     val: ['control_inner', 'c_order', 'c_value'],//监听变化
+                            //     info: function (param) {
+                            //         return param.control_inner + ',序号:' + param.c_order + ',调控值:' + param.c_value;
+                            //     },
+                            //     valid: function (param) {
+                            //         var json = {};
+                            //         json.control_inner = param.control_inner;
+                            //         json.c_order = param.c_order;
+                            //         json.c_value = param.c_value;
+                            //         if (json.c_order == '') {
+                            //             return {err: '序号不能为空'};
+                            //         }
+                            //         if (json.c_value == '') {
+                            //             return {err: '调控值不能为空'};
+                            //         }
+                            //         return {data: json};
+                            //     }
+                            // },
+                            //     ]
+                            // },
+                            // {
+                            //     name: '标定/校正指令',
+                            //     options: [
+                            {
+                                key: "20", name: "标定设备(0x20)",
+                                val: ['correction', 'crt_value', 'send_repeat', 'send_cycle'],//监听变化
+                                info: function (param) {
+                                    return param.correction + ',标定值:' + param.crt_value;
+                                },
+                                valid: function (param) {
+                                    var json = {};
+                                    json.correction = param.correction;
+                                    json.crt_value = param.crt_value;
+
+                                    if (!json.crt_value) {
+                                        return {err: '标定值不能空'};
+                                    }
+                                    var crt_value = json.crt_value.replace('，', ',').split(',');
+
+                                    for (var i in crt_value) {
+                                        if (is_float(crt_value[i]) === false) {
+                                            return {err: "第" + (parseInt(i) + 1) + "个标定值应为整数或小数"};
+                                        }
+                                    }
+                                    var send_cycle = 0, send_type = 0;
+                                    if (param.send_repeat) {//勾选重复
+                                        send_cycle = param.send_cycle;
+                                        send_type = 3;
+                                    }
+                                    return {data: json, send_type: send_type, send_cycle: send_cycle};
+                                }
+                            },
+                            {
+                                key: "21", name: "校正设备(0x21)",
+                                val: ['correction', 'crt_value'],//监听变化
+                                info: function (param) {
+                                    return param.correction + ',校正值:' + param.crt_value;
+                                },
+                                valid: function (param) {
+                                    var json = {};
+                                    json.correction = param.correction;
+                                    json.crt_value = param.crt_value;
+
+                                    if (!json.crt_value) {
+                                        return {err: '校正值不能空'};
+                                    }
+                                    var crt_value = json.crt_value.replace('，', ',').split(',');
+                                    for (var i in crt_value) {
+                                        if (is_float(crt_value[i]) === false) {
+                                            return {err: "第" + (parseInt(i) + 1) + "个校正值应为整数或小数"};
+                                        }
+                                    }
+                                    return {data: json};
+                                }
+                            },
+                            //     ]
+                            // },
+                            // {
+                            //     name: '其他指令',
+                            //     options: [
+                            // {
+                            //     key: "10", name: "设置:量程(0x10)",
+                            //     val: ['range_param', 'range_value1', 'range_value2'],//监听变化
+                            //     info: function (param) {
+                            //         return param.range_param + '/' + param.range_value1 + '/' + param.range_value2;
+                            //     },
+                            //     valid: function (param) {
+                            //         var json = {};
+                            //         json.range_param = param.range_param;
+                            //         json.range_value1 = param.range_value1;
+                            //         json.range_value2 = param.range_value2;
+                            //         if (!json.range_value1) {
+                            //             return {err: '请输入参数1'};
+                            //         }
+                            //         return {data: json};
+                            //     }
+                            // },
+                            // {
+                            //     key: "11", name: "设置:预警范围(0x11)",
+                            //     val: ['alert_param', 'alert_value1', 'alert_value2'],//监听变化
+                            //     info: function (param) {
+                            //         return param.alert_param + '/' + param.alert_value1 + '/' + param.alert_value2;
+                            //     },
+                            //     valid: function (param) {
+                            //         var json = {};
+                            //         json.alert_param = param.alert_param;
+                            //         json.alert_value1 = param.alert_value1;
+                            //         json.alert_value2 = param.alert_value2;
+                            //         if (!json.alert_value1) {
+                            //             return {err: '请输入参数1'};
+                            //         }
+                            //         return {data: json};
+                            //     }
+                            // },
+                            // {
+                            //     key: "12", name: "设置频率波特率(0x12)",
+                            //     val: ['f_rate', 'b_rate'],//监听变化
+                            //     info: function (param) {
+                            //         return '频率:' + param.f_rate + ',波特率:' + param.b_rate;
+                            //     },
+                            //     valid: function (param) {
+                            //         var json = {};
+                            //         json.f_rate = param.f_rate;
+                            //         json.b_rate = param.b_rate;
+                            //         return {data: json};
+                            //     }
+                            // },
+                            {
+                                key: "22", name: "设置功能参数(0x22)",
+                                val: ['parameter', 'func', 'set_value', 'set_unit'],//监听变化
+                                info: function (param) {
+                                    return param.parameter + ',' + param.func + ',' + param.set_value;
+                                },
+                                valid: function (param) {
+                                    var json = {};
+                                    json.parameter = param.parameter;
+                                    json.func = param.func;
+                                    json.set_value = param.set_value;
+                                    if (!json.func) {
+                                        return {err: '功能参数不能空'};
+                                    }
+
+                                    if (['设置除湿目标值', '设置除湿时间', '终端传感器预热时间',
+                                            '终端全范围湿度补偿值', '终端循环发送帧数', '终端全范围湿度补偿值',
+                                            '终端全范围湿度补偿开关', '终端校正数值开关', '终端发送数据类型'
+                                        ].indexOf(json.func) !== -1) {
+
+                                        if (json.set_value === '') {
+                                            return {err: '设定值不能空'};
+                                        }
+                                        if (['设置除湿时间', '终端传感器预热时间'].indexOf(json.func) !== -1) {
+                                            json.set_unit = param.set_unit;
+                                            if (parseInt(json.set_value) != json.set_value) {
+                                                return {err: json.func + '必须为整数'};
+                                            }
+                                            if (json.set_unit === 'hour') {
+                                                if (json.set_value > 55 || json.set_value < 1) {
+                                                    return {err: json.func + '为1~55'};
+                                                }
+                                            } else {
+                                                if (json.set_value > 100 || json.set_value < 1) {
+                                                    return {err: json.func + '为1~100'};
+                                                }
+                                            }
+
+                                        }
+                                    }
+
+                                    return {data: json};
+                                }
+                            },
+                            // {key: '0a', name: "下发显示图片(0x0a)"},
+                            // {
+                            //     key: 'box_model', name: "切换囊匣模式(0x)",
+                            //     equip_types: ['智能囊匣'],
+                            //     val: ['box_model'],//监听变化
+                            //     valid: function (param) {
+                            //         var json = {};
+                            //         json.model = param.box_model;
+                            //         return {data: json};
+                            //     }
+                            // },
+                            {
+                                key: "other", name: "自定义指令(0x)",
+                                val: ['other'],//监听变化
+                                info: function (param) {
+                                    return param.other;
+                                },
+                                valid: function (param) {
+                                    var json = {};
+                                    json.other = param.other;
+                                    if (!json.other) {
+                                        return {err: '请输入指令及参数'};
+                                    }
+                                    if (!/^[0-9a-fA-F ]+$/.test(json.other)) {
+                                        return {err: '指令及参数必须为16进制'};
+                                    }
+
+                                    return {data: json};
+                                }
+                            },
+                        ]
+                    }, {
+                        name: '其他操作',
+                        options: [
+                            {
+                                key: 'replace', name: "设备替换",
+                                val: ['replace_no'],//监听变化
+                                valid: function (param) {
+                                    var json = {};
+                                    json.new_no = param.replace_no;
+                                    if (!json.new_no) {
+                                        return {err: '请输入指令及参数'};
+                                    }
+                                    return {data: json};
+                                }
+                            },
+                        ]
+                    }
+                ];
+
+                _this.type_list = type_list;
+                var type_obj = {};
+                _.each(type_list, function (group) {
+                    _.each(group.options, function (param) {
+                        type_obj[param.key] = param;
+                    });
+                });
+                _this.type_obj = type_obj;
+            },
+            change_type: function () {
+                var _this = this;
+                _.each(_this.sel_equips_data, function (row) {
+                    row.type = _this.type;
+                    row.no_support = false;
+                    //不支持此类设备操作
+                    if (_this.type_obj[_this.type].equip_types && _this.type_obj[_this.type].equip_types.indexOf(row.equip_type) === -1) {
+                        row.no_support = true;
+                    }
+                    console.log(_this.type_obj[_this.type].equip_types, row);
+                });
+            },
+            get_type_name: function (type) {
+                return this.type_obj[type] ? this.type_obj[type].name : '';
+            },
+            get_type_info: function (type, param) {
+                return this.type_obj[type].info ? this.type_obj[type].info(type, param) : '';
+            },
+            get_history_filter: function () {
+                var _this = this;
+                var search_data = {
+                    show_env_tree: false,
+                    key: '',
+                    env_no: [],
+                    param: {}
+                };
+                search_data.save_history_func = function (history) {
+                    my_store('set_equip_search_history', history);
+                };
+                search_data.history = my_store('set_equip_search_history') || [];
+                search_data.right_list = [];
+                $.get('/2.2.05_P001/base_api/env/equipments/operation/filter', function (data) {
+                    if (data.equip_opt && data.equip_opt.length) {
+                        search_data.right_list.push({
+                            type: 'status', key: 'operation', name: '操作', data: data.equip_opt,
+                        });
+                    }
+                    if (data.operator && data.operator.length) {
+                        search_data.right_list.push({
+                            type: 'status', key: 'operator', name: '操作者', data: data.operator,
+                        });
+                    }
+                    search_data.right_list.push({
+                        type: 'datetimerange', key: 'time', name: '时段', data: []
+                    });
+
+                });
+                _this.$refs.history_search.init(search_data);//有筛选条件获取列表数据
+            },
+            get_history: function () {
+                var _this = this;
+                var param = {};
+                param.page = _this.history_page;
+                param.limit = _this.history_limit;
+                param.id = _this.search_data.key;
+                _.each(_this.search_data.param, function (val, key) {
+                    param[key] = val;
+                    if (_.isArray(val)) {
+                        param[key] = val.join(',');
+                        if (param[key] === ',') {
+                            param[key] = '';
+                        }
+                    }
+                });
+                console.log(param);
+                _this.history_spin_key = true;
+                $.post('/2.2.05_P001/base_api/env/equipments/operation/operation_list', param, function (data) {
+                    _this.history_spin_key = false;
+                    if (data.error) {
+                        _this.$Message.error(data.error);
+                        return;
+                    }
+                    _this.send_history_data = data.rows;
+                    _this.history_count = data.total;
+                }, 'json').error(function () {
+                    _this.history_spin_key = false;
+                });
+
+            },
+            get_send_history_columns: function () {
+                var _this = this;
+                var columns = [
+                    {
+                        title: '#',
+                        width: 50,
+                        align: 'center',
+                        render: function (row, column, index) {
+                            return (_this.history_page - 1) * _this.history_limit + index + 1;
+                        }
+                    },
+                    {
+                        title: '设备编号',
+                        width: 90,
+                        key: 'equip_no',
+                        render: function (row, column, index) {
+                            if (!row.equip_no) {
+                                return '';
+                            }
+                            return row.equip_no.length > 11 ? row.equip_no.slice(-11) : row.equip_no;
+                        }
+                    },
+                    {
+                        title: '配置类型',
+                        width: 160,
+                        key: 'operation',
+                        render: function (row, column, index) {
+                            var cycles = ['', '每天0点', '每周一0点', '每月一日0点'];
+                            if (row.send_type == 3) {
+                                return row.operation + '' + (cycles[row.send_cycle] ? '|重复:' + (cycles[row.send_cycle]) : '');
+                            }
+                            return row.operation;
+                        }
+                    },
+                    {
+                        title: '配置参数',
+                        width: 250,
+                        key: 'remark'
+                    },
+                    {
+                        title: '状态',
+                        width: 80,
+                        key: 'send_status',
+                        render: function (row, column, index) {
+                            if (!row.send_type) {
+                                return '';
+                            }
+                            var status_text = ['无反馈', '等待下发', '已下发', '已反馈', '组帧错误', '已取消'];
+                            return status_text[row.send_status] + (row.send_count > 1 ? '(<span data-title="下发次数">' + row.send_count + '</span>)' : '');
+                        }
+                    }, {
+                        title: '操作时间',
+                        width: 140,
+                        key: 'operation_time',
+                        render: function (row) {
+                            return '<Tooltip  content="操作者：' + row.operator + '" placement="top">' + row.operation_time + '</Tooltip>';
+                        }
+                    }, {
+                        title: '下发时间',
+                        width: 140,
+                        key: 'send_time'
+                    }, {
+                        title: '反馈时间',
+                        width: 150,
+                        key: 'feedback_time'
+                    }, {
+                        title: '反馈结果',
+                        width: 200,
+                        key: 'feedback_data',
+                        render: function (row, column, index) {
+                            var text = row.feedback_data;
+                            if (!text) {
+                                return text;
+                            }
+                            try {
+                                var t = JSON.parse(text);
+                                text = '';
+                                _.each(t, function (val, key) {
+                                    text += key + ':' + val + '<br/>';
+                                });
+                            } catch (e) {
+                                console.error(e, text);
+                            }
+                            return text;
+                        }
+                    }
+                ];
+                return columns;
+            },
+            history_search: function (json) {
+                var _this = this;
+                _this.search_data = json;
+                _this.get_history(json);
+            },
+            auto_load_history_fn: function () {
+                var _this = this;
+                setTimeout(function () {
+                    _this.auto_load_history_fn();
+                    if (_this.auto_load_history) {
+                        _this.get_history();
+                    }
+                }, 10000);
+
+
+            }
+        }
+    });
+</script>
+
+<template id="param_data">
+
+    <div v-show="no_support">
+        <Icon type="minus-circled"></Icon>
+        该设备不支持此配置
+    </div>
+    <div class="param_data" v-show="!no_support">
+
+        <template v-if="type=='equip_status'">
+            <Radio-group :model.sync="param.equip_status" type="button">
+                <Radio value="启用"></Radio>
+                <Radio value="备用"></Radio>
+                <Radio value="停用"></Radio>
+            </Radio-group>
+            <Checkbox :checked.sync="param.equip_clear_env" v-show="['备用','停用'].indexOf(param.equip_status)!==-1">
+                清空设备位置
+            </Checkbox>
+            <div style="padding-top: 10px;display: inline-block;padding-bottom: 4px;vertical-align: bottom;">
+                <Tooltip content="启用设备之后，系统自动标志设备状态为正常、异常、低电" placement="top">
+                <Icon type="help-circled" size="20"
+                      v-show="param.equip_status=='启用'"></Icon>
+                </Tooltip>
+            </div>
+        </template>
+
+        <div v-if="type=='equip_name'">
+            <i-input style="width: 150px;" :value.sync="param.equip_name"
+                     placeholder="请输入设备名称"></i-input>
+        </div>
+
+        <div v-if="type=='equip_env_no'">
+            <Cascader style="width:400px;" :data="tree_list" :value.sync="param.equip_env_no"
+                      change-on-select></Cascader>
+        </div>
+
+        <div v-if="type=='equip_model'">
+            <i-input style="width: 350px;" :value.sync="param.equip_model"
+                     placeholder="请输入型号"></i-input>
+        </div>
+
+        <div v-if="type=='equip_manufacturer'">
+            <i-input style="width: 350px;" :value.sync="param.equip_manufacturer"
+                     placeholder="请输入厂商"></i-input>
+        </div>
+
+        <div v-if="type=='equip_applicability'">
+            <i-input style="width: 350px;" :value.sync="param.equip_applicability"
+                     placeholder="请输入适用条件"></i-input>
+        </div>
+
+        <div v-if="type=='equip_remark'">
+            <i-input style="width: 350px;" :value.sync="param.equip_remark"
+                     placeholder="请输入备注"></i-input>
+        </div>
+
+        <div v-if="type=='equip_img'">
+            <i-button @click="upload_img()" v-show="param.id">选择图片</i-button>
+
+            <Tooltip placement="top" v-for="(index,img) in img_list" style="margin-right: 5px;">
+                <Icon type="image" size="20"></Icon>
+                <div slot="content">
+                    <img width="200" :src="img"/>
+                    <Icon type="android-close"
+                          @click="del_img(index)"
+                          style="color: #f00;font-size: 20px;vertical-align: top;cursor: pointer"></Icon>
+                </div>
+            </Tooltip>
+
+        </div>
+
+        <div v-if="type=='box_model'">
+            <Radio-group :model.sync="param.box_model" type="button">
+                <Radio value="正常"></Radio>
+                <Radio value="运输"></Radio>
+                <Radio value="关机"></Radio>
+            </Radio-group>
+        </div>
+
+        <div v-if="type=='box_open_auth'">
+            <Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" :value.sync="param.box_open_kdate"
+                         placeholder="选择时间段"
+                         style="width: 260px"></Date-picker>
+        </div>
+        <div v-if="type=='box_move_auth'">
+            <Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" :value.sync="param.box_move_kdate"
+                         placeholder="选择时间段"
+                         style="width: 260px"></Date-picker>
+        </div>
+        <div v-if="type=='ctr_info'">
+            <Row>
+                <i-col span="11">
+                    用量
+                    <i-input style="width: 70px;" :value.sync="param.ctr_quantity"
+                             placeholder="用量"></i-input>
+                    单位：kg
+                    &nbsp;
+                    使用日期
+                </i-col>
+                <i-col span="13">
+
+                    <Date-picker type="daterange" :value.sync="param.ctr_kdate"
+                                 placeholder="选择使用日期时间段"
+                                 style="width: 200px"></Date-picker>
+                </i-col>
+            </Row>
+
+        </div>
+
+        <div v-if="type=='equip_effect'">
+            <i-input style="width: 150px;" :value.sync="param.equip_effect"
+                     placeholder="1m³需要多少kg调控材料"></i-input>
+            单位：kg/m³
+        </div>
+
+        <!--下发指令-->
+
+        <div v-if="type=='01'">
+            <i-select :model.sync="param.model" style="width: 150px">
+                <i-option value="休眠">休眠</i-option>
+                <i-option value="工作">工作</i-option>
+                <i-option value="校准">校准</i-option>
+                <i-option value="复位">复位</i-option>
+            </i-select>
+        </div>
+
+        <div v-if="type=='02'">
+
+            <i-input style="width: 150px;" :value.sync="param.sleep_period"
+                     :placeholder="param.unit=='hour'?'休眠周期为1~55':'休眠周期为1~100'"></i-input>
+
+            <i-select :model.sync="param.unit" style="width: 100px;">
+                <i-option value="second">秒</i-option>
+                <i-option value="minute">分钟</i-option>
+                <i-option value="hour">小时</i-option>
+            </i-select>
+        </div>
+
+        <div v-if="type=='03'">
+            下发时同步系统时间
+        </div>
+
+        <div v-if="type=='04'">
+            <i-input style="width: 200px;" :value.sync="param.equip_no" placeholder="编号为11位数字(不包含博物馆编号)"></i-input>
+        </div>
+
+        <div v-if="type=='05'">
+            <i-input style="width: 150px;" :value.sync="param.area_no" placeholder="编号为10~19位"></i-input>
+        </div>
+
+        <div v-if="type=='10'">
+            <i-select style="width:100px;" :model.sync="param.range_param">
+                <i-option v-for="item in params" :value="item.value">{{item.label}}</i-option>
+            </i-select>
+            参数1:
+            <i-input style="width:100px;" :value.sync="param.range_value1" placeholder="参数1">
+            </i-input>
+            参数2:
+            <i-input style="width:100px;" :value.sync="param.range_value2" placeholder="参数2">
+            </i-input>
+        </div>
+
+        <div v-if="type=='11'">
+            <i-select style="width:100px;" :model.sync="param.alert_param">
+                <i-option v-for="item in params" :value="item.value">{{item.label}}</i-option>
+            </i-select>
+            参数1:
+            <i-input style="width:100px;" :value.sync="param.alert_value1" placeholder="参数1">
+            </i-input>
+            参数2:
+            <i-input style="width:100px;" :value.sync="param.alert_value2" placeholder="参数2">
+            </i-input>
+        </div>
+
+        <div v-if="type=='12'">
+            频率:
+            <i-select :model.sync="param.f_rate" style="width: 100px;">
+                <i-option value="0">0</i-option>
+                <i-option value="1">1</i-option>
+                <i-option value="2">2</i-option>
+                <i-option value="3">3</i-option>
+                <i-option value="4">4</i-option>
+            </i-select>
+            波特率:
+            <i-select :model.sync="param.b_rate" style="width: 100px;">
+                <i-option value="0">0</i-option>
+                <i-option value="1">1</i-option>
+            </i-select>
+        </div>
+
+        <div v-if="type=='20'">
+            <i-select :model.sync="param.correction" style="width: 100px;">
+                <i-option v-for="item in params" :value="item.value">{{item.label}}</i-option>
+            </i-select>
+            标定值:
+            <i-input :value.sync="param.crt_value" placeholder="Xmin,Xmax,Ymin,Ymax"
+                     style="width: 200px;">
+            </i-input>
+            <Checkbox :checked.sync="param.send_repeat" style="margin-left: 5px;">重复:</Checkbox>
+            <i-select :model.sync="param.send_cycle" style="width: 100px;">
+                <i-option value="1">每天0点</i-option>
+                <i-option value="2">每周一0点</i-option>
+                <i-option value="3">每月一日0点</i-option>
+            </i-select>
+        </div>
+
+        <div v-if="type=='21'">
+            <i-select :model.sync="param.correction" style="width: 100px;">
+                <i-option v-for="item in params" :value="item.value">{{item.label}}</i-option>
+            </i-select>
+            校正值:
+            <i-input :value.sync="param.crt_value" placeholder="Xmin,Xmax,Ymin,Ymax"
+                     style="width: 230px;">
+            </i-input>
+        </div>
+
+        <div v-if="type=='22'">
+            <i-select style="width:100px;" :model.sync="param.parameter">
+                <i-option value="--">无</i-option>
+                <i-option v-for="item in params" :value="item.value">{{item.label}}</i-option>
+            </i-select>
+            <i-select style="width: 150px;" :model.sync="param.func">
+                <i-option value="清历史数据">0x01:清历史数据</i-option>
+                <i-option value="终端重启">0x02:终端重启</i-option>
+                <i-option value="进入标定流程">0x03:进入标定流程(传感器上电)</i-option>
+                <i-option value="退出标定流程">0x04:退出标定流程(关闭传感器持续供电)</i-option>
+                <i-option value="终端发送数据类型">0x05:终端发送数据类型</i-option>
+                <i-option value="设置除湿目标值">0x06:设置除湿目标值</i-option>
+                <i-option value="设置除湿时间">0x07:设置除湿时间</i-option>
+                <i-option value="终端传感器预热时间">0x08:终端传感器预热时间</i-option>
+                <i-option value="清除标定数据">0x09:清除标定数据</i-option>
+                <i-option value="终端全范围湿度补偿开关">0x0a:终端全范围湿度补偿开关</i-option>
+                <i-option value="终端校正数值开关">0x0b:终端校正数值开关</i-option>
+                <i-option value="终端全范围湿度补偿值">0x0c:终端全范围湿度补偿值</i-option>
+                <i-option value="终端循环发送帧数">0x0d:终端循环发送帧数</i-option>
+            </i-select>
+
+            <i-select style="width: 100px;"
+                      :model.sync="param.set_value" placeholder="参数值"
+                      v-if="param.func=='终端发送数据类型'">
+                <i-option value="0">显示AD值（VOC）</i-option>
+                <i-option value="1">显示ppb值(VOC)</i-option>
+                <i-option value="2">显示AD采样电压（VOC）</i-option>
+            </i-select>
+
+            <i-input style="width: 130px;"
+                     :value.sync="param.set_value" placeholder="参数值,以,分割多个"
+                     v-if="['设置除湿目标值','设置除湿时间','终端传感器预热时间','终端全范围湿度补偿值','终端循环发送帧数','终端全范围湿度补偿值'].indexOf(param.func)!==-1">
+            </i-input>
+
+            <i-select style="width: 100px;"
+                      :value.sync="param.set_value" placeholder="参数值"
+                      v-if="['终端全范围湿度补偿开关','终端校正数值开关'].indexOf(param.func)!==-1">
+                <i-option value="0">开启</i-option>
+                <i-option value="1">关闭</i-option>
+            </i-select>
+
+            <i-select :model.sync="param.set_unit" style="width: 70px"
+                      v-if="['设置除湿时间','终端传感器预热时间'].indexOf(param.func)!==-1">
+                <i-option value="second">秒</i-option>
+                <i-option value="minute">分钟</i-option>
+                <i-option value="hour">小时</i-option>
+            </i-select>
+        </div>
+
+        <div v-if="type=='30'">
+            <i-select :model.sync="param.c_model" style="width: 150px;">
+                <i-option value="停止">停止</i-option>
+                <i-option value="启动">启动</i-option>
+            </i-select>
+        </div>
+
+        <div v-if="type=='31'">
+            <i-select :model.sync="param.control" style="width:100px;">
+                <i-option v-for="item in params" :value="item.value">{{item.label}}</i-option>
+            </i-select>
+            <i-input :value.sync="param.min" style="width: 150px;"
+                     :placeholder="param.control=='humidity'?'调控值(30~70)': param.control=='lighting'?'调控值(0~100)':'调控值'"></i-input>
+
+        </div>
+
+        <div v-if="type=='32'">
+
+            <i-select :model.sync="param.control_inner" style="width:100px;">
+                <i-option v-for="item in params" :value="item.value">{{item.label}}</i-option>
+            </i-select>
+            序号:
+            <i-input :value.sync="param.c_order" placeholder="序号" style="width:60px;"></i-input>
+            调控值:
+            <i-input :value.sync="param.c_value" placeholder="调控值" style="width:150px;"></i-input>
+
+        </div>
+
+        <div v-if="type=='86'">
+            主动下发
+        </div>
+
+        <div v-if="type=='other'">
+            <i-input style="width:300px;" placeholder="请输入指令及参数" :value.sync="param.other"></i-input>
+        </div>
+        <div v-if="type=='replace'">
+            <i-select style="width:300px;" :model.sync="param.replace_no" filterable placeholder="替换为">
+                <i-option v-for="row in all_equips" :value="row.equip_no">{{ row.equip_no.slice(-11) }}
+                </i-option>
+            </i-select>
+        </div>
+    </div>
+
+</template>
+<script type="text/javascript">
+    Vue.component('param-data', {
+        template: '#param_data',
+        props: ['type', 'param', 'tree_list', 'no_support', 'all_equips'],
+        data: function () {
+            return {
+                img_list: [],
+                params: [
+                    {value: "humidity", label: window.get_param_unit_name('humidity').name},
+                    {value: "temperature", label: window.get_param_unit_name('temperature').name},
+                    {value: "voc", label: window.get_param_unit_name('voc').name},
+                    {value: "co2", label: window.get_param_unit_name('co2').name},
+                    {value: "light", label: window.get_param_unit_name('light').name},
+                    {value: "uv", label: window.get_param_unit_name('uv').name},
+                    {value: "organic", label: window.get_param_unit_name('organic').name},
+                    {value: "inorganic", label: window.get_param_unit_name('inorganic').name},
+                    {value: "sulfur", label: window.get_param_unit_name('sulfur').name},
+                    {value: "soil_temperature", label: window.get_param_unit_name('soil_temperature').name},
+                    {value: "soil_humidity", label: window.get_param_unit_name('soil_humidity').name},
+                    {value: "soil_conductivity", label: window.get_param_unit_name('soil_conductivity').name},
+                    {value: "cascophen", label: window.get_param_unit_name('cascophen').name},
+                    {value: "so2", label: window.get_param_unit_name('so2').name},
+                    {value: "no2", label: window.get_param_unit_name('no2').name},
+                    {value: "o3", label: window.get_param_unit_name('o3').name},
+                    {value: "oxygen", label: window.get_param_unit_name('oxygen').name},
+                    {value: "lighting", label: window.get_param_unit_name('lighting').name},
+                ]
+            }
+        },
+        methods: {
+            upload_img: function () {
+                var _this = this;
+                console.log(_this);
+                var upload = require('common/upload');
+                upload({
+                    data: {
+                        path: 'equip',
+                        width: 600,
+                        height: 400,
+                    },
+                    accept: 'image/jpg,image/jpeg,image/png',
+                    success: function (data) {
+                        if (data.error) {
+                            _this.$Message.error('上传失败');
+                            return;
+                        }
+                        _this.$Message.success('上传成功');
+                        _this.img_list.push(data.url);
+                        if (!window.temp_equip_imags) {
+                            window.temp_equip_imags = {};
+                        }
+                        if (!window.temp_equip_imags[_this.param.id]) {
+                            window.temp_equip_imags[_this.param.id] = [];
+                        }
+                        window.temp_equip_imags[_this.param.id].push(data.url);
+                    },
+                    error: function (data) {
+                        _this.$Message.error('上传失败');
+                    }
+                });
+            },
+            del_img: function (index) {
+                var _this = this;
+                this.img_list.splice(index, 1);
+                window.temp_equip_imags[_this.param.id].splice(index, 1);
+            }
+        }
+    });
+</script>
+
+
+
+<template id="router_template">
+
+    <div id="tree-container" style="min-height: 1000px;">
+
+    </div>
+
+</template>
+
+<script type="text/javascript">
+    Vue.component('router-info', {
+        template: '#router_template',
+        props: [],
+        data: function () {
+            return {
+                height: 1000,
+            };
+        },
+        methods: {
+            init: function (equip) {
+                console.log(equip);
+
+                var me = this;
+
+                var i = 0,
+                    duration = 750,
+                    root;
+                var width = $('.info-right').width() - 40, height = $('.info-left').height();
+                if (height < 1000) {
+                    height = 1000;
+                }
+                console.log(width, height);
+                var tree = d3.layout.tree()
+                    .size([height, width]);
+
+                var diagonal = d3.svg.diagonal()
+                    .projection(function (d) {
+                        return [d.y, d.x];
+                    });//设置连线点的变换器
+
+                var svg = d3.select("#tree-container").append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append("g")
+                    .attr("transform", "translate(40,0)");
+
+                $.get('/2.2.05_P001/base_api/env/equipments/topologic/topo_tree' + '?sensor_no=' + equip.equip_no.slice(-11), function (flare) {
+                    if (flare.error) {
+                        me.$Message.error(flare.error);
+                        return;
+                    }
+                    root = flare;
+                    root.x0 = 0;
+                    root.y0 = 0;
+
+                    console.log(root);
+
+                    function collapse(d) {
+                        if (d.children) {
+                            d._children = d.children;
+                            if (_.isArray(d._children)) {
+                                d._children.forEach(collapse);
+                            }
+                            // d.children = null;
+                        }
+                    }
+
+                    root.children.forEach(collapse);
+                    update(root);
+
+                    function update(source) {
+                        var nodes = tree.nodes(root).reverse(),
+                            links = tree.links(nodes);
+
+                        nodes.forEach(function (d) {
+                            d.y = d.depth * 180;
+                        });
+                        // Update the nodes…
+                        var node = svg.selectAll("g.node")
+                            .data(nodes, function (d) {
+                                return d.id || (d.id = ++i);
+                            });
+
+                        // Enter any new nodes at the parent's previous position.
+                        var nodeEnter = node.enter().append("g")
+                            .attr("class", "node")
+                            .attr("transform", function (d) {
+                                return "translate(" + source.y0 + "," + source.x0 + ")";
+                            })
+                            .on("click", click);
+
+                        nodeEnter.append("circle")
+                            .attr("r", 1e-6)
+                            .style("fill", function (d) {
+                                return d._children ? "lightsteelblue" : "#fff";
+                            });
+
+                        nodeEnter.append("text")
+                            .attr("x", function (d) {
+                                return d.children || d._children ? -10 : 10;
+                            })
+                            .attr("dy", ".35em")
+                            .attr("text-anchor", function (d) {
+                                return d.children || d._children ? "end" : "start";
+                            })
+                            .text(function (d) {
+                                return d.name;
+                            })
+                            .style("fill-opacity", 1e-6);
+
+                        // Transition nodes to their new position.
+                        var nodeUpdate = node.transition()
+                            .duration(duration)
+                            .attr("transform", function (d) {
+                                return "translate(" + d.y + "," + d.x + ")";
+                            });
+
+                        nodeUpdate.select("circle")
+                            .attr("r", 4.5)
+                            .style("fill", function (d) {
+                                return d._children ? "lightsteelblue" : "#fff";
+                            });
+
+                        nodeUpdate.select("text")
+                            .style("fill-opacity", 1);
+
+                        // Transition exiting nodes to the parent's new position.
+                        var nodeExit = node.exit().transition()
+                            .duration(duration)
+                            .attr("transform", function (d) {
+                                return "translate(" + source.y + "," + source.x + ")";
+                            })
+                            .remove();
+
+                        nodeExit.select("circle")
+                            .attr("r", 1e-6);
+
+                        nodeExit.select("text")
+                            .style("fill-opacity", 1e-6);
+
+                        // Update the links…
+                        var link = svg.selectAll("path.link")
+                            .data(links, function (d) {
+                                return d.target.id;
+                            });
+
+                        // Enter any new links at the parent's previous position.
+                        link.enter().insert("path", "g")
+                            .attr("class", "link")
+                            .attr("d", function (d) {
+                                var o = {x: source.x0, y: source.y0};
+                                return diagonal({source: o, target: o});
+                            });
+
+                        // Transition links to their new position.
+                        link.transition()
+                            .duration(duration)
+                            .attr("d", diagonal);
+
+                        // Transition exiting nodes to the parent's new position.
+                        link.exit().transition()
+                            .duration(duration)
+                            .attr("d", function (d) {
+                                var o = {x: source.x, y: source.y};
+                                return diagonal({source: o, target: o});
+                            })
+                            .remove();
+
+                        // Stash the old positions for transition.
+                        nodes.forEach(function (d) {
+                            d.x0 = d.x;
+                            d.y0 = d.y;
+                        });
+
+                    }
+
+                    function click(d) {
+                        console.log(d);
+                        if (d.children) {
+                            d._children = d.children;
+                            d.children = null;
+                        } else {
+                            d.children = d._children;
+                            d._children = null;
+                        }
+                        update(d);
+                    }
+
+                });
+
+
+            }
+        }
+    });
+</script>
+
+
+<!-- 基于iview公共筛选组件 -->
+<!-- 后期全部替换为这个筛选组件 -->
+
+<!-- 使用地方 -->
+<!-- 1、设备管理 -->
+<style type="text/css">
+    .filterContainer {
+        width: 250px;
+        height: 28px;
+        border: 1px solid #dedede;
+        border-radius: 5px;
+        padding: 0 5px 0 5px;
+        position: relative;
+    }
+
+    .filterContainer .search_key {
+        line-height: 26px;
+        width: 160px;
+        height: 26px;
+        border: none;
+        outline: none;
+        display: inline-block;
+        margin: 0;
+        vertical-align: top;
+    }
+
+    .filterContainer .search_icon {
+        cursor: pointer;
+        margin-top: 2px;
+        position: absolute;
+        right: 50px;
+    }
+
+    .filterContainer .search_icon:hover {
+        color: #1bbc9b;
+    }
+
+    .filterContainer .screening {
+        color: #1bbc9b;
+        font-size: 14px;
+        text-align: center;
+        width: 40px;
+        line-height: 22px;
+        border-left: 1px solid #dedede;
+        cursor: pointer;
+        position: absolute;
+        right: 2px;
+        top: 2px;
+    }
+
+    .filterContainer .searchSuggest {
+        position: absolute;
+        top: 35px;
+        left: 0;
+        background-color: #fff;
+        z-index: 99999;
+        border-radius: 3px;
+        box-shadow: -1px 1px 3px 1px #ccc;
+        font-size: 12px;
+        color: #666;
+        right: 0;
+        overflow: hidden;
+    }
+
+    .filterContainer .searchSuggest .listWrap {
+        /*border:1px solid red;*/
+        /*max-height:160px;*/
+        margin: 0 auto;
+        overflow: auto;
+    }
+
+    .filterContainer .searchSuggest .listWrap ul li {
+        cursor: pointer;
+        padding-left: 10px !important;
+        color: #5b6272;
+        line-height: 30px;
+    }
+
+    .filterContainer .searchSuggest .listWrap ul li:hover {
+        background-color: #1bbc9b;
+        color: #fff;
+    }
+
+    .filterContainer .searchSuggest .clear {
+        font-style: normal;
+        height: 26px;
+        text-align: center;
+        line-height: 24px;
+        /*width: 80px;*/
+        /*margin: 0 auto;*/
+        cursor: pointer;
+        position: relative;
+    }
+
+    .screeningContent {
+        height: 470px;
+        border: 1px solid #dedede;
+        border-radius: 5px;
+        background-color: #ffffff;
+        position: absolute;
+        top: 35px;
+        left: 0;
+        z-index: 999;
+    }
+
+    .screeningContent .left-title {
+        height: 40px;
+        line-height: 40px;
+        font-weight: 600;
+        padding-left: 20px;
+    }
+
+    .screeningContent .left-tree {
+        height: 430px;
+        overflow: scroll;
+        position: relative;
+    }
+
+    /*环境树样式覆盖*/
+
+    .screeningContent .left-tree .ivu-icon {
+        color: #1bbc9b;
+    }
+
+    .screeningContent .left-tree .ivu-tree-node-selected {
+        color: #fff;
+        background-color: #1bbc9b;
+        border-color: #1bbc9b;
+    }
+
+    .screeningContent .left-tree .ivu-tree li span.ivu-tree-switcher.ivu-tree-switcher-noop {
+        display: inline-block !important;
+    }
+
+    .screeningContent .left-tree .ivu-checkbox-checked .ivu-checkbox-inner {
+        border-color: #1bbc9b;
+    }
+
+    .screeningContent .left-tree .ivu-checkbox-checked:hover .ivu-checkbox-inner {
+        border-color: #1bbc9b;
+    }
+
+    .screeningContent .left-tree .ivu-checkbox-checked .ivu-checkbox-inner {
+        background-color: #1bbc9b;
+    }
+
+    .screeningContent .left-tree .ivu-checkbox-indeterminate .ivu-checkbox-inner {
+        background-color: #1bbc9b;
+        border-color: #1bbc9b;
+    }
+
+    .screeningContent .ivu-tree li {
+        line-height: 24px;
+    }
+
+    .equip-right-data {
+        height: 420px;
+        overflow-y: scroll;
+    }
+
+    .listCol-status {
+        clear: both;
+        width: 100%;
+    }
+
+    .listCol-left {
+        font-weight: 600;
+        width: 80px;
+        line-height: 35px;
+        text-align: center;
+    }
+
+    .listCol-right {
+        width: 540px;
+        height: auto;
+        line-height: 35px;
+    }
+
+    .listCol-left,
+    .listCol-right {
+        float: left;
+    }
+
+    .listCol-status-tags {
+        width: auto;
+        padding: 5px 8px;
+        /* border: 1px solid red; */
+        border-radius: 4px;
+        margin-right: 10px;
+        cursor: pointer;
+        display: inline-block;
+        line-height: 20px;
+    }
+
+    .listCol-status-tags:hover,
+    .tagActive {
+        background: #1bbc9b;
+        color: #ffffff;
+    }
+
+    .listCol-status-tags:hover {
+        opacity: 0.8;
+    }
+
+    .listCol-data-bar {
+        width: calc(100% - 30px);
+        height: auto;
+        line-height: 35px;
+        border-bottom: 1px solid #eaeaea;
+    }
+
+    .listCol-data-bar:last-child {
+        border-bottom: none;
+    }
+
+    .listCol-data {
+        width: 100%;
+        height: auto;
+        float: left;
+    }
+
+    .screeningButton {
+        text-align: right;
+    }
+
+    .screeningButton button {
+        position: relative;
+        top: -5px;
+    }
+
+    .screeningButton button:first-child {
+        margin-left: 10px;
+        margin-right: 5px;
+    }
+
+    .screeningButton button:nth-child(2) {
+        margin-left: 5px;
+        margin-right: 20px;
+    }
+
+    .numberReset {
+        height: 28px;
+        position: absolute;
+        right: -100px;
+        bottom: -5px;
+        font-size: 14px;
+    }
+
+    .numberReset.span {
+        display: block;
+        margin-right: 5px;
+    }
+
+</style>
+<template id="newFilterComponent">
+    <div class="filterContainer">
+
+        <input class="search_key" type="text" :placeholder="placeholder" v-model="search_data.key"
+               @focus="show_history"
+               @keyup.esc="esc_history"
+               @keypress.enter="search_ok"
+               @click.stop>
+
+        <Icon class="search_icon" type="ios-search" size="22" @click.stop="search_ok"></Icon>
+
+        <span @click.stop="screening" class="screening">筛选</span>
+
+        <div class="overlay searchSuggest" v-show="show_history_key">
+            <div class="listWrap">
+                <ul>
+                    <li v-for="(index,item) in search_history" @click.stop="select_history(item)" v-text="item">
+                    </li>
+                </ul>
+            </div>
+            <div class="clear" @click.stop="clear_history">
+                <Icon type="trash-a" size="15"></Icon>
+                清空历史
+            </div>
+        </div>
+
+        <div :style="{width:screeing_width+'px'}" class="screeningContent" v-show="show_panel_key" @click.stop>
+            <Row>
+                <i-col v-show="show_env_tree" :span="show_env_tree?6:0">
+                    <div class="left-title">
+                        环境树
+                    </div>
+                    <div class="left-tree">
+                        <Tree :data="env_tree_data" multiple
+                              @on-check-change="check_env_no"
+                              v-ref:tree show-checkbox></Tree>
+                    </div>
+                </i-col>
+                <i-col :span="show_env_tree?18:24">
+                    <div class="equip-right-data">
+                        <div v-for="item in right_list">
+                            <div class="listCol-status" v-if="item.type=='status'">
+                                <div class="listCol-left" v-text="item.name"></div>
+                                <div class="listCol-right">
+                                <span class="listCol-status-tags"
+                                      :class="{tagActive:tag_active(item.key,row.name)}"
+                                      @click.stop="tag_click(item.key,$event,row.name)"
+                                      v-for="row in item.data" v-text="row.name + ' ' + row.count"></span>
+                                </div>
+                            </div>
+                            <div class="listCol-data" v-if="item.type=='type_all'">
+                                <div class="listCol-left" v-text="item.name"></div>
+                                <div class="listCol-right">
+                                    <div class="listCol-data-bar" v-for="(index,rows) in item.data">
+                                    <span class="listCol-status-tags listCol-status-all-tags"
+                                          :class="{tagActive:tag_all_active(item.key,rows)}"
+                                          @click.stop="tag_all_click(item.key,$event,rows)">{{'所有' + index + ' ' + get_tag_length(rows)}}</span>
+                                        <span class="listCol-status-tags"
+                                              :class="{tagActive:tag_active(item.key,elem.name)}"
+                                              @click.stop="tag_click(item.key,$event,elem.name)"
+                                              v-for="(i,elem) in rows">{{elem.name + ' ' + elem.count}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="listCol-status" v-if="item.type=='datetimerange'">
+                                <div class="listCol-left" v-text="item.name"></div>
+                                <div class="listCol-right">
+                                    <Date-picker type="datetimerange" :value.sync="search_data.param[item.key]"
+                                                 format="yyyy-MM-dd HH:mm" @on-change="change_time(item.key)"
+                                                 :options="datetime_options"
+                                                 placeholder="选择日期和时间" style="width: 300px"></Date-picker>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="screeningButton">
+                        <i-button type="primary" @click.stop="search_ok">确认筛选</i-button>
+                        <i-button @click.stop="search_cancel">取消</i-button>
+                    </div>
+                </i-col>
+            </Row>
+        </div>
+        <div class="numberReset">
+            <span>{{filter_num + ' '}}项筛选</span>
+            <a href="javascript:void(0);" @click.stop="clear_search">清空</a>
+        </div>
+    </div>
+</template>
+<script type="text/javascript">
+    Vue.component('new-filter-component', {
+        template: '#newFilterComponent',
+        props: ['search', 'placeholder'],
+        data: function () {
+            return {
+                show_panel_key: false,//筛选框show
+                show_history_key: false,//搜索历史
+                screeing_width: 850,
+
+                filter_num: 0,//选择项数，默认0
+                show_env_tree: true,
+                env_tree_data: [],//环境树数据
+
+                //外部数据
+                right_list: [],//右侧选项
+                search_data: {
+                    key: '',//输入框value
+                    env_no: [],//选中的环境编号
+                    param: {}//右侧选择的参数
+                },
+                search_history: [],//搜索历史
+                datetime_options: {
+                    shortcuts: [
+                        {
+                            text: '今天',
+                            value: function () {
+                                var start = new Date().setHours(0, 0, 0);
+                                var end = new Date().setHours(23, 59, 59);
+                                return [start, end];
+                            }
+                        },
+                        {
+                            text: '最近7天',
+                            value: function () {
+                                var start = new Date();
+                                var end = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+                                return [start.setHours(0, 0, 0), end.setHours(23, 59, 59)];
+                            }
+                        },
+                        {
+                            text: '最近30天',
+                            value: function () {
+                                var start = new Date();
+                                var end = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+                                return [start.setHours(0, 0, 0), end.setHours(23, 59, 59)];
+                            }
+                        },
+                        {
+                            text: '最近90天',
+                            value: function () {
+                                var start = new Date();
+                                var end = new Date();
+                                start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+                                return [start.setHours(0, 0, 0), end.setHours(23, 59, 59)];
+                            }
+                        }
+                    ],
+                    disabledDate: function (date) {
+                        return date && date.valueOf() > Date.now();
+                    }
+                }
+            }
+        },
+        methods: {
+            init: function (search_data, getList) {
+                var _this = this;
+                // console.log(search_data);
+                search_data = _.defaults(search_data, {
+                    right_list: [],
+
+                    key: '',
+                    env_no: [],
+                    param: {},
+
+                    history: [],
+                    save_history_func: function () {
+                    },
+
+                    show_env_tree: true,
+                });
+                // var right_row = {
+                //     type: 'status/type_all',
+                //     key: 'status',
+                //     name: '状态',
+                //     data: data
+                // };
+                _this.right_list = search_data.right_list;
+
+                _.each(_this.right_list, function (row) {
+                    if (!search_data.param[row.key]) {
+                        search_data.param[row.key] = [];
+                    }
+                });
+                _this.search_data = {
+                    key: search_data.key,
+                    env_no: search_data.env_no,
+                    param: search_data.param
+                };
+                _this.search_history = search_data.history;
+
+                _this.save_history_func = search_data.save_history_func;
+                _this.show_env_tree = search_data.show_env_tree;
+                if (!_this.show_env_tree) {
+                    _this.screeing_width = 640;
+                }
+
+                _this.get_env_tree();//获取环境树数据
+                _this.filter_num_count();//计算筛选项
+                getList && getList();
+            },
+            screening: function () {
+                this.show_panel_key = !this.show_panel_key;
+            },
+            show_history: function () {
+                if (this.search_history.length) {
+                    this.show_history_key = true;
+                }
+            },
+            hide_history: function () {
+                var _this = this;
+                setTimeout(function () {
+                    _this.show_history_key = false;
+                }, 0);
+            },
+            select_history: function (text) {
+                this.search_data.key = text;
+                this.search_ok();
+            },
+            esc_history: function (e) {
+                var target = e.srcElement || e.target;
+                target && target.blur();
+                this.hide_history();
+            },
+            clear_history: function () {
+                var _this = this;
+                _this.search_history = [];
+                _this.save_history_func && _this.save_history_func([]);
+                console.log(JSON.stringify(_this.search_history));
+                _this.show_history_key = false;
+            },
+            get_env_tree: function () {//获取环境树数据
+                var _this = this;
+                if (!_this.show_env_tree) {
+                    return;
+                }
+                $.get('/2.2.05_P001/base_api/base/envs/tree/?inc_self=1', function (data) {
+                    _this.env_tree_data = makeTree(data);
+                });
+
+                //生成环境树方法
+                function makeTree(data) {
+                    var result = [];
+                    _.each(data, function (item, index) {
+                        var node = {
+                            title: item.name,
+                            children: [],
+                            env_no: item.env_no,
+                            type: item.type,
+                            expand: false
+                        };
+                        if (item.type === '楼栋' || item.type === '楼层') {
+                            node.expand = true;
+                        }
+                        if (item.children && item.children.length !== 0) {
+                            node.children = makeTree(item.children);
+                        }
+                        if (_.contains(_this.search_data.env_no, node.env_no)) {
+                            node.checked = true;
+                        }
+                        result.push(node);
+                    });
+
+                    return result;
+                }
+            },
+            check_env_no: function (e) {
+                var _this = this;
+                var _env_no = [];
+                _.each(_this.$refs.tree.getCheckedNodes(), function (elem) {
+                    _env_no.push(elem.env_no);
+                });
+                _this.search_data.env_no = _env_no;
+                this.filter_num_count();
+            },
+            tag_active: function (key, val) {
+                var _this = this;
+                if (!_this.search_data.param[key]) {
+                    _this.search_data.param[key] = [];
+                }
+                var _active = _.contains(_this.search_data.param[key], val);
+                // console.log('tag_active', _active, _this.search_data.param[key], val);
+                return _active;
+            },
+            tag_all_active: function (key, rows) {
+                var _this = this;
+                var all_val = _.pluck(rows, 'name');
+                //计算差值，取得哪些没有选
+                var _active = !_.difference(all_val, _this.search_data.param[key]).length;
+                // console.log('tag_all_active', _active, _this.search_data.param[key], all_val);
+                return _active;
+            },
+            tag_click: function (key, e, val) {//点击标签
+                var _this = this;
+                var _active = _.contains(_this.search_data.param[key], val);
+                if (!_active) {
+                    _this.search_data.param[key].push(val);
+                    //$(e.srcElement).addClass('tagActive');
+                } else {
+                    _this.search_data.param[key] = _.without(_this.search_data.param[key], val);
+                    //$(e.srcElement).removeClass('tagActive');
+                }
+                console.log('tag_click', e, _active, val, _this.search_data.param[key]);
+                this.filter_num_count();
+                _this.search_data.param = _.extend({}, _this.search_data.param);
+            },
+            tag_all_click: function (key, e, rows) {//点击所有标签
+                var _this = this;
+                var all_val = _.pluck(rows, 'name');
+                if (!$(e.srcElement).hasClass('tagActive')) {
+                    _this.search_data.param[key] = _.union(_this.search_data.param[key], all_val);
+                } else {
+                    _this.search_data.param[key] = _.difference(_this.search_data.param[key], all_val);
+                }
+                this.filter_num_count();
+            },
+            search_ok: function (e) {//确定
+                var _this = this;
+                if (e) {
+                    var target = e.srcElement || e.target;
+                    target && target.blur();
+                }
+                var _env_no = [];
+                _.each(_this.$refs.tree.getCheckedNodes(), function (elem) {
+                    _env_no.push(elem.env_no);
+                });
+                _this.search_data.env_no = _env_no;
+
+                if (_this.search_data.key) {
+                    if (!_.contains(_this.search_history, _this.search_data.key)) {
+                        _this.search_history.unshift(_this.search_data.key);
+                        //如果当前查询建议个数是9个,删除最早的一项
+                        if (this.search_history.length >= 9) {
+                            this.search_history.pop();
+                        }
+                    }
+                    _this.save_history_func && _this.save_history_func(this.search_history);
+                }
+                _this.filter_num_count();//计算筛选项
+                _this.show_panel_key = false;//关闭screen
+                var search_data = _.extend({}, _this.search_data);
+                // console.log(search_data);
+                _.each(_this.right_list, function (row) {
+                    if (row.type === 'datetimerange') {
+                        var time = search_data.param[row.key];
+                        if (time[0]) {
+                            search_data.param[row.key][0] = parseInt(new Date(time[0]).getTime() / 1000);
+                        }
+                        if (time[1]) {
+                            search_data.param[row.key][1] = parseInt(new Date(time[1]).getTime() / 1000);
+                        }
+                    }
+                });
+
+                _this.search(search_data);
+            },
+            search_cancel: function () {
+                this.show_panel_key = false;
+            },
+            get_tag_length: function (rows) {
+                var size = 0;
+                _.each(rows, function (row) {
+                    size += row.count;
+                });
+                return size;
+            },
+            filter_num_count: function () {
+                var _this = this;
+                var num = _this.search_data.env_no.length;
+                _.each(_this.search_data.param, function (val, key) {
+                    num += _.size(val);
+                });
+                this.filter_num = num;
+            },
+            clear_search: function () {
+                var _this = this;
+                _this.search_data.key = "";
+                _this.search_data.env_no = [];
+                _.each(_this.search_data.param, function (row, key) {
+                    _this.search_data.param[key] = [];
+                });
+
+                _this.get_env_tree();
+                this.filter_num = 0;
+                var search_data=_.extend({},_this.search_data);
+                _this.search(search_data);
+            },
+            change_time: function (key) {
+                var _this = this;
+                var val = _this.search_data.param[key];
+                console.log(key, val);
+                var start_date = new Date(val[0]);
+                var end_date = new Date(val[1]);
+
+                if (!(end_date.getHours() + end_date.getMinutes() + end_date.getSeconds())) {
+                    _this.search_data.param[key].$set(0, start_date.getTime());
+                    _this.search_data.param[key].$set(1, end_date.setHours(23, 59, 59));
+                }
+                console.log(_this.search_data.param[key]);
+            }
+        },
+        events: {
+            hideOverlay: function () {
+                if (this.show_panel_key) {
+                    this.show_panel_key = false;
+                }
+                if(this.show_history_key){
+                    this.show_history_key = false;
+                }
+
+            }
+        }
+    });
+
+</script>
+
+

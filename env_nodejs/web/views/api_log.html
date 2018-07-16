@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>api log 仅保存30天</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorGrid'>
+</table>
+
+<div id="sensorTool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+
+        查询日期:<input type="text" name="log_date" id="log_date"/>
+
+        <button type="submit" class="easyui-linkbutton">查询</button>
+
+        <label for="near_total"><input type="checkbox" name="near_total" id="near_total" value="1"/>总记录数为近似值</label>
+        <label for="show_error"><input type="checkbox" name="show_error" id="show_error" value="1"/>提交错误的</label>
+
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+    function searchSensor() {
+        var json = {};
+
+        json.log_date = $('#log_date').datebox('getValue');
+        json.near_total = $('#near_total:checked').val();
+        json.show_error = $('#show_error:checked').val();
+
+        grid_init(json);
+
+    }
+
+    $('#log_date').val(new Date().Format('yyyy-MM-dd'));
+
+    $('#log_date').datebox({
+        onChange: function (nval, oval) {
+            searchSensor();
+        }
+    });
+
+    $(function () {
+        $('#near_total').click(searchSensor);
+        $('#show_error').click(searchSensor);
+        searchSensor();
+
+    });
+
+
+    function grid_init(json) {
+        if (grid_init.init) {
+            $('#sensorGrid').datagrid('load', json);
+            return;
+        }
+
+        $('#sensorGrid').datagrid({
+            url: 'sensor/apiList',
+            queryParams: json || {},
+            rownumbers: true,
+            pagination: true,
+            pagePosition: 'top',
+//        fitColumns: true,
+            fit: true,
+            pageSize: 10,
+            pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+            frozenColumns: [
+                [
+                    {
+                        field: 'start_time', width: 130, title: '开始时间',
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'exe_time', width: 80, title: '运行时间(ms)'
+                    }
+                ]
+            ],
+            columns: [
+                [
+                    {
+                        field: 'id', width: 100, title: 'ID'
+                    },
+                    {field: 'method', width: 50, title: 'method'},
+                    {field: 'uri', title: 'uri'},
+                    {
+                        field: 'json', title: 'json',
+                        formatter: function (value) {
+                            return '<textarea rows="5" cols="50">' + value + '</textarea>';
+                        }
+                    },
+                    {
+                        field: 'body', title: 'body',
+                        formatter: function (value) {
+                            return '<textarea rows="5" cols="50">' + value + '</textarea>';
+                        }
+                    }
+
+                ]
+            ],
+            toolbar: '#sensorTool'
+        });
+        grid_init.init = true;
+    }
+    grid_init.init = false;
+
+</script>
+</body>
+</html>

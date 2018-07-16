@@ -1,0 +1,29 @@
+<div class="header">
+    <div class="title cursor_pointer" @click="goBack">
+        <Icon type="chevron-left"></Icon>
+        报警列表
+    </div>
+    <div class="componentWrap">
+        <new-filter-component :search="search" v-ref:search placeholder="设备名称、设备ID"></new-filter-component>
+    </div>
+    <div class="right_area">
+
+    </div>
+</div>
+
+<div class="body">
+    <Spin fix v-show="spinShow">
+        <Icon type="load-c" size=18 class="demo-spin-icon-load"></Icon>
+        <div>加载中...</div>
+    </Spin>
+    <i-table class="i-data small_cell"
+             stripe ref="selection"
+             :columns="columns" :data="data"
+             :loading="loading_table">
+    </i-table>
+    <Page :page-size="limit" :current.sync="currentPage" @on-change='changePage' :total="total"
+          show-elevator show-total></Page>
+
+</div>
+
+__inline("/common/components/newFilterComponent.vue")

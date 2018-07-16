@@ -1,0 +1,68 @@
+<template id="environment_data">
+	<div class="data_content">
+		<div class="fliter_box">
+			<p>筛选条件 : 
+				<span v-for="obj in filter_conditions.environment" @click="filter('environment',obj.name,obj.env_no)">{{obj.name}}</span>
+				<span v-for="name in filter_conditions.equip" @click="filter('equip',name)">{{name}}</span>
+			</p>
+		</div>
+		<div class="original_data">
+			<table class="table">
+				<thead>
+					<td><p>时间</p></td>
+					<td class="cursor" @mouseenter="change('environment',$event)"  @mouseleave="change('environment',$event)"><p>环境<span class="dragImg"></span></p>
+						<ul v-show="environment" class="operation" transition="change" :style="{left:environmentLeft+'px'}">
+							<li v-for="(index,name) in env_name" @click="filter('environment',name,env_no_change[index])" track-by="$index">{{name}}</li>
+						</ul>
+					</td>
+					<td class="cursor" @mouseenter="change('equip',$event)"  @mouseleave="change('equip',$event)"><p>设备<span class="dragImg"></span></p>
+						<ul v-show="equip" class="operation" transition="change" :style="{left:equipLeft+'px'}">
+							<li class="hidden_function function">
+								<span class="floatL searchKey"></span>
+								<input type="text" placeholder="请输入设备编号" @keydown.enter="searchEquip" v-model="Equipment_serial_number"/>
+							</li>
+							<template v-for="(name,type) in equip_type">
+								<li v-for="name in type" @click="filter('equip',name)">{{name}}</li>
+							</template>
+						</ul>
+					</td>
+					<td>温度<br/><span>℃</span></td>
+					<td>相对湿度<br/><span>%</span></td>
+					<td>光照强度<br/><span>lx</span></td>
+					<td>紫外线强度<br/><span>μw/cm²</span></td>
+					<td>有挥发染物<br/><span>ppb</span></td>
+					<td>二氧化碳<br/><span>ppm</span></td>
+					<td>有机污染物<br/><span>Hz</span></td>
+					<td>无机污染物<br/><span>Hz</span></td>
+					<td>含硫污染物<br/><span>Hz</span></td>
+					<td>土壤温度<br/><span>°C</span></td>
+					<td>土壤湿度<br/><span>%</span></td>
+					<td>土壤含盐量<br/><span>%</span></td>
+				</thead>
+				<tbody>
+					<tr v-for="rows in table_data.rows">
+						<td>{{rows.equip_time}}</td>
+						<td>{{rows.env_name}}</td>
+						<td>{{rows.equip_no}}</td>
+						
+						<td>{{rows.new_data.temperature}}</td>
+						<td>{{rows.new_data.humidity}}</td>
+						<td>{{rows.new_data.light}}</td>
+						<td>{{rows.new_data.uv}}</td>
+						<td>{{rows.new_data.voc}}</td>
+						<td>{{rows.new_data.co2}}</td>
+						<td>{{rows.new_data.organic}}</td>
+						<td>{{rows.new_data.inorganic}}</td>
+						<td>{{rows.new_data.sulfur}}</td>
+
+						<td>{{rows.new_data.soil_temperature}}</td>
+						<td>{{rows.new_data.soil_humidity}}</td>
+						<td>{{rows.new_data.soil_salt}}</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="shadow"></div>
+		</div>
+		<page-list @turn-page="turnPage" :page.sync="data_params.page" :allPage.sync="allPage" :count="table_data.count"></page-list>
+	</div>
+</template>

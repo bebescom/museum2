@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>前端平台异常数据</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorGrid'>
+</table>
+
+<div id="sensorTool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+
+        设备编号No:<input class="easyui-textbox" type="text" name="no" id="no" value=""/>
+        <!--IP:<input size="10" type="text" name="ip" id="ip" value=""/>-->
+        接收起始时间：
+        <input type="text" size="16" class="easyui-datetimebox" name="ktime" id="ktime" value=""/>
+        接收结束时间：
+        <input type="text" size="16" class="easyui-datetimebox" name="dtime" id="dtime" value=""/>
+        <button type="submit" class="easyui-linkbutton">查询</button>
+        <label for="no_repeat"><input type="checkbox" name="no_repeat" id="no_repeat" value="1"/>去重设备编号</label>
+        <label for="near_total"><input type="checkbox" name="near_total" id="near_total" value="1"
+                                       checked/>总记录数为近似值</label>
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+
+    $(function () {
+//        var nowYear = new Date().getFullYear();
+//        for (var i = 2015; i <= nowYear; i++) {
+//            $('#year').append('<option value=' + i + '>' + i + '</option>');
+//        }
+//        $('#year').change(searchSensor).val(nowYear);
+        $('#ktime').datetimebox('setValue', new Date().Format('yyyy-MM') + '-01 00:00:00');
+        $('#no_repeat').click(searchSensor);
+        $('#near_total').click(searchSensor);
+        searchSensor();
+
+    });
+
+    function searchSensor() {
+        var json = {};
+        json.table = 'data_sensor_exception';
+        json.no = $('#no').textbox('getValue');
+        json.ip = '';//$('#ip').val();
+        json.no_repeat = $('#no_repeat:checked').val();
+        json.near_total = $('#near_total:checked').val();
+        json.ktime = $('#ktime').datetimebox('getValue');
+        json.dtime = $('#dtime').datetimebox('getValue');
+
+        $('#sensorGrid').datagrid({
+            url: 'sensor/sensorList',
+            queryParams: json || {},
+            rownumbers: true,
+            pagination: true,
+            pagePosition: 'top',
+//        fitColumns: true,
+            fit: true,
+            pageSize: 30,
+            pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+            remoteSort: false,
+            frozenColumns: [
+                [
+                    {
+                        field: 'server_time', width: 130, title: '服务器时间',
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {field: 'equip_no', width: 150, title: '设备编号(No)'}
+                ]
+            ],
+            columns: [
+                [
+                    {
+                        field: 'remark', width: 250, title: '异常信息'
+                    },
+                    {
+                        field: 'humidity', width: 100, title: '湿度 0x20 %'
+                    },
+                    {
+                        field: 'temperature', width: 100, title: '温度 0x21 ℃'
+                    },
+                    {
+                        field: 'voc', width: 100, title: 'VOC 0x23 ppb'
+                    },
+                    {
+                        field: 'co2', width: 100, title: 'CO2 0x24 ppm'
+                    },
+                    {
+                        field: 'light', width: 100, title: '光照 0x25 Lx'
+                    },
+                    {
+                        field: 'uv', width: 100, title: '紫外 0x26'
+                    },
+                    {
+                        field: 'organic', width: 100, title: '有机污染物 0x27'
+                    },
+                    {
+                        field: 'inorganic', width: 100, title: '无机污染物 0x28'
+                    },
+                    {
+                        field: 'sulfur', width: 100, title: '硫化污染物 0x29'
+                    },
+                    {
+                        field: 'canbi', width: 100, title: '参比 0x30'
+                    },
+                    {
+                        field: 'dip', width: 100, title: '倾角 0x2A'
+                    },
+                    {
+                        field: 'acceleration', width: 100, title: '加速度 0x2B'
+                    },
+                    {field: 'voltage', width: 120, title: '设备工作电压 0x01'},
+                    {field: 'rssi', width: 150, title: '无线接收信号强度 0x02'},
+                    {field: 'move_alert', width: 120, title: '移动报警 0x40'},
+                    {field: 'box_open_alert', width: 120, title: '囊匣打开报警 0x41'},
+                    {field: 'box_status', width: 100, title: '囊匣状态值 0x42'},
+                    {field: 'wind_speed', width: 100, title: '风速 0x43'},
+                    {field: 'wind_direction', width: 100, title: '风向 0x44'},
+                    {field: 'rain', width: 100, title: '雨量 0x45'},
+                    {field: 'air_presure', width: 100, title: '气压 0x46'},
+                    {field: 'PM10', width: 100, title: 'PM1.0 0x47'},
+                    {field: 'PM25', width: 100, title: 'PM2.5 0x48'},
+
+                    {field: 'soil_humidity', width: 100, title: '土壤含水率 0x49'},
+                    {field: 'soil_temperature', width: 100, title: '土壤温度 0x50'},
+                    {field: 'soil_conduitivity', width: 100, title: '土壤电导率 0x51'},
+
+                    {field: 'ip_port', width: 150, title: 'ip:port', align: 'right'},
+                    {
+                        field: 'equip_time', width: 130, title: '设备时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'server_time', width: 130, title: '服务器时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'php_time', width: 130, title: 'php时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'raw_data', title: '原始数据',
+                        formatter: function (value, row, index) {
+                            if (value) {
+                                return value.replace(/(.{2})/g, "$1 ");
+                            }
+                        }
+                    }
+                ]
+            ],
+            toolbar: '#sensorTool'
+        });
+
+    }
+
+
+</script>
+</body>
+</html>

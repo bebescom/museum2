@@ -1,0 +1,501 @@
+<template id="send_down_template">
+    <Modal
+            visible
+            title="批量设置"
+            :width="modal_width||900"
+            :mask-closable="false"
+            @on-cancel="cancel">
+        <div style="position: absolute;right:40px;z-index:1;top:13px;  cursor: pointer;">
+            <Icon size="24" :type="modal_width?'navicon':'drag'" data-title="切换弹出窗宽度，显示整个表数据"
+                  @click="modal_width_toggle"></Icon>
+        </div>
+        <div style="position: absolute;right:21px;z-index:1;" v-if="tab_ley=='history_key'">
+            <Checkbox :checked.sync="auto_load_history">自动(10s),<a href="javascript:void(0)" @click="get_history"
+                                                                   data-title="立即刷新">立即刷新</a>
+            </Checkbox>
+
+        </div>
+        <Tabs :animated="false" :active-key.sync="tab_ley" class="ivu-box">
+            <Tab-pane label="批量下发" key="set_key">
+
+                <i-form :model="formItem" :label-width="80" style="max-height:340px;overflow: scroll">
+
+                    <Form-item label="设备列表" style="margin-bottom: 10px;">
+                        <Row>
+                            <i-col span="24" style="height: inherit;">
+                                <i-select :model.sync="add_equips" @on-change="add_equip"
+                                          filterable multiple placeholder="请选择要添加的设备编号">
+                                    <i-option v-for="item in all_equips" :value="item.equip_no">
+                                        {{ item.equip_no.slice(8) }}
+                                    </i-option>
+                                </i-select>
+                            </i-col>
+                        </Row>
+                    </Form-item>
+                    <Form-item label="参数设置" style="margin-bottom: 10px;">
+                        <Row>
+                            <i-col span="12">
+                                <i-select :model.sync="instruct">
+                                    <Option-group label="基本设置">
+                                        <i-option value="01" selected>设置工作模式(0x01)</i-option>
+                                        <i-option value="02">设置休眠周期(0x02)</i-option>
+                                        <i-option value="03">设置系统时间(0x03)</i-option>
+                                        <i-option value="04">设置设备编号(0x04)</i-option>
+                                        <!--<i-option value="05">设置环境编号(0x05)</i-option>-->
+                                    </Option-group>
+                                    <Option-group label="调控设置">
+                                        <i-option value="30">设置调控模式(0x30)</i-option>
+                                        <i-option value="31">设置调控范围(0x31)</i-option>
+                                        <i-option value="32">设置调控内部参数(0x32)</i-option>
+                                    </Option-group>
+                                    <Option-group label="标定">
+                                        <i-option value="20">设备校正/设备标定(0x20)</i-option>
+                                    </Option-group>
+                                    <Option-group label="其他">
+                                        <i-option value="12">设置频率波特率(0x12)</i-option>
+										<i-option value="22">设置功能参数(0x22)</i-option>
+                                        <!--<i-option value="86">读取工作参数(0x86)</i-option>-->
+                                    </Option-group>
+                                </i-select>
+                            </i-col>
+                            <i-col span="6" align="center">
+                                <Checkbox :checked.sync="all_same">保持同步设备参数</Checkbox>
+                            </i-col>
+                        </Row>
+
+                    </Form-item>
+                    <Form-item label="参数值" style="margin-bottom: 10px;">
+
+                        <send-down-param :instruct.sync="instruct" :all_same="all_same" :param="all_param"
+                                         :show_20="true"></send-down-param>
+
+                    </Form-item>
+                    <Form-item label="下发方式" style="margin-bottom: 10px;">
+
+                        <Radio-group :model.sync="send_type">
+                            <Radio value="1">被动</Radio>
+                            <Radio value="2">主动(立即群发)</Radio>
+                        </Radio-group>
+
+                    </Form-item>
+                </i-form>
+                <Row>
+                    <i-table height="200" :columns="send_down_columns" :data="send_down_equip_data"
+                             border :content="self" size="small"
+                             @on-selection-change="selectionChange" keep-alive></i-table>
+                </Row>
+                <Row style="height:36px; margin-top:10px;">
+                    <i-col span="24" align="center" style="height:36px;">
+                        <i-button type="primary" size="large" @click="save">保存批量设置</i-button>
+                    </i-col>
+                </Row>
+
+            </Tab-pane>
+            <Tab-pane label="下发记录" key="history_key">
+                <div style="max-height:260px;overflow: scroll">
+                    <i-table :columns="send_history_columns" :data="send_history_data"
+                             border highlight-row size="small">
+
+                    </i-table>
+                </div>
+                <div style="padding-top: 10px;">
+                    <Page :total="history_count" :current.sync="history_page" :page-size.sync="history_limit"
+                          @on-change="get_history"
+                          @on-page-size-change="get_history"
+                          size="small"
+                          show-sizer show-total></Page>
+                </div>
+            </Tab-pane>
+            <Tab-pane label="修改设备" key="modify_equip">
+                <div class="modifyContainer">
+                    <Row>
+                        <i-col span="8" class="leftContainer">
+                            <header>
+                                <h3>选取设备</h3>
+                            </header>
+                            <section>
+                                <Alert v-if="!selEquipArr||selEquipArr.length===0" type="warning" show-icon>未勾选设备
+                                </Alert>
+                                <ul v-if="selEquipArr&&selEquipArr.length!==0" class="equipListContainer">
+                                    <li v-for="equip in selEquipArr" class="equipNoList">
+                                        {{equip}}
+                                    </li>
+                                </ul>
+                            </section>
+                        </i-col>
+                        <i-col span="8" class="centerContainer">
+                            <header>
+                                <h3>安装位置</h3>
+                            </header>
+                            <section>
+                                <p class="localName">
+                                    {{modifyObj.localName?modifyObj.localName:'请选择安装位置'}}
+                                </p>
+                                <div class="envTreeContainer">
+                                    <Tree :data="treeList" :show-checkbox="false" :multiple="false" track-by="$index"
+                                          @on-select-change="changeLocal"></Tree>
+                                </div>
+                            </section>
+                        </i-col>
+                        <i-col span="8" class="rightContainer">
+                            <header>
+                                <h3>设备状态</h3>
+                            </header>
+                            <section>
+                                <i-select :model.sync="modifyObj.status" style="width:100%">
+                                    <i-option v-for="item in statusList" :value="item" :label="item">
+                                        {{ item }}
+                                        <Tooltip style="white-space: normal;" content="提示内容" v-if="item==='启用'">
+                                            <div slot="content" style="white-space: normal;">
+                                                设备启用之后，系统会根据条件自动标注设备状态为：正常、低电、异常
+                                            </div>
+                                            <Icon type="information-circled"></Icon>
+                                        </Tooltip>
+                                    </i-option>
+                                </i-select>
+                            </section>
+                        </i-col>
+                    </Row>
+                </div>
+                <footer class="btnsContainer">
+                    <i-button shape="circle" type="ghost" @click="submitModify">确定修改</i-button>
+                </footer>
+            </Tab-pane>
+        </Tabs>
+
+        <div slot="footer">
+            <i-button @click="cancel">关闭</i-button>
+        </div>
+
+    </Modal>
+</template>
+
+
+<template id="send_down_param">
+    <div>
+        <Row v-if="instruct=='01'">
+            <i-col span="12" style="height: 32px">
+                <i-select :model.sync="param.model">
+                    <i-option value="休眠">休眠</i-option>
+                    <i-option value="工作">工作</i-option>
+                    <i-option value="校准">校准</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='02'">
+            <i-col span="10" style="height: 32px;">
+                <i-input style="width: 150px;" :value.sync="param.sleep_period"
+                         :placeholder="param.unit=='hour'?'休眠周期为1~55':'休眠周期为1~100'" @on-change=""></i-input>
+            </i-col>
+            <i-col span="5" style="height: 32px;">
+                <i-select :model.sync="param.unit">
+                    <i-option value="second">秒</i-option>
+                    <i-option value="minute">分钟</i-option>
+                    <i-option value="hour">小时</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='03'">
+            <i-col span="12" style="height: 32px;">
+                下发时同步系统时间
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='04'">
+            <i-col span="12" style="height: 32px;">
+                <i-input :value.sync="param.equip_no" placeholder="编号为11位数字(不包含博物馆编号)"></i-input>
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='05'">
+            <i-col span="12" style="height: 32px;">
+                <i-input :value.sync="param.area_no" placeholder="编号为10~19位"></i-input>
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='30'">
+            <i-col span="12" style="height: 32px;">
+                <i-select :model.sync="param.c_model">
+                    <i-option value="停止">停止</i-option>
+                    <i-option value="启动">启动</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='31'">
+            <i-col span="7" style="height: 32px;">
+                <i-select :model.sync="param.control" style="width:100px;">
+                    <i-option value="humidity">湿度</i-option>
+                    <i-option value="temperature">温度</i-option>
+                    <i-option value="lighting">灯光亮度</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="8" style="height: 32px;">
+                <i-input :value.sync="param.min"
+                         :placeholder="param.control=='humidity'?'调控值(30~70)': param.control=='lighting'?'调控值(0~100)':'调控值'"></i-input>
+            </i-col>
+            <i-col span="4" align="center" class="verticalMiddle" style="height: 32px;">
+                单位:{{ param.control=='temperature'?'℃':'%' }}
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='32'">
+            <i-col span="4" style="height: 32px;">
+                <i-select :model.sync="param.control_inner" style="width:60px;">
+                    <i-option value="humidity">湿度</i-option>
+                    <i-option value="temperature">温度</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="6" style="height: 32px;">序号:
+                <i-input :value.sync="param.c_order" placeholder="序号" style="width:60px;"></i-input>
+            </i-col>
+            <i-col span="9" style="height: 32px;">调控值:
+                <i-input :value.sync="param.c_value" placeholder="调控值" style="width:100px;"></i-input>
+            </i-col>
+            <i-col span="4" class="verticalMiddle" style="height: 32px;">
+                单位:{{ param.control_inner=='humidity'?'%':'℃' }}
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='20'">
+            <i-col span="8" style="height: 32px;">
+                <i-select :model.sync="param.correction" style="width: 100px;">
+                    <i-option value="humidity">湿度</i-option>
+                    <i-option value="temperature">温度</i-option>
+                    <i-option value="voc">VOC</i-option>
+                    <i-option value="co2">CO&#8322</i-option>
+                    <i-option value="uv">紫外强度</i-option>
+                    <i-option value="light">光照强度</i-option>
+                    <i-option value="organic">有机污染物</i-option>
+                    <i-option value="inorganic">无机污染物</i-option>
+                    <i-option value="sulfur">硫化污染物</i-option>
+                    <i-option value="soil_temperature">土壤温度</i-option>
+                    <i-option value="soil_humidity">土壤含水率</i-option>
+                    <i-option value="soil_conductivity">土壤电导率</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="16" style="height: 32px;">
+
+                <i-input :value.sync="param.crt_value" placeholder="Xmin,Xmax,Ymin,Ymax"
+                         style="width: 230px;">
+                    <span slot="prepend">校正值:</span>
+                </i-input>
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='20'&&show_20">
+            <i-col style="height: 32px;">
+                <label class="inline" style="font-size: 12px;color: #0000ff">
+                    <span>*</span>校正值为1个或者4~10个，多个值以逗号间隔
+                </label>
+            </i-col>
+        </Row>
+		<Row v-if="instruct=='22'">
+            <i-col span="8" style="height: 32px;">设置参数
+                <i-select :model.sync="param.parameter" style="width: 100px;">
+                    <i-option value="humidity">湿度</i-option>
+                    <i-option value="temperature">温度</i-option>
+                    <i-option value="voc">VOC</i-option>
+                    <i-option value="co2">CO&#8322</i-option>
+                    <i-option value="uv">紫外强度</i-option>
+                    <i-option value="light">光照强度</i-option>
+                    <i-option value="organic">有机污染物</i-option>
+                    <i-option value="inorganic">无机污染物</i-option>
+                    <i-option value="sulfur">硫化污染物</i-option>
+                    <i-option value="soil_temperature">土壤温度</i-option>
+                    <i-option value="soil_humidity">土壤含水率</i-option>
+                    <i-option value="soil_conductivity">土壤电导率</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="8" style="height: 32px;">功能参数:
+              <i-select :model.sync="param.func" style="width: 100px;">
+                    <i-option value="清历史数据">清历史数据</i-option>
+                    <i-option value="终端重启">终端重启</i-option>
+                    <i-option value="进入标定流程">进入标定流程</i-option>
+                    <i-option value="退出标定流程">退出标定流程</i-option>
+                    <i-option value="发AD值">发AD值</i-option>
+                    <i-option value="发ppb值">发ppb值</i-option>
+                    <i-option value="发电压">发电压</i-option>
+                    <i-option v-if="param.parameter=='humidity'" value="设置除湿目标值">设置除湿目标值</i-option>
+                    <i-option value="修正值">修正值</i-option>
+                    <i-option v-if="param.parameter=='humidity'" value="设置除湿时间">设置除湿时间</i-option>
+                   </i-select>
+            </i-col>
+			<i-col span="4" style="height: 32px;" v-if="param.func=='修正值'||param.func=='设置除湿目标值'||param.func=='设置除湿时间'">
+                <i-input :value.sync="param.set_value" placeholder="设定值"
+                         style="width: 125px;" >
+                    <span slot="prepend">设定值:</span>
+                 </i-input>
+            </i-col>
+            <i-col span="4" style="height: 32px;" >
+                <i-select :model.sync="param.set_unit" style="width: 80px" v-if="param.func=='设置除湿时间'">
+                    <i-option value="second">秒</i-option>
+                    <i-option value="minute">分钟</i-option>
+                    <i-option value="hour">小时</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='12'">
+            <i-col span="7" style="height: 32px;">频率:
+                <i-select :model.sync="param.f_rate" style="width: 50px;">
+                    <i-option value="0">0</i-option>
+                    <i-option value="1">1</i-option>
+                    <i-option value="2">2</i-option>
+                    <i-option value="3">3</i-option>
+                    <i-option value="4">4</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="17" style="height: 32px;">波特率:
+                <i-select :model.sync="param.b_rate" style="width: 50px;">
+                    <i-option value="0">0</i-option>
+                    <i-option value="1">1</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='86'">
+            <i-col span="6" style="height: 32px;">
+                主动下发
+            </i-col>
+        </Row>
+    </div>
+</template>
+
+<template id="table_send_down_param">
+    <div>
+        <Row v-if="instruct=='01'">
+            <i-col span="12" style="height: 32px">
+                <i-select :model.sync="model">
+                    <i-option value="休眠">休眠</i-option>
+                    <i-option value="工作">工作</i-option>
+                    <i-option value="校准">校准</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='02'">
+            <i-col span="10" style="height: 32px;">
+                <i-input style="width: 150px;" :value.sync="sleep_period"
+                         :placeholder="unit=='hour'?'休眠周期为1~55':'休眠周期为1~100'"></i-input>
+            </i-col>
+            <i-col span="5" style="height: 32px;">
+                <i-select :model.sync="unit">
+                    <i-option value="second">秒</i-option>
+                    <i-option value="minute">分钟</i-option>
+                    <i-option value="hour">小时</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='03'">
+            <i-col span="12" style="height: 32px;line-height: 32px;">
+                下发时同步系统时间
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='04'">
+            <i-col span="12" style="height: 32px;">
+                <i-input :value.sync="equip_no" placeholder="编号为11位数字(不包含博物馆编号)"></i-input>
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='05'">
+            <i-col span="12" style="height: 32px;">
+                <i-input :value.sync="area_no" placeholder="编号为10~19位"></i-input>
+            </i-col>
+        </Row>
+
+        <Row v-if="instruct=='30'">
+            <i-col span="12" style="height: 32px;">
+                <i-select :model.sync="c_model">
+                    <i-option value="停止">停止</i-option>
+                    <i-option value="启动">启动</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='31'">
+            <i-col span="7" style="height: 32px;">
+                <i-select :model.sync="control" style="width:100px;">
+                    <i-option value="humidity">湿度</i-option>
+                    <i-option value="temperature">温度</i-option>
+                    <i-option value="lighting">灯光亮度</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="8" style="height: 32px;">
+                <i-input :value.sync="min"
+                         :placeholder="control=='humidity'?'调控值(30~70)': param.control=='lighting'?'调控值(0~100)':'调控值'"></i-input>
+            </i-col>
+            <i-col span="4" align="center" class="verticalMiddle" style="height: 32px;">
+                单位:{{ control=='temperature'?'℃':'%' }}
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='32'">
+            <i-col span="4" style="height: 32px;">
+                <i-select :model.sync="control_inner" style="width:60px;">
+                    <i-option value="humidity">湿度</i-option>
+                    <i-option value="temperature">温度</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="6" style="height: 32px;">序号:
+                <i-input :value.sync="c_order" placeholder="序号" style="width:60px;"></i-input>
+            </i-col>
+            <i-col span="9" style="height: 32px;">调控值:
+                <i-input :value.sync="c_value" placeholder="调控值" style="width:100px;"></i-input>
+            </i-col>
+            <i-col span="4" class="verticalMiddle" style="height: 32px;">
+                单位:{{ control_inner=='humidity'?'%':'℃' }}
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='20'">
+            <i-col span="8" style="height: 32px;">
+                <i-select :model.sync="correction" style="width: 100px;">
+                    <i-option value="humidity">湿度</i-option>
+                    <i-option value="temperature">温度</i-option>
+                    <i-option value="voc">VOC</i-option>
+                    <i-option value="co2">CO&#8322</i-option>
+                    <i-option value="uv">紫外强度</i-option>
+                    <i-option value="light">光照强度</i-option>
+                    <i-option value="organic">有机污染物</i-option>
+                    <i-option value="inorganic">无机污染物</i-option>
+                    <i-option value="sulfur">硫化污染物</i-option>
+                    <i-option value="soil_temperature">土壤温度</i-option>
+                    <i-option value="soil_humidity">土壤含水率</i-option>
+                    <i-option value="soil_conductivity">土壤电导率</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="16" style="height: 33px;">
+
+                <i-input :value.sync="crt_value" placeholder="Xmin,Xmax,Ymin,Ymax"
+                         style="width: 230px;">
+                    <span slot="prepend">校正值:</span>
+                </i-input>
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='20'&&show_20">
+            <i-col style="height: 32px;">
+                <label class="inline" style="font-size: 12px;color: #0000ff">
+                    <span>*</span>校正值为1个或者4~10个，多个值以逗号间隔
+                </label>
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='12'">
+            <i-col span="7" style="height: 32px;">频率:
+                <i-select :model.sync="f_rate" style="width: 50px;">
+                    <i-option value="0">0</i-option>
+                    <i-option value="1">1</i-option>
+                    <i-option value="2">2</i-option>
+                    <i-option value="3">3</i-option>
+                    <i-option value="4">4</i-option>
+                </i-select>
+            </i-col>
+            <i-col span="17" style="height: 32px;">波特率:
+                <i-select :model.sync="b_rate" style="width: 50px;">
+                    <i-option value="0">0</i-option>
+                    <i-option value="1">1</i-option>
+                </i-select>
+            </i-col>
+        </Row>
+        <Row v-if="instruct=='86'">
+            <i-col span="6" style="height: 32px;">
+                主动下发
+            </i-col>
+        </Row>
+    </div>
+</template>

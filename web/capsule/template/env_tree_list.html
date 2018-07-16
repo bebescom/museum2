@@ -1,0 +1,450 @@
+<style>
+	.hideInput input{
+		display: none !important;
+	}
+    ul.env_tree_list>li>div:first-child input.show{
+        display: block;
+    }
+    ul.env_tree_list li.root{
+        padding-bottom:20px;
+    }
+    ul.env_tree_list li{
+        position:relative;
+        line-height: 26px;
+        cursor:pointer;
+        border-top: 1px solid #fff;
+    }
+    ul.env_tree_list span{
+        display: inline-block;
+		width: 24px;
+		height: 20px;
+		background: url(./images/environment_icon.png) no-repeat 0 -14px;
+		position: absolute;
+	    top: 5px;
+    }
+    ul.env_tree_list span.arrow{
+        background-position:8px -14px;
+        transition: all 0.3s;
+    }
+    ul.env_tree_list span.arrow.open{
+        transform: rotate(90deg);
+    }
+    ul.env_tree_list>li>div:first-child p{
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        padding-left: 60px;
+    }
+    ul.env_tree_list>li>div:first-child:hover input{
+        display: inline-block;
+        cursor:pointer;
+    }
+    ul.env_tree_list li input{
+	    width: 18px;
+	    height: 18px;
+	    position: absolute;
+	    left: 5px;
+	    top: 1px;
+    }
+    div.content ul.env_tree_list div.tree_item p.find{
+        color:#5a9e6d;
+        font-weight: bold;
+    }
+    .env_tree_list .status_box{
+		width: 24px;
+		position: absolute;
+		top: 0;
+		left: 22px;
+	    height: 21px;
+    }
+    
+    
+    div.楼栋{
+	    background: #DEDEDE;    
+	    font-size: 16px;
+    }
+    div.楼层{
+        background: #E7E8EA;	
+        font-size: 14px;
+    }
+    div.展厅{
+    	background: #F0F0F0;	
+	    font-size: 12px;
+    }
+    div.展柜{
+	    background: #fff;
+        font-size: 12px;
+        border-bottom: 1px solid #e7e8ea;
+    }
+    
+    div.楼层 .arrow{
+    	background-position: 8px -33px !important;
+    }
+    div.展厅 .arrow{
+    	background-position: 8px -52px !important;
+    }
+    div.checked{
+	    background: #45c7ad;
+    	color: #fff;
+    }
+    div.checked .arrow{
+    	background-position-x: -11px !important;
+    }
+    .env_tree_list  .icon{
+        width: 33px;
+        height: 33px;
+        display: inline-block;
+        position: absolute;
+        margin-left: 25px;
+        top: 0px;
+        /*margin-top: 10px;*/
+        /* border-radius: 50%; */
+        background: transparent url(../common/images/newTypeIcon.png) no-repeat;
+        /* border: 1px solid red; */
+    }
+
+    .env_tree_list  .icon.sensor_temperature_humidity,
+    .env_tree_list  .icon.温湿度监测终端{
+        background-position: 0 -560px;
+    }
+
+    .env_tree_list  .icon.sensor_offline_temperature_humidity,
+    .env_tree_list  .icon.手持式温湿度检测仪,
+    .env_tree_list  .icon.固定式温湿度检测仪{
+        background-position: 0 -665px;
+    }
+
+    .env_tree_list  .icon.sensor_temperature_humidity_with_screen,
+    .env_tree_list  .icon.带屏温湿度监测终端{
+        background-position: -35px -560px;
+    }
+
+    .env_tree_list  .icon.sensor_light_uv,
+    .env_tree_list  .icon.光照紫外监测终端{
+        background-position: -70px -560px;
+    }
+
+    .env_tree_list  .icon.sensor_offline_light_uv,
+    .env_tree_list  .icon.手持式光照紫外检测仪{
+        background-position: -70px -665px;
+    }
+
+    .env_tree_list  .icon.sensor_co2,
+    .env_tree_list .icon.二氧化碳监测终端{
+        background-position: -105px -560px;
+    }
+
+    .env_tree_list  .icon.sensor_offline_co2,
+    .env_tree_list  .icon.手持式二氧化碳检测仪{
+        background-position: -105px -665px;
+    }
+
+    .env_tree_list  .icon.sensor_formaldehyde,
+    .env_tree_list  .icon.有机挥发物检测仪{
+        /*VOC*/
+        background-position: -140px -560px;
+    }
+
+    .env_tree_list  .icon.sensor_offline_formaldehyde,
+    .env_tree_list  .icon.手持式有机挥发物检测仪{
+        /*离线VOC*/
+        background-position: -140px -665px;
+    }
+
+
+    .env_tree_list  .icon.甲醛检测仪,
+    .env_tree_list  .icon.手持式甲醛检测仪{
+        background-position: -385px -665px;
+    }
+
+    .env_tree_list  .icon.灯光调控终端{
+        background-position: -284px -700px;
+    }
+
+    .env_tree_list  .icon.sensor_voc,
+    .env_tree_list  .icon.有机挥发物监测终端 {
+        background-position: -140px -560px;
+    }
+
+    .env_tree_list  .sensor_offline_voc,
+    .env_tree_list  .手持式有机挥发物检测仪 {
+        background-position: -140px -665px;
+    }
+
+    .env_tree_list  .icon.sensor_qcm,
+    .env_tree_list  .icon.空气质量监测终端 {
+        background-position: -175px -560px;
+    }
+
+    .env_tree_list  .icon.sensor_soil_temperature_humidity,
+    .env_tree_list  .icon.土壤温湿度监测终端 {
+        background-position: -315px -560px;
+    }
+
+    .env_tree_list  .icon.sensor_security,
+    .env_tree_list  .icon.安防监测终端 {
+        background-position: -350px -560px;
+    }
+
+    .env_tree_list  .icon.sensor_shock,
+    .env_tree_list  .icon.震动监测终端 {
+        background-position: -210px -560px;
+    }
+
+    .env_tree_list  .icon.network_gateway,
+    .env_tree_list  .icon.网关 {
+        background-position: 0 -700px;
+    }
+
+    .env_tree_list  .icon.network_relay,
+    .env_tree_list  .icon.中继 {
+        background-position: -35px -700px;
+    }
+
+    .env_tree_list  .icon.controller_humidity_machine,
+    .env_tree_list  .icon.调湿机 {
+        background-position: -70px -700px;
+    }
+
+    .env_tree_list  .icon.controller_humidity_cabinet,
+    .env_tree_list  .icon.充氮调湿柜 {
+        background-position: -210px -700px;
+    }
+
+    .env_tree_list .icon.controller_humidity_agent,
+    .env_tree_list .icon.调湿剂 {
+        background-position: -105px -700px;
+    }
+
+    .env_tree_list .icon.sp_sensor_capsule,
+    .env_tree_list .icon.智能囊匣{
+        background-position: -175px -700px;
+    }
+    .env_tree_list .icon.智能展柜 {
+        background-position: -245px -700px;
+    }
+
+    /* #equipment  */
+</style>
+<!-- 树型环境列表组件 -->
+<template id="env_tree_list">
+    <div>
+        <ul class="env_tree_list" v-for="data in tree_list" track-by="$index">
+            <li @click="bubbling">
+                <div class="tree_item" :class="[changeName,{checked:sel_list.indexOf(data.env_no)!=-1 }]" :data-env="data.env_no" :data-env-name="data.name">
+                	<div class="status_box" @click="fold($event,key)">
+                		<span  class="arrow" v-if="data.children" :class="{'open':keyword==data.name||keyword==data.env_no}"></span>
+                	</div>
+                	<div @click="toggle($event,data.env_no,data.name)" :data-title="data.icon+'-' +data.env_no">
+                        <span class="icon " v-if="data.icon" :class="data.icon" :data-title="data.icon" style="top: 3px;"></span>
+                        <p :data-title="data.name" :class="{'find':keyword==data.name||keyword==data.env_no}">
+	                        {{data.name}}
+	                    </p>
+	                    <input type="checkbox" :name="data.name" class="rf" :data-name="data.name"  :data-env="data.env_no" :checked="sel_list.indexOf(data.env_no)!=-1" :class="{'show':sel_list.indexOf(data.env_no)!=-1}"/>
+                	</div>
+                </div>
+                <div v-show="keyword==data.name||keyword==data.env_no" v-if="data.children" class="child_menu">
+                    <tree-list :tree_list="data.children" :keyword="keyword" :sel_list.sync="sel_list" track-by="data.env_no" :session_key="session_key"></tree-list>
+                </div>
+            </li>
+        </ul>
+    </div>
+</template>
+<script>
+
+var check_memory_tree = function(value){
+    if(value){
+        $('input[data-env='+value+']')[0].click();
+    }
+};
+
+
+Vue.component('tree-list',{
+	data:function(){
+		return {
+			nameList:{
+				研究室:'展厅',
+				修复室:'展厅',
+				库房:'展厅',
+				安防展柜:'展柜',
+				存储柜:'展柜'
+			},
+            localNavName:'',
+            localNavNo:''
+		}
+	},
+    props:['tree_list','keyword','sel_list','session_key','area'],
+    template:'#env_tree_list',
+    created:function(){
+
+    },
+    ready:function(){
+        var tree_list_copy,
+            back_from_relic_detail,
+            me = this;
+
+//        如果本地有之前窗口选择的环境数据，则将其加载
+        if(JSON.parse(sessionStorage.getItem('tree_list_copy'))){
+            tree_list_copy = JSON.parse(sessionStorage.getItem('tree_list_copy'));
+        }
+        if(JSON.parse(sessionStorage.getItem('back_from_relic_detail'))){
+            back_from_relic_detail = JSON.parse(sessionStorage.getItem('back_from_relic_detail'));
+        }
+        if(tree_list_copy&&back_from_relic_detail){
+            tree_list_copy = tree_list_copy.split(',');
+            if(this.tree_list&&this.tree_list.length!=0){
+                this.tree_list.forEach(function(value,index){
+                    if(tree_list_copy.indexOf(value.env_no)!=-1){
+                        check_memory_tree(value.env_no);
+                        me.$dispatch('tree_checked');
+                    }
+                });
+            }
+        }
+    },
+    computed:{
+    	changeName:function(){
+    		var type=this.tree_list[0].type;
+			var asd='';
+			if(type==='楼栋'||type==='楼层'||type==='展厅'||type==='展柜'){
+				asd=type;
+			}else{
+				asd=this.nameList[type];
+			}
+			return asd;
+    	}
+    },
+    methods:{
+        toggle:function(e,env_no,env_name){												//选取与取消选取
+            var $input=$(e.currentTarget).children('input');
+            if(!($input.hasClass('show'))){
+                this.$dispatch('sel_env',env_no,$input,env_name);
+                //返回被选中环境的环境树
+	        	var target=e.target||e.srcElement;
+	        	var env_name_arr=[env_name];
+	        	$(target).parents('li.key').each(function(){
+	        		env_name_arr.push($(this).find('p')[0].innerHTML.trim());
+	        	});
+                this.$dispatch('full_name',env_name_arr);
+            }else{
+                this.$dispatch('un_sel_env',env_no,$input,env_name);
+            }
+        },
+        fold:function(e){//下拉
+        	var $currentTarget=$(e.currentTarget);
+            var el = $currentTarget.find('span')[0];
+            $currentTarget.parents('li').eq(0).toggleClass('key');
+            if(el&&el.tagName=='SPAN'){
+                $(el).toggleClass('open');
+                $(el).closest('div.tree_item').next('div').slideToggle('fast');
+            }else{
+                $(el).find('span.arrow').toggleClass('open');
+                $(el).closest('div.tree_item').next('div').slideToggle('fast');
+            }
+        },
+        load_tree:function(sel_env){
+            for(var i= 0,len=sel_env.length;i<len;i++){
+                var el = $('div.tree_item[data-env='+sel_env[i]+']');
+                load_tree(el);
+            }
+        },
+        bubbling:function(e){
+        	var element=e.target||e.srcElement;
+//      	setTimeout(function(){
+	        	if(element.tagName=='P'||element.tagName=='INPUT'){
+		        	var $currentTarget=$(e.currentTarget),
+		        		$parentsLi=$currentTarget.parents('li').eq(0);
+		        	if($parentsLi.hasClass('key'))return;
+		        	var status_box=$parentsLi.find('.status_box')[0];
+		        	status_box&&status_box.click();
+	        	}
+//      	},0);
+        },
+        memory_tree:function(tree_list){
+            var me = this;
+            if(tree_list&&this.tree_list){
+                tree_list.forEach(function(value,index){
+                    me.tree_list.forEach(function(n,i){
+                        if(n.env_no == value){
+                            $(me.$el).children().find('input[data-env='+value+']')[0].click();
+                        }
+                    });
+                });
+            }
+        }
+    },
+    events:{
+        env_full:function(el){
+            el
+                .attr('checked',false)
+                .toggleClass('show');
+        },
+        //事件用于处理多关键字查询列表动态展开的效果
+//        slide_child:function(){
+//            //将子菜单全部收起
+//            var item = $('ul.env_tree_list:not(.root)');
+//            item.find('div.tree_item').next('div').slideUp('fast');
+//            item.find('span.arrow').removeClass('open');
+//            var el;
+//            if($('div[data-env-name='+this.keyword+']').length!=0){
+//                el = $('div[data-env-name='+this.keyword+']');
+//            }else{
+//                el = $('div[data-env='+this.keyword+']');
+//            }
+//            load_tree(el);
+//        },
+        search:function(name,env_no){
+        	var key=true,This=this;
+        	this.tree_list.forEach(function(con,i){
+        		if(!key)return;
+        		if(con.name==name&&con.env_no==env_no){
+        			key=false;
+        			$(This.$el).children().eq(i).find('input')[0].click();
+        		}
+        	});
+        	return key;
+        },
+        memory_tree:function(tree_list){
+            var me = this;
+            if(tree_list&&this.tree_list){
+                tree_list.forEach(function(value,index){
+                    setTimeout(function(){
+                        $(me.$el).children().find('input[data-env='+value+']')[0].click();
+                    },0);
+                });
+            }
+        },
+        click_env:function(info){//设备管理跳转打开tree_list
+           console.log('执行一次',info);
+            var el = $(this.$el);
+            clickEl(info,el);
+            if (sessionStorage.getItem('save_env_no')){
+                sessionStorage.removeItem('save_env_no');
+            }
+        }
+    }
+});
+function load_tree(el){
+    if(el.length!=0){
+        var arr = el.parents('ul.env_tree_list:not(.root)').children('li').children('div.tree_item');
+        if(arr){
+            $.each(arr,function(i,n){
+                $(n).find('span.arrow').addClass('open');
+                $(n).next().slideDown('fast');
+            });
+        }
+    }
+}
+function clickEl(info,el){
+    var target = el.children().find('input[data-env='+info+']')[0];
+    if(target){
+        target.click();
+    }else{
+        setTimeout(function(){
+            clickEl(info,el);
+        },1000);
+    }
+}
+</script>
+
+

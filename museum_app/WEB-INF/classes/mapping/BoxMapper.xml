@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.mapper.BoxMapper">
+    <resultMap id="BaseResultMap" type="com.museum.pojo.Box">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="env_no" jdbcType="VARCHAR" property="envNo"/>
+        <result column="parent_env_no" jdbcType="VARCHAR" property="parentEnvNo"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="map" jdbcType="VARCHAR" property="map"/>
+        <result column="locate" jdbcType="VARCHAR" property="locate"/>
+        <result column="sort" jdbcType="INTEGER" property="sort"/>
+        <result column="size" jdbcType="VARCHAR" property="size"/>
+        <result column="volume" jdbcType="VARCHAR" property="volume"/>
+        <result column="alert_status" jdbcType="INTEGER" property="alertStatus"/>
+        <result column="box_status" jdbcType="INTEGER" property="boxStatus"/>
+        <result column="alert_param" jdbcType="VARCHAR" property="alertParam"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, env_no, parent_env_no, `name`, `type`, map, locate, sort, `size`, volume, alert_status,
+        box_status, alert_param
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from box
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 根据环境编号获取囊匣的信息 -->
+    <select id="findBoxByEnvNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from box
+        where env_no = #{envNo,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 获取所有嚢匣 -->
+    <select id="getBoxes"  resultMap="BaseResultMap">
+        select
+        env_no, parent_env_no, `name`, `type`
+        from box
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from box
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.museum.pojo.Box">
+        insert into box (id, env_no, parent_env_no,
+        name, type, map, locate,
+        sort, size, volume,
+        alert_status, box_status, alert_param
+        )
+        values (#{id,jdbcType=INTEGER}, #{envNo,jdbcType=VARCHAR}, #{parentEnvNo,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{map,jdbcType=VARCHAR}, #{locate,jdbcType=VARCHAR},
+        #{sort,jdbcType=INTEGER}, #{size,jdbcType=VARCHAR}, #{volume,jdbcType=VARCHAR},
+        #{alertStatus,jdbcType=INTEGER}, #{boxStatus,jdbcType=INTEGER}, #{alertParam,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.museum.pojo.Box">
+        insert into box
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="envNo != null">
+                env_no,
+            </if>
+            <if test="parentEnvNo != null">
+                parent_env_no,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="map != null">
+                map,
+            </if>
+            <if test="locate != null">
+                locate,
+            </if>
+            <if test="sort != null">
+                sort,
+            </if>
+            <if test="size != null">
+                size,
+            </if>
+            <if test="volume != null">
+                volume,
+            </if>
+            <if test="alertStatus != null">
+                alert_status,
+            </if>
+            <if test="boxStatus != null">
+                box_status,
+            </if>
+            <if test="alertParam != null">
+                alert_param,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="envNo != null">
+                #{envNo,jdbcType=VARCHAR},
+            </if>
+            <if test="parentEnvNo != null">
+                #{parentEnvNo,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="map != null">
+                #{map,jdbcType=VARCHAR},
+            </if>
+            <if test="locate != null">
+                #{locate,jdbcType=VARCHAR},
+            </if>
+            <if test="sort != null">
+                #{sort,jdbcType=INTEGER},
+            </if>
+            <if test="size != null">
+                #{size,jdbcType=VARCHAR},
+            </if>
+            <if test="volume != null">
+                #{volume,jdbcType=VARCHAR},
+            </if>
+            <if test="alertStatus != null">
+                #{alertStatus,jdbcType=INTEGER},
+            </if>
+            <if test="boxStatus != null">
+                #{boxStatus,jdbcType=INTEGER},
+            </if>
+            <if test="alertParam != null">
+                #{alertParam,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.museum.pojo.Box">
+        update box
+        <set>
+            <if test="envNo != null">
+                env_no = #{envNo,jdbcType=VARCHAR},
+            </if>
+            <if test="parentEnvNo != null">
+                parent_env_no = #{parentEnvNo,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                type = #{type,jdbcType=VARCHAR},
+            </if>
+            <if test="map != null">
+                map = #{map,jdbcType=VARCHAR},
+            </if>
+            <if test="locate != null">
+                locate = #{locate,jdbcType=VARCHAR},
+            </if>
+            <if test="sort != null">
+                sort = #{sort,jdbcType=INTEGER},
+            </if>
+            <if test="size != null">
+                size = #{size,jdbcType=VARCHAR},
+            </if>
+            <if test="volume != null">
+                volume = #{volume,jdbcType=VARCHAR},
+            </if>
+            <if test="alertStatus != null">
+                alert_status = #{alertStatus,jdbcType=INTEGER},
+            </if>
+            <if test="boxStatus != null">
+                box_status = #{boxStatus,jdbcType=INTEGER},
+            </if>
+            <if test="alertParam != null">
+                alert_param = #{alertParam,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.museum.pojo.Box">
+        update box
+        set env_no = #{envNo,jdbcType=VARCHAR},
+        parent_env_no = #{parentEnvNo,jdbcType=VARCHAR},
+        name = #{name,jdbcType=VARCHAR},
+        type = #{type,jdbcType=VARCHAR},
+        map = #{map,jdbcType=VARCHAR},
+        locate = #{locate,jdbcType=VARCHAR},
+        sort = #{sort,jdbcType=INTEGER},
+        size = #{size,jdbcType=VARCHAR},
+        volume = #{volume,jdbcType=VARCHAR},
+        alert_status = #{alertStatus,jdbcType=INTEGER},
+        box_status = #{boxStatus,jdbcType=INTEGER},
+        alert_param = #{alertParam,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

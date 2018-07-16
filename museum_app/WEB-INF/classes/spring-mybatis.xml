@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+    <!-- 自动扫描 -->
+    <context:annotation-config/>
+    <context:component-scan base-package="com.museum"/>
+    <!-- 通过扫描的模式，扫描目录在com.lanyuan.mapper目录下，所有的mapper都继承SqlMapper接口的接口， 这样一个bean就可以了 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.museum.mapper"/>
+    </bean>
+    <!-- 引入配置文件 -->
+    <!--<bean id="propertyConfigurer"-->
+    <!--class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >-->
+    <!--<property name="locations">-->
+    <!--<list>-->
+    <!--<value>classpath:sgdzl.ini</value>-->
+    <!--<value>file:D://sgdzl.ini</value>-->
+    <!--</list>-->
+    <!--</property>-->
+    <!--</bean>-->
+
+    <!-- museum_base的数据源 -->
+    <bean id="museum_base_dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://${MUSEUM_DB_HOST}:${MUSEUM_DB_PORT}/${MUSEUM_DB_NAME_PREFIX}_base?useUnicode=true&amp;characterEncoding=utf-8"/>
+        <property name="username" value="${MUSEUM_DB_USER}"/>
+        <property name="password" value="${MUSEUM_DB_PWD}"/>
+        <!-- 初始化连接大小 -->
+        <property name="initialSize" value="10"/>
+        <!-- 连接池最大使用连接数量 -->
+        <property name="maxActive" value="20"/>
+        <!-- 连接池最大空闲 -->
+        <property name="maxIdle" value="20"/>
+        <!-- 连接池最小空闲 -->
+        <property name="minIdle" value="5"/>
+        <!-- 获取连接最大等待时间 -->
+        <property name="maxWait" value="60000"/>
+        <property name="filters" value="stat,log4j"/>
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter"/>
+                <ref bean="log-filter"/>
+            </list>
+        </property>
+        <property name="useGlobalDataSourceStat" value="true"/>
+    </bean>
+
+    <!-- museum_env的数据源 -->
+    <bean id="museum_env_dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://${MUSEUM_DB_HOST}:${MUSEUM_DB_PORT}/${MUSEUM_DB_NAME_PREFIX}_env?useUnicode=true&amp;characterEncoding=utf-8"/>
+        <property name="username" value="${MUSEUM_DB_USER}"/>
+        <property name="password" value="${MUSEUM_DB_PWD}"/>
+        <!-- 初始化连接大小 -->
+        <property name="initialSize" value="10"/>
+        <!-- 连接池最大使用连接数量 -->
+        <property name="maxActive" value="20"/>
+        <!-- 连接池最大空闲 -->
+        <property name="maxIdle" value="20"/>
+        <!-- 连接池最小空闲 -->
+        <property name="minIdle" value="5"/>
+        <!-- 获取连接最大等待时间 -->
+        <property name="maxWait" value="60000"/>
+        <property name="filters" value="stat,log4j"/>
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter"/>
+                <ref bean="log-filter"/>
+            </list>
+        </property>
+        <property name="useGlobalDataSourceStat" value="true"/>
+    </bean>
+
+    <!-- museum_relic的数据源 -->
+    <bean id="museum_relic_dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://${MUSEUM_DB_HOST}:${MUSEUM_DB_PORT}/${MUSEUM_DB_NAME_PREFIX}_relic?useUnicode=true&amp;characterEncoding=utf-8"/>
+        <property name="username" value="${MUSEUM_DB_USER}"/>
+        <property name="password" value="${MUSEUM_DB_PWD}"/>
+        <!-- 初始化连接大小 -->
+        <property name="initialSize" value="10"/>
+        <!-- 连接池最大使用连接数量 -->
+        <property name="maxActive" value="20"/>
+        <!-- 连接池最大空闲 -->
+        <property name="maxIdle" value="20"/>
+        <!-- 连接池最小空闲 -->
+        <property name="minIdle" value="5"/>
+        <!-- 获取连接最大等待时间 -->
+        <property name="maxWait" value="60000"/>
+        <property name="filters" value="stat,log4j"/>
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter"/>
+                <ref bean="log-filter"/>
+            </list>
+        </property>
+        <property name="useGlobalDataSourceStat" value="true"/>
+    </bean>
+
+
+    <!-- 数据源综合 -->
+    <bean id="dataSource" class="com.museum.utils.dataSource.DynamicDataSource">
+        <!--默认数据源-->
+        <property name="defaultTargetDataSource" ref="museum_base_dataSource"/>
+        <property name="targetDataSources">
+            <map key-type="com.museum.utils.dataSource.DataSources">
+                <entry value-ref="museum_base_dataSource" key="BASE"/>
+                <entry value-ref="museum_env_dataSource" key="ENV"/>
+                <entry value-ref="museum_relic_dataSource" key="RELIC"/>
+            </map>
+        </property>
+    </bean>
+
+
+    <bean id="log-filter" class="com.alibaba.druid.filter.logging.Log4jFilter">
+        <property name="statementExecutableSqlLogEnable" value="true"/>
+    </bean>
+
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="slowSqlMillis" value="10000"/>
+        <property name="logSlowSql" value="true"/>
+    </bean>
+
+
+    <!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 自动扫描mapping.xml文件 -->
+        <property name="mapperLocations" value="classpath:mapping/*.xml"></property>
+    </bean>
+
+    <!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.museum.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    </bean>
+
+    <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+
+    <!-- 配置shiro的过滤器 -->
+    <!-- 当前对象用于创建shiro框架需要的过滤器对象 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!-- 注入安全管理器 -->
+        <property name="securityManager" ref="securityManager"></property>
+        <!-- 注入系统的登录访问路径 -->
+        <!-- 跳转到登录页面 -->
+        <property name="loginUrl" value="/loginFalse"></property>
+        <!-- 成功页面 -->
+        <property name="successUrl" value="main"></property>
+        <!-- 权限不足的错误提示页面 -->
+        <property name="unauthorizedUrl" value="/noAccess"></property>
+        <!-- 基于URL拦截权限控制 -->
+        <property name="filters">
+            <map>
+                <entry key="authc">
+                    <bean class="org.apache.shiro.web.filter.authc.PassThruAuthenticationFilter"/>
+                </entry>
+                <entry key="statelessAuthc">
+                    <bean class="com.museum.shiro.StatelessAuthcFilter">
+                    </bean>
+                </entry>
+            </map>
+        </property>
+        <!-- URL路径自上而下进行匹配 -->
+        <!-- anon过滤器处理原则 ：随便访问 authc需要进行权限认证 -->
+        <property name="filterChainDefinitions">
+            <value>
+                /login/**=anon
+                /druid/**= anon
+                /socketInfo.jsp/**= anon
+                /** =statelessAuthc
+            </value>
+        </property>
+    </bean>
+
+    <!--会话管理器-->
+    <bean id="sessionManager" class="org.apache.shiro.session.mgt.DefaultSessionManager">
+        <!--<property name="sessionValidationSchedulerEnabled" value="false"/>-->
+    </bean>
+    <!-- 定义安全管理器 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!-- 注入realm -->
+        <property name="realm" ref="MyRealm"></property>
+        <!-- 注入缓存管理器 -->
+        <property name="cacheManager" ref="cacheManager"></property>
+    </bean>
+
+    <!-- 注册缓存管理器 -->
+    <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <property name="cacheManagerConfigFile" value="classpath:ehcache.xml"></property>
+    </bean>
+
+
+    <!-- 自定义Realm -->
+    <bean id="MyRealm" class="com.museum.shiro.MyRealm"/>
+
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+    <!-- 使用shiro的注解需要的配置代码 -->
+    <!-- 开启shiro自动代理 -->
+    <bean
+            class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+            depends-on="lifecycleBeanPostProcessor">
+        <!-- 指定强制使用cglib为action创建代理对象 -->
+        <property name="proxyTargetClass" value="true"></property>
+    </bean>
+
+    <bean
+            class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="org.apache.shiro.authz.UnauthorizedException">redirect:/login.html</prop>
+            </props>
+        </property>
+    </bean>
+    <!-- 配置切面类 -->
+    <bean
+            class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"></property>
+    </bean>
+
+    <!-- 使用annotation定义事务 -->
+    <tx:annotation-driven/>
+</beans>  

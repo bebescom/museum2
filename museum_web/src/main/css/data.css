@@ -1,0 +1,436 @@
+#data {
+    width: 100%;
+    height: 50%;
+    position: relative;
+    top: 50%;
+    font-family: '微软雅黑';
+}
+
+#show_main {
+    background: url("../images/data/show_main.png") no-repeat;
+    width: 122px;
+    height: 58px;
+    position: absolute;
+    bottom: 0;
+    left: 36.64%;
+    cursor: pointer;
+    z-index: 999;
+}
+
+#data_scroll {
+    width: 99.5%;
+    height: calc(98% - 83px);
+    position: absolute;
+    bottom: 0;
+    overflow-y: auto;
+    padding: .5% 0 .5% .5%;
+    background: url('../../common/images/loading.gif') no-repeat center;
+}
+#data_scroll div[id^='data_']{
+    background: #F5F2DE url('../../common/images/loading.gif') no-repeat center;
+}
+.data_box {
+    position: relative;
+    float: left;
+    width: 32%;
+    height: 225px;
+    border: 1px solid #B1D3BA;
+    background: #F5F2DE;
+    margin: .5%;
+    min-width: 400px;
+}
+
+#data_empty.data_box {
+    background: #F5F2DE url("../images/data/add.png") no-repeat center;
+    cursor: pointer;
+}
+
+.data_box .title {
+    height: 42px;
+    line-height: 42px;
+    font-size: 16px;
+    color: #396f58;
+    text-indent: 15px;
+}
+
+.data_box .title .right {
+    font-size: 12px;
+    position: absolute;
+    right: 20px;
+    top: 0px;
+    cursor: pointer;
+}
+.data_box .right span{
+    display: none;
+}
+.data_box .right span:hover{
+    text-decoration: underline;
+}
+.data_box .box {
+    height: 183px;
+    opacity: 0;}
+
+/*
+微环境调控
+*/
+.micro_dt {
+    padding-top: 10px;
+    color: #616161;
+    font-size: 14px;
+}
+
+.micro_dt dt {
+    height: 25px;
+    line-height: 25px;
+    font-size: 16px;
+    text-indent: 11px;
+}
+
+.micro_dt dd {
+    height: 28px;
+    line-height: 28px;
+}
+
+.micro_dt dt .total {
+    color: #ff0000;
+}
+
+.micro_dt dt .rate {
+    color: #ed7d31;
+}
+
+.micro_dt dd i {
+    background: #6CCC87;
+    width: 2px;
+    height: 2px;
+    padding: 2px;
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 2px;
+}
+
+/*
+文物展出
+*/
+.relic_table {
+    width: 80%;
+    margin: 0 auto;
+    font-size: 15px;
+    text-align: center;
+}
+
+.relic_table thead {
+    color: #333;
+    font-size: 16px;
+    height: 40px;
+    line-height: 40px;
+}
+
+.relic_table tbody tr {
+    height: 28px;
+    line-height: 28px;
+    color: #647481;
+}
+#data_weather .icon_pm25{
+    background-position: -52px 0;
+}
+#data_weather .icon_co2{
+    background-position: -104px 0;
+}
+#data_weather .icon_wind_speed{
+    background-position: -156px 0;
+}
+#data_weather .icon_wind_direction{
+    background-position: -208px 0;
+}
+#data_weather .icon_light{
+    background-position: -260px 0;
+}
+#data_weather .icon_air_presure{
+    background-position: -312px 0;
+}
+#data_weather .icon_humidity{
+    background-position: -364px 0;
+}
+#data_weather .icon_temperature{
+    background-position: -416px 0;
+}
+#data_weather .icon_voc{
+    background-position: -468px 0;
+}
+#data_weather .icon_rain{
+    background-position: -520px 0;
+}
+#data_weather .icon_uv{
+    background-position: -572px 0;
+}
+
+/*
+气象站
+*/
+
+.weather_box {
+    color: #647481;
+    float: left;
+    height: 52px;
+    width: 52px;
+    font-size: 14px;
+    position: absolute;
+}
+.weather_box span{
+    position: absolute;
+    top: -40px;
+    width: 100%;
+    text-align: center;
+    background: #898762;
+    color: #fff;
+}
+.weather_box p{
+    display: inline-block;
+    text-align: center;
+    font-size: 12px;
+    width: 100%;
+    margin-top: 16px;
+}
+.weather_box div{
+    height: 100%;
+    border-radius: 15%;
+    background: url('../images/data/weather.png') no-repeat;
+}
+
+/*
+箱线图
+*/
+.humiture_switch {
+    float: left;
+    list-style: none;
+}
+
+.humiture_switch li {
+    display: inline-block;
+    color: #647481;
+    background: #D9D9D2;
+    text-indent: 0;
+    line-height: normal;
+    padding: 2px 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.humiture_switch li.active {
+    color: #fff;
+    background: #6FAA7F;
+}
+
+/*
+区域湿度稳定性
+*/
+
+#data_area_humidity .box,#data_follow .box{
+    height: 179px;
+    position: relative;
+    overflow: hidden;
+}
+
+.area_slide {
+    width: 7px;
+    height: 120px;
+    border-radius: 5px;
+    position: absolute;
+    right: 3px;
+    background: #C8C8C8;
+}
+
+.area_box {
+    width: 110%;
+    height: 180px;
+    overflow-y: auto;
+}
+
+.area_box ul {
+    list-style: none;
+}
+
+.area_box ul li {
+    clear: both;
+    height: 46px;
+    color: #647481;
+    overflow: hidden;
+}
+#data_follow li:hover p{
+    text-decoration: underline;
+}
+#data_area_humidity .area_box ul li {
+    padding-left: 35px;
+}
+
+.area_box p.name {
+    font-size: 13px;
+    height: 18px;
+}
+
+.area_box div.bg {
+    float: left;
+    width: 80%;
+    height: 7px;
+    overflow: hidden;
+    background: #DAD9D1;
+    border-radius: 3px;
+    margin-top: 5px;
+}
+
+.area_box div.bg i {
+    height: 100%;
+    background: #2595FB;
+    border-radius: 3px;
+    display: block;
+    width: 0;
+}
+/*((row.rate=='-')?'无数据':row.rate+'%')*/
+.area_box p.num {
+    float: left;
+    width: 20%;
+    text-indent: 5px;
+    font-size: 13px;
+}
+
+/*
+特别关注
+*/
+#data_follow .area_box{
+    width: 110%;
+}
+#data_follow .area_box ul {
+    list-style: none;
+    width: 91%;
+}
+
+#data_follow .area_box ul a{
+    width: 100%;
+    height: 52px;
+    margin: 2px 0 9px 14px;
+    display: inline-block;
+}
+
+#data_follow .area_box ul li{
+    display: inline-block;
+    height: 44px;
+    margin: 2px 0px 9px 14px;
+    width: 44%;
+}
+#data_follow .area_box ul li img {
+    float: left;
+    width: 41px;
+    height: 41px;
+    border: 1px solid #ACB2B5;
+    margin-right: 5px;
+}
+
+#data_follow .area_box ul li p {
+    width: 120px;
+    height: 43px;
+    line-height: 43px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    color: #5a9e6d;
+}
+.cover{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.3;
+    background: rgb(0,0,0);
+    z-index: 9998;
+}
+.showBox{
+    background: #ffffff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 640px;
+    height: 518px;
+    z-index: 9999;
+    text-align: center;
+}
+.showBox p :last-child{
+    font-family: 微软雅黑;
+    font-size: 23px;
+    color: rgb(90, 158, 109);
+    height: 55px;
+    text-align: center;
+    line-height: 55px;
+    display: block;
+}
+.showBox .close{
+    cursor: pointer;
+    padding: 10px;
+    float: right;
+    font-size: 21px;
+    background: url('../images/close.jpg') no-repeat center;
+    padding: 20px;
+}
+.time_box{
+    width: 481px;
+    margin: 0 auto;
+    text-align: left;
+    color: #647481;
+    font-size: 12px;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+}
+.time_box .laydate-icon{
+    font-size: 14px;
+    border-color: #bbb #ddd #ddd #bbb;
+    margin: 0 5px;
+    padding-left: 2%;
+    height: 23px;
+    line-height: 23px;
+    width: 145px;
+}
+.echartsArea{
+    height: calc(98% - 123px);
+    bottom: -21px;
+}
+.button{
+    line-height: 28px;
+    float: right;
+    padding: 0 13px;
+    cursor: pointer;
+    border: 1px solid;
+    margin-top: 4px;
+}
+.button:hover{
+    text-decoration: underline;
+}
+.showBox .humiture_switch{
+    position: absolute;
+    top: 94px;
+    left: 50%;
+    margin-left: -34px;
+    display: none;
+}
+#data_weather{
+    width: 65.2%;
+    min-width: 812px;
+    display: none;
+}
+#data_weather .box{
+    height: 118px;
+    opacity: 0;
+    padding-top: 65px;
+}
+#data_weather .wrap::after{
+    content:'';
+    display: block;
+    height: 0;
+    clear: both;
+    zoom: 1;
+}

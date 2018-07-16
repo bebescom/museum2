@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>解析数据</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="css/init.css" type="text/css">
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+
+</head>
+
+<body>
+
+<table id='sensorGrid'>
+</table>
+
+<div id="sensorTool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+        <a class="easyui-linkbutton" data-options="iconCls:'icon-chart'" id="grid"
+           href="grid.html#/_data_sensor" target="_blank">形成曲线图(勾选)</a>
+
+        设备编号No:<input class="easyui-textbox" type="text" name="no" id="no" value=""/>
+        <!--IP:<input size="10" type="text" name="ip" id="ip" value=""/>-->
+
+        时间排序：
+        <select class="easyui-combobox" name="time_type" id="time_type">
+            <option value="server_time">服务器时间</option>
+            <option value="equip_time">设备时间</option>
+        </select>
+        时间筛选：
+        <input type="text" size="16" class="easyui-datetimebox" name="ktime" id="ktime" value=""/>
+        -
+        <input type="text" size="16" class="easyui-datetimebox" name="dtime" id="dtime" value=""/>
+
+        <button type="submit" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</button>
+
+        <label for="no_repeat">
+            <input type="checkbox" name="no_repeat" id="no_repeat" value="1"/>去重设备编号
+        </label>
+        <label for="near_total">
+            <input type="checkbox" name="near_total" id="near_total" value="1" checked/>总记录数为近似值
+        </label>
+        &nbsp;
+        时间差值：<input class="easyui-textbox" type="text" size="1" name="diff_time" id="diff_time"> s
+
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+    var params = parseQueryString();
+    $(function () {
+        if (params['sensor_no']) {
+            $('#no').textbox('setValue', params['sensor_no']);
+        }
+        var sensor_local = store.session('sensor_local') || {};
+        $('#diff_time').textbox('setValue', sensor_local.diff_time || 600);
+        $('#ktime').datetimebox('setValue', sensor_local.ktime || new Date().Format('yyyy-MM') + '-01 00:00:00');
+        $('#dtime').datetimebox('setValue', sensor_local.dtime || '');
+        $('#no_repeat').click(searchSensor);
+        $('#near_total').click(searchSensor);
+        $('#time_type').change(searchSensor);
+
+        searchSensor();
+
+    });
+
+
+    function searchSensor() {
+        var json = {};
+        json.table = '_data_sensor';
+        json.no = $('#no').textbox('getValue');
+        json.ip = '';//$('#ip').val();
+        json.no_repeat = $('#no_repeat:checked').val();
+        json.near_total = $('#near_total:checked').val();
+        json.ktime = $('#ktime').datetimebox('getValue');
+        json.dtime = $('#dtime').datetimebox('getValue');
+        json.time_type = $('#time_type').combobox('getValue');
+        json.diff_time = $('#diff_time').textbox('getValue') || 600;
+
+        store.session('sensor_local', json);
+
+        var $this = this;
+
+        if ($this.init) {
+//            $('#sensorGrid').datagrid('load', json);
+//            return;
+        }
+
+        $('#sensorGrid').datagrid({
+            title: '解析数据,设备时间后面(d天/h小时/m分钟/s秒)为设备时间与服务器时间相差(时间差值)向下取整，可能是历史数据',
+            url: 'sensor/sensorList',
+            queryParams: json || {},
+            rownumbers: true,
+            pagination: true,
+            pagePosition: 'top',
+//        fitColumns: true,
+            fit: true,
+            pageSize: 30,
+            pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+            onSelect: function (index, row) {
+                set_env_equip_nos(row, true);
+            },
+            onUnselect: function (index, row) {
+                set_env_equip_nos(row, false);
+            },
+            onSelectAll: function (rows) {
+                set_env_equip_nos(rows, true);
+            },
+            onUnselectAll: function (rows) {
+                set_env_equip_nos(rows, false);
+            },
+            remoteSort: false,
+
+            frozenColumns: [
+                [
+                    {field: 'id', checkbox: true},
+                    {field: 'equip_no', width: 100, title: '设备编号(No)'},
+                    {
+                        field: 'equip_time', width: 170, title: '设备时间',
+                        formatter: function (value, row, index) {
+                            var etime = new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                            var ctime = row.server_time - row.equip_time;
+                            if (ctime > json.diff_time) {
+                                // etime += '<span style="background-color:' + COLOR.his + ';">';
+                                if (ctime > 24 * 3600) {
+                                    etime += "(" + parseInt(ctime / 24 / 3600) + "d)";
+                                } else if (ctime > 3600) {
+                                    etime += "(" + parseInt(ctime / 3600) + "h)";
+                                } else if (ctime > 60) {
+                                    etime += "(" + parseInt(ctime / 60) + "m)";
+                                } else {
+                                    etime += "(" + ctime + "s)";
+                                }
+                                // etime += '</span>';
+                            }
+                            return etime;
+                        }
+                    },
+                    {
+                        field: 'server_time', width: 150, title: '服务器时间',
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    }
+                ]
+            ],
+            columns: [
+                [
+                    {field: 'humidity', width: 80, title: '湿度 0x20'},
+                    {field: 'temperature', width: 80, title: '温度 0x21'},
+                    {field: 'voc', width: 80, title: 'VOC 0x23'},
+                    {field: 'co2', width: 80, title: 'CO2 0x24'},
+                    {field: 'light', width: 80, title: '光照 0x25'},
+                    {field: 'uv', width: 80, title: '紫外 0x26'},
+                    {field: 'organic', width: 100, title: '有机污染物 0x27'},
+                    {field: 'inorganic', width: 100, title: '无机污染物 0x28'},
+                    {field: 'sulfur', width: 100, title: '硫化污染物 0x29'},
+
+                    {field: 'voltage', width: 70, title: '电压 0x01'},
+                    {field: 'rssi', width: 90, title: '信号强度 0x02'},
+
+                    {
+                        field: 'move_alert', width: 180, title: '移动报警 0x40(0不报警,1报警)'
+                    },
+                    {
+                        field: 'box_open_alert', width: 200, title: '囊匣打开报警 0x41(0不报警,1报警)'
+                    },
+                    {
+                        field: 'box_status', width: 180, title: '囊匣状态值 0x42(0运输,1工作)',
+                    },
+                    {field: 'box_sensitivity', width: 125, title: '囊匣振动灵敏度 0x5e'},
+
+                    {field: 'wind_speed', width: 90, title: '风速 0x43'},
+                    {field: 'wind_direction', width: 90, title: '风向 0x44'},
+                    {field: 'rain', width: 90, title: '雨量 0x45'},
+                    {field: 'air_presure', width: 90, title: '气压 0x46'},
+                    {field: 'pm10', width: 90, title: 'PM10 0x47'},
+                    {field: 'pm25', width: 90, title: 'PM2.5 0x48'},
+
+                    {field: 'soil_humidity', width: 100, title: '土壤含水率 0x49'},
+                    {field: 'soil_temperature', width: 90, title: '土壤温度 0x50'},
+                    {field: 'soil_conductivity', width: 100, title: '土壤电导率 0x51'},
+                    {field: 'soil_salt', width: 80, title: '土壤含盐量'},
+
+                    {field: 'cascophen', width: 80, title: '甲醛 0x3a'},
+                    {field: 'so2', width: 90, title: '二氧化硫 0x3b'},
+                    {field: 'no', width: 90, title: '氮氧化物 0x3c'},
+                    {field: 'o3', width: 90, title: '臭氧 0x3d'},
+
+                    {field: 'oxygen', width: 100, title: '氧气浓度 0x52'},
+
+                    {field: 'broken', width: 110, title: '玻璃破碎检测 0x58'},
+                    {field: 'vibration', width: 90, title: '振动检测 0x59'},
+                    {field: 'multi_wave', width: 130, title: '多维驻波空间检测 0x5a'},
+                    {field: 'lighting', width: 90, title: '灯光亮度 0x5b'},
+                    {field: 'lng', width: 100, title: '经度 0x5c'},
+                    {field: 'lat', width: 100, title: '纬度 0x5d'},
+
+                    {
+                        field: 'php_time', width: 130, title: '保存时间',
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {field: 'ip_port', width: 150, title: 'ip:port', align: 'right'},
+
+                    {
+                        field: 'raw_data', title: '原始数据',
+                        formatter: function (value, row, index) {
+                            if (value) {
+                                return value.replace(/(.{2})/g, "$1 ");
+                            }
+                        }
+                    }
+                ]
+            ],
+            toolbar: '#sensorTool'
+        });
+        $this.init = true;
+
+    }
+
+
+    var nos = [];
+
+    function set_env_equip_nos(rows, is_push) {
+
+        if (!_.isArray(rows)) {
+            rows = [rows];
+        }
+        var equip_nos = _.pluck(rows, 'equip_no');
+
+        if (is_push) {
+            nos = _.union(nos, equip_nos);
+        } else {
+            nos = _.difference(nos, equip_nos);
+        }
+        nos = _.uniq(nos);
+
+        $('#grid').attr('href', 'grid.html#/_data_sensor/' + nos.join(','));
+
+    }
+
+</script>
+</body>
+</html>

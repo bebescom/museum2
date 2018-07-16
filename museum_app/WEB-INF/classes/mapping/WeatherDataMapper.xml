@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.mapper.WeatherDataMapper">
+    <resultMap id="BaseResultMap" type="com.museum.pojo.WeatherData">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="weather_no" jdbcType="VARCHAR" property="weatherNo"/>
+        <result column="equip_time" jdbcType="INTEGER" property="equipTime"/>
+        <result column="server_time" jdbcType="INTEGER" property="serverTime"/>
+        <result column="humidity" jdbcType="VARCHAR" property="humidity"/>
+        <result column="temperature" jdbcType="VARCHAR" property="temperature"/>
+        <result column="rain" jdbcType="VARCHAR" property="rain"/>
+        <result column="voc" jdbcType="VARCHAR" property="voc"/>
+        <result column="co2" jdbcType="VARCHAR" property="co2"/>
+        <result column="light" jdbcType="VARCHAR" property="light"/>
+        <result column="pm25" jdbcType="VARCHAR" property="pm25"/>
+        <result column="air_presure" jdbcType="VARCHAR" property="airPresure"/>
+        <result column="inorganic" jdbcType="VARCHAR" property="inorganic"/>
+        <result column="sulfur" jdbcType="VARCHAR" property="sulfur"/>
+        <result column="dip" jdbcType="VARCHAR" property="dip"/>
+        <result column="acceleration" jdbcType="VARCHAR" property="acceleration"/>
+        <result column="pm10" jdbcType="VARCHAR" property="pm10"/>
+        <result column="canbi" jdbcType="VARCHAR" property="canbi"/>
+        <result column="wind_speed" jdbcType="VARCHAR" property="windSpeed"/>
+        <result column="wind_direction" jdbcType="VARCHAR" property="windDirection"/>
+        <result column="uv" jdbcType="VARCHAR" property="uv"/>
+        <result column="organic" jdbcType="VARCHAR" property="organic"/>
+        <result column="voltage" jdbcType="VARCHAR" property="voltage"/>
+        <result column="raw_data" jdbcType="VARCHAR" property="rawData"/>
+        <result column="ip_port" jdbcType="VARCHAR" property="ipPort"/>
+        <result column="php_time" jdbcType="INTEGER" property="phpTime"/>
+        <result column="rssi" jdbcType="VARCHAR" property="rssi"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, weather_no, equip_time, server_time, humidity, temperature, rain, voc, co2, light,
+        pm25, air_presure, inorganic, sulfur, dip, acceleration, pm10, canbi, wind_speed,
+        wind_direction, uv, organic, voltage, raw_data, ip_port, php_time, rssi
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from weather_data
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!-- 获取当前天气数据 -->
+    <select id="getEnvOuter" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        weather_data weather_data
+        JOIN (
+        SELECT
+        MAX(server_time) server_times
+        FROM
+        weather_data
+        ) serTime ON serTime.server_times = weather_data.server_time
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from weather_data
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.museum.pojo.WeatherData">
+        insert into weather_data (id, weather_no, equip_time,
+        server_time, humidity, temperature,
+        rain, voc, co2, light,
+        pm25, air_presure, inorganic,
+        sulfur, dip, acceleration,
+        pm10, canbi, wind_speed,
+        wind_direction, uv, organic,
+        voltage, raw_data, ip_port,
+        php_time, rssi)
+        values (#{id,jdbcType=INTEGER}, #{weatherNo,jdbcType=VARCHAR}, #{equipTime,jdbcType=INTEGER},
+        #{serverTime,jdbcType=INTEGER}, #{humidity,jdbcType=VARCHAR}, #{temperature,jdbcType=VARCHAR},
+        #{rain,jdbcType=VARCHAR}, #{voc,jdbcType=VARCHAR}, #{co2,jdbcType=VARCHAR}, #{light,jdbcType=VARCHAR},
+        #{pm25,jdbcType=VARCHAR}, #{airPresure,jdbcType=VARCHAR}, #{inorganic,jdbcType=VARCHAR},
+        #{sulfur,jdbcType=VARCHAR}, #{dip,jdbcType=VARCHAR}, #{acceleration,jdbcType=VARCHAR},
+        #{pm10,jdbcType=VARCHAR}, #{canbi,jdbcType=VARCHAR}, #{windSpeed,jdbcType=VARCHAR},
+        #{windDirection,jdbcType=VARCHAR}, #{uv,jdbcType=VARCHAR}, #{organic,jdbcType=VARCHAR},
+        #{voltage,jdbcType=VARCHAR}, #{rawData,jdbcType=VARCHAR}, #{ipPort,jdbcType=VARCHAR},
+        #{phpTime,jdbcType=INTEGER}, #{rssi,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.museum.pojo.WeatherData">
+        insert into weather_data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="weatherNo != null">
+                weather_no,
+            </if>
+            <if test="equipTime != null">
+                equip_time,
+            </if>
+            <if test="serverTime != null">
+                server_time,
+            </if>
+            <if test="humidity != null">
+                humidity,
+            </if>
+            <if test="temperature != null">
+                temperature,
+            </if>
+            <if test="rain != null">
+                rain,
+            </if>
+            <if test="voc != null">
+                voc,
+            </if>
+            <if test="co2 != null">
+                co2,
+            </if>
+            <if test="light != null">
+                light,
+            </if>
+            <if test="pm25 != null">
+                pm25,
+            </if>
+            <if test="airPresure != null">
+                air_presure,
+            </if>
+            <if test="inorganic != null">
+                inorganic,
+            </if>
+            <if test="sulfur != null">
+                sulfur,
+            </if>
+            <if test="dip != null">
+                dip,
+            </if>
+            <if test="acceleration != null">
+                acceleration,
+            </if>
+            <if test="pm10 != null">
+                pm10,
+            </if>
+            <if test="canbi != null">
+                canbi,
+            </if>
+            <if test="windSpeed != null">
+                wind_speed,
+            </if>
+            <if test="windDirection != null">
+                wind_direction,
+            </if>
+            <if test="uv != null">
+                uv,
+            </if>
+            <if test="organic != null">
+                organic,
+            </if>
+            <if test="voltage != null">
+                voltage,
+            </if>
+            <if test="rawData != null">
+                raw_data,
+            </if>
+            <if test="ipPort != null">
+                ip_port,
+            </if>
+            <if test="phpTime != null">
+                php_time,
+            </if>
+            <if test="rssi != null">
+                rssi,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="weatherNo != null">
+                #{weatherNo,jdbcType=VARCHAR},
+            </if>
+            <if test="equipTime != null">
+                #{equipTime,jdbcType=INTEGER},
+            </if>
+            <if test="serverTime != null">
+                #{serverTime,jdbcType=INTEGER},
+            </if>
+            <if test="humidity != null">
+                #{humidity,jdbcType=VARCHAR},
+            </if>
+            <if test="temperature != null">
+                #{temperature,jdbcType=VARCHAR},
+            </if>
+            <if test="rain != null">
+                #{rain,jdbcType=VARCHAR},
+            </if>
+            <if test="voc != null">
+                #{voc,jdbcType=VARCHAR},
+            </if>
+            <if test="co2 != null">
+                #{co2,jdbcType=VARCHAR},
+            </if>
+            <if test="light != null">
+                #{light,jdbcType=VARCHAR},
+            </if>
+            <if test="pm25 != null">
+                #{pm25,jdbcType=VARCHAR},
+            </if>
+            <if test="airPresure != null">
+                #{airPresure,jdbcType=VARCHAR},
+            </if>
+            <if test="inorganic != null">
+                #{inorganic,jdbcType=VARCHAR},
+            </if>
+            <if test="sulfur != null">
+                #{sulfur,jdbcType=VARCHAR},
+            </if>
+            <if test="dip != null">
+                #{dip,jdbcType=VARCHAR},
+            </if>
+            <if test="acceleration != null">
+                #{acceleration,jdbcType=VARCHAR},
+            </if>
+            <if test="pm10 != null">
+                #{pm10,jdbcType=VARCHAR},
+            </if>
+            <if test="canbi != null">
+                #{canbi,jdbcType=VARCHAR},
+            </if>
+            <if test="windSpeed != null">
+                #{windSpeed,jdbcType=VARCHAR},
+            </if>
+            <if test="windDirection != null">
+                #{windDirection,jdbcType=VARCHAR},
+            </if>
+            <if test="uv != null">
+                #{uv,jdbcType=VARCHAR},
+            </if>
+            <if test="organic != null">
+                #{organic,jdbcType=VARCHAR},
+            </if>
+            <if test="voltage != null">
+                #{voltage,jdbcType=VARCHAR},
+            </if>
+            <if test="rawData != null">
+                #{rawData,jdbcType=VARCHAR},
+            </if>
+            <if test="ipPort != null">
+                #{ipPort,jdbcType=VARCHAR},
+            </if>
+            <if test="phpTime != null">
+                #{phpTime,jdbcType=INTEGER},
+            </if>
+            <if test="rssi != null">
+                #{rssi,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.museum.pojo.WeatherData">
+        update weather_data
+        <set>
+            <if test="weatherNo != null">
+                weather_no = #{weatherNo,jdbcType=VARCHAR},
+            </if>
+            <if test="equipTime != null">
+                equip_time = #{equipTime,jdbcType=INTEGER},
+            </if>
+            <if test="serverTime != null">
+                server_time = #{serverTime,jdbcType=INTEGER},
+            </if>
+            <if test="humidity != null">
+                humidity = #{humidity,jdbcType=VARCHAR},
+            </if>
+            <if test="temperature != null">
+                temperature = #{temperature,jdbcType=VARCHAR},
+            </if>
+            <if test="rain != null">
+                rain = #{rain,jdbcType=VARCHAR},
+            </if>
+            <if test="voc != null">
+                voc = #{voc,jdbcType=VARCHAR},
+            </if>
+            <if test="co2 != null">
+                co2 = #{co2,jdbcType=VARCHAR},
+            </if>
+            <if test="light != null">
+                light = #{light,jdbcType=VARCHAR},
+            </if>
+            <if test="pm25 != null">
+                pm25 = #{pm25,jdbcType=VARCHAR},
+            </if>
+            <if test="airPresure != null">
+                air_presure = #{airPresure,jdbcType=VARCHAR},
+            </if>
+            <if test="inorganic != null">
+                inorganic = #{inorganic,jdbcType=VARCHAR},
+            </if>
+            <if test="sulfur != null">
+                sulfur = #{sulfur,jdbcType=VARCHAR},
+            </if>
+            <if test="dip != null">
+                dip = #{dip,jdbcType=VARCHAR},
+            </if>
+            <if test="acceleration != null">
+                acceleration = #{acceleration,jdbcType=VARCHAR},
+            </if>
+            <if test="pm10 != null">
+                pm10 = #{pm10,jdbcType=VARCHAR},
+            </if>
+            <if test="canbi != null">
+                canbi = #{canbi,jdbcType=VARCHAR},
+            </if>
+            <if test="windSpeed != null">
+                wind_speed = #{windSpeed,jdbcType=VARCHAR},
+            </if>
+            <if test="windDirection != null">
+                wind_direction = #{windDirection,jdbcType=VARCHAR},
+            </if>
+            <if test="uv != null">
+                uv = #{uv,jdbcType=VARCHAR},
+            </if>
+            <if test="organic != null">
+                organic = #{organic,jdbcType=VARCHAR},
+            </if>
+            <if test="voltage != null">
+                voltage = #{voltage,jdbcType=VARCHAR},
+            </if>
+            <if test="rawData != null">
+                raw_data = #{rawData,jdbcType=VARCHAR},
+            </if>
+            <if test="ipPort != null">
+                ip_port = #{ipPort,jdbcType=VARCHAR},
+            </if>
+            <if test="phpTime != null">
+                php_time = #{phpTime,jdbcType=INTEGER},
+            </if>
+            <if test="rssi != null">
+                rssi = #{rssi,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.museum.pojo.WeatherData">
+        update weather_data
+        set weather_no = #{weatherNo,jdbcType=VARCHAR},
+        equip_time = #{equipTime,jdbcType=INTEGER},
+        server_time = #{serverTime,jdbcType=INTEGER},
+        humidity = #{humidity,jdbcType=VARCHAR},
+        temperature = #{temperature,jdbcType=VARCHAR},
+        rain = #{rain,jdbcType=VARCHAR},
+        voc = #{voc,jdbcType=VARCHAR},
+        co2 = #{co2,jdbcType=VARCHAR},
+        light = #{light,jdbcType=VARCHAR},
+        pm25 = #{pm25,jdbcType=VARCHAR},
+        air_presure = #{airPresure,jdbcType=VARCHAR},
+        inorganic = #{inorganic,jdbcType=VARCHAR},
+        sulfur = #{sulfur,jdbcType=VARCHAR},
+        dip = #{dip,jdbcType=VARCHAR},
+        acceleration = #{acceleration,jdbcType=VARCHAR},
+        pm10 = #{pm10,jdbcType=VARCHAR},
+        canbi = #{canbi,jdbcType=VARCHAR},
+        wind_speed = #{windSpeed,jdbcType=VARCHAR},
+        wind_direction = #{windDirection,jdbcType=VARCHAR},
+        uv = #{uv,jdbcType=VARCHAR},
+        organic = #{organic,jdbcType=VARCHAR},
+        voltage = #{voltage,jdbcType=VARCHAR},
+        raw_data = #{rawData,jdbcType=VARCHAR},
+        ip_port = #{ipPort,jdbcType=VARCHAR},
+        php_time = #{phpTime,jdbcType=INTEGER},
+        rssi = #{rssi,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

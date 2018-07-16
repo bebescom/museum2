@@ -1,0 +1,14 @@
+{
+  "equip_no": "6250000001100100090",
+  "equip_type": "光照紫外传感器",
+  "sleep": "600",
+  "status": "正常",
+  "parameter": "temperature,humidity,light,uv",
+  "usage": "备用",
+  "rssi": -35.2,
+  "voltage": 6,
+  "temperature": "19.87",
+  "humidity": "84.91",
+  "light": "31",
+  "uv": "87.57"
+}

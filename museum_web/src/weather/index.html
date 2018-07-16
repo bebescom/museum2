@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>气象站数据</title>
+</head>
+<body>
+	<div class="shadow"></div>
+	__inline("../common/header.html")
+	
+	<div id="content">
+		<time-box @time-change="timeChange" :time.sync="time"></time-box>
+		<div class="comeBack" @click="camBack">返回</div>
+		__inline('./modules/Temperature_humidity_rainfall/Temperature_humidity_rainfall.html')
+		__inline('./modules/Ultraviolet_light/Ultraviolet_light.html')
+		__inline('./modules/Air_pressure/Air_pressure.html')
+		__inline('./modules/PM2.5-PM1.0/PM2.5-PM1.0.html')
+		__inline('./modules/The_wind_rose/The_wind_rose.html')
+		
+		__inline('./timeBox.html')
+		<temperature-humidity></temperature-humidity>
+		<ultraviolet-light></ultraviolet-light>
+		<air-pressure></air-pressure>
+		<pm-a></pm-a>
+		<the-wind></the-wind>
+		
+	</div>
+</body>
+<script type="text/javascript">
+    require('./weather');
+</script>
+</html>

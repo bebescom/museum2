@@ -1,0 +1,386 @@
+<template id="equip_template">
+    <send-down v-if="send_down_key" :send_down_key.sync="send_down_key" :sel_equip_no_list.sync="sel_equip_no_list" :tree-data="filterContent"></send-down>
+    <div class="equip_content" @click="hideOverlay">
+        <div class="header">
+            <div class="title">
+                {{configLanguage.left_equipManagement_long}}
+            </div>
+            <div class="filterWrap">
+                <filter-component type="equip_manage"></filter-component>
+            </div>
+            <div class="ability">
+                <div class="operationWrap" @click="goAlertList" v-text="configLanguage.equipmonitor_warningList"></div>
+
+                <div @click="send_down" class="operationWrap permissionHidden" v-permission="{name:'批量设置'}" v-text="configLanguage.equipmonitor_listSet"></div>
+                <!--修改设备功能改为在批量设置中实现-->
+                <!--<div @click="showModify">修改设备</div>-->
+                <div class="operationWrap permissionHidden" v-permission="{name:'设备管理'}" >{{configLanguage.environment_monitoring_environmentCompare}}
+                    <div class="operation">
+                        <ul>
+                            <li v-for="equip in sel_equip_no_list" @click="cancelItem(equip)">
+                                {{equip}}<Icon type="close" style="margin-left: 10px"></Icon>
+                            </li>
+                        </ul>
+                        <i-button type="success" @click="startCompare">开始对比({{sel_equip_no_list.length}})</i-button>
+                    </div>
+                </div>
+                <div @click="exportData" class="permissionHidden" v-permission="{name:'导出设备数据'}" v-text="configLanguage.equipmonitor_loadingData"></div>
+                <div @click="showTopology" class="permissionHidden" v-permission="{name:'拓扑图'}" v-text="configLanguage.equipmonitor_topologyDiagram"></div>
+                <div @click="addClass($event)" class="permissionHidden" v-permission="{name:'添加设备'}" v-text="configLanguage.equipmonitor_addEquip"></div>
+                <!--v-permission="{name:'设备管理'}"-->
+                <div class="operationWrap permissionHidden" v-permission="{name:'删除设备'}">{{configLanguage.equipmonitor_moreDoing}}
+                    <ul class="operation">
+                        <li @click="removeArr" class="permissionHidden" v-permission="{name:'删除设备'}">删除</li>
+                    </ul>
+                </div>
+            </div>
+            <Modal
+                    :visible.sync="modalStatus"
+                    title="下载数据"
+                    @on-ok="ok"
+                    @on-cancel="cancel"
+                    :mask-closable="false">
+
+                <div class="exportTimerContainer" style="height: 280px">
+                    <!--:clearable="false" :options="timePickerOption" style="width: 300px" @on-change="changeTime" :value="timeArr" -->
+                    <div class="setTaskName">
+                        <span>任务名称</span><i-input :value="setTaskName" style="width: 300px" ></i-input>
+                    </div>
+                    <span>数据时段</span><Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" class="timePicker" :value="timeArr" placeholder="选择日期和时间" :clearable="false" :options="timePickerOption" style="width: 300px" @on-change="changeTime" placement="bottom-end" :editable="false" @on-clear="resetTime" @on-ok="requireData" @on-open-change="saveOldTime"></Date-picker>
+                    <div class="longTime" v-show="longTime" style="width: 100%;position: absolute;left: 20%;color: red;display: none">下载时段较长，可能需要等待较长时间</div>
+                    <div style="margin-top: 20px;position: relative">数据种类</div>
+                    <div class="data-type" style="margin-top: 15px;width: 395px;position: absolute;top: 90px; right: 0;">
+                        <Checkbox label="数据采集时间" class="moren" :disabled = "disabled" @on-change="changeEnglish('数据采集时间')" style="margin-right: 5px;">数据采集时间</Checkbox>
+                        <Checkbox label="设备状态"  class="moren" :disabled = "disabled" @on-change="changeEnglish('设备状态')" style="margin-right: 5px;">设备状态</Checkbox>
+                        <Checkbox label="数据传输时间" @on-change="changeEnglish('数据传输时间')" style="margin-right: 5px;">数据传输时间</Checkbox>
+                        <Checkbox label="设备电压" @on-change="changeEnglish('设备电压')" style="margin-right: 5px;">设备电压</Checkbox>
+                        <Checkbox label="设备位置" @on-change="changeEnglish('设备位置')" style="margin-right: 5px;">设备位置</Checkbox>
+                        <br><br>
+                        <Checkbox v-for="(item,index) in dataTypesSecond" @on-change="changeEnglish(index)"  :label = "index" style="margin-right: 10px;">{{index}}</Checkbox>
+                       <!--<Checkbox-group :value = "dataTypesSecond">-->
+                            <!--<Checkbox v-for="(item) in dataTypeAll" :label = "item">{{item}}</Checkbox>-->
+                        <!--</Checkbox-group>-->
+                    </div>
+                </div>
+            </Modal>
+        </div>
+        <div class="body">
+            <div class="shadow"></div>
+            <!--<div class="fliter_box permissionHidden" v-permission="{name:'设备管理'}">-->
+                <!--<p>筛选条件 :-->
+                    <!--<template v-for="(name,chooce) in conditions">-->
+                        <!--<span v-for="key in chooce" class="filterItem" @click="removeChooce($index,name)">-->
+                            <!--{{key}}<i class="removeBtn"></i>-->
+                        <!--</span>-->
+                    <!--</template>-->
+                <!--</p>-->
+            <!--</div>-->
+            <table border="1px" class="table _content permissionHidden equipContentTh" v-permission="{name:'设备管理'}">
+                <thead>
+                <tr>
+                    <td :class="{active:is_all_sel}" @click="selectAll"></td>
+                    <!-- @mouseenter="statusShow('status',$event)" @mouseleave="statusClose('status')"-->
+                    <td class="statusTd">
+                        <span>状态</span>
+                        <!--excessive 超标 fault 故障 low 低电 超低电 low_s standby 备用 disable 停用-->
+                        <!--<Icon type="chevron-down" size="14"></Icon>-->
+                        <!--<font></font>-->
+                        <!--<div class="statusList" v-show="showHide.status" transition="change" @click="chooce($event,'status')">-->
+                            <!--<div class="titleName">状态</div>-->
+                            <!--<span class="status normal">正常</span>-->
+                            <!--<span class="status fault">异常</span>-->
+                            <!--<span class="status excessive">超标</span>-->
+                            <!--<span class="status low_s">超低电</span>-->
+                            <!--<span class="status low">低电</span>-->
+                            <!--<span class="status standby">备用</span>-->
+                            <!--<span class="status disable">停用</span>-->
+                        <!--</div>-->
+                    </td>
+                    <!--@mouseleave="statusClose('components')"-->
+                    <!--@mouseenter="statusShow('equip',$event)" @mouseleave="statusClose('equip')"-->
+                    <td class="equipBox">
+                        <span>设备ID | 设备名称</span>
+                        <!--<Icon type="chevron-down" size="14"></Icon>-->
+                        <!--<font></font>-->
+                        <!--<div class="typeList active searchList" v-show="showHide.equip" transition="change" @click.stop>-->
+                            <!--<div class="titleName">设备ID | 设备名称</div>-->
+                            <!--<div class="searchContainer">-->
+                                <!--<input type="text" v-model="equip_id" @keydown.enter="resetTurnPage" placeholder="输入设备ID或者名称查找" @blur="statusClose('equip')">-->
+                            <!--</div>-->
+                            <!--<div class="btnWrap">-->
+                                <!--<span class="no" @click="statusAll('equip')">取消</span>-->
+                                <!--<span class="ok" @click="resetTurnPage">确认</span>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    </td>
+                    <!--@mouseenter="statusShow('loaction',$event)" @mouseleave="statusClose('loaction')"-->
+                    <td class="locationBox">
+                        <span>设备位置</span>
+                        <!--<Icon type="chevron-down" size="14"></Icon>-->
+                        <!--&lt;!&ndash;<font></font>&ndash;&gt;-->
+                        <!--<div class="typeList active locationList" v-show="showHide.loaction" transition="change">-->
+                            <!--<div class="titleName">设备位置</div>-->
+                            <!--<div class="chooceWhere">-->
+                                <!--<p v-show="environment.length>=2" class="title"><span v-for="arr in environment" @click="backTree(arr,$index)">{{arr.name}}</span></p>-->
+                                <!--<p v-else class="title">选择环境</p>-->
+                                <!--<div class="chooce" @click="chooce($event,'env_no')">-->
+                                    <!--<span v-for="floor in filterContent" :class="floor.env_no">{{floor.name}} <span @click.stop="enterTree(floor.children,floor.name,floor.type)" v-if="floor.children&&floor.type!='展厅'&&floor.type!='库房'&&floor.type!='研究室'&&floor.type!='修复室'">></span></span>-->
+                                    <!--&lt;!&ndash;&ndash;&gt;-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    </td>
+                    <!--@mouseenter="statusShow('type',$event)" @mouseleave="statusClose('type')"-->
+                    <td class="statusTd">
+                        <span>类型</span>
+                        <!--<Icon type="chevron-down" size="14"></Icon>-->
+                        <!--&lt;!&ndash;<font></font>&ndash;&gt;-->
+                        <!--<div class="typeList right equipType" v-show="showHide.type" transition="change" @click="chooce($event,'equip_type')">-->
+                            <!--<div class="titleName">类型</div>-->
+                            <!--<div class="wrap_type">-->
+                                <!--&lt;!&ndash;v-for="(key,typeObj) in equip_type"&ndash;&gt;-->
+                                <!--<div v-if="equip_type.sensor&&equip_type.sensor.length!=0">-->
+                                    <!--<span v-if="equip_type.sensor.indexOf('温湿度传感器')!=-1">温湿度传感器</span>-->
+                                    <!--<span v-if="equip_type.sensor.indexOf('带屏温湿度传感器')!=-1">带屏温湿度传感器</span>-->
+                                    <!--<span v-if="equip_type.sensor.indexOf('光照紫外传感器')!=-1">光照紫外传感器</span>-->
+                                    <!--<span v-if="equip_type.sensor.indexOf('二氧化碳传感器')!=-1">二氧化碳传感器</span>-->
+                                    <!--<span v-if="equip_type.sensor.indexOf('有机挥发物传感器')!=-1">有机挥发物传感器</span>-->
+                                    <!--<span v-if="equip_type.sensor.indexOf('空气质量传感器')!=-1">空气质量传感器</span>-->
+                                    <!--<span v-for="arr in equip_type.sensor" v-if="arr!='温湿度传感器'&&arr!='带屏温湿度传感器'&&arr!='光照紫外传感器'&&arr!='二氧化碳传感器'&&arr!='有机挥发物传感器'&&arr!='空气质量传感器'">{{arr}}</span>-->
+                                <!--</div>-->
+                                <!--<div v-if="equip_type.network&&equip_type.network.length!=0">-->
+                                    <!--<span v-if="equip_type.network.indexOf('网关')!=-1">网关</span>-->
+                                    <!--<span v-if="equip_type.network.indexOf('中继')!=-1">中继</span>-->
+                                    <!--<span v-for="arr in equip_type.network" v-if="arr!='网关'&&arr!='中继'">{{arr}}</span>-->
+                                <!--</div>-->
+                                <!--<div v-if="equip_type.controller&&equip_type.controller.length!=0">-->
+                                    <!--<span v-if="equip_type.controller.indexOf('调湿机')!=-1">调湿机</span>-->
+                                    <!--<span v-if="equip_type.controller.indexOf('调湿剂')!=-1">调湿剂</span>-->
+                                    <!--<span v-if="equip_type.controller.indexOf('充氮调湿柜')!=-1">充氮调湿柜</span>-->
+                                    <!--<span v-for="arr in equip_type.controller" v-if="arr!='调湿机'&&arr!='调湿剂'&&arr!='充氮调湿柜'">{{arr}}</span>-->
+                                <!--</div>-->
+                                <!--<div v-if="equip_type.offline&&equip_type.offline.length!=0">-->
+                                    <!--<span v-if="equip_type.offline.indexOf('离线温湿度检测仪')!=-1">离线温湿度检测仪</span>-->
+                                    <!--<span v-if="equip_type.offline.indexOf('离线光照紫外检测仪')!=-1">离线光照紫外检测仪</span>-->
+                                    <!--<span v-if="equip_type.offline.indexOf('离线二氧化碳检测仪')!=-1">离线二氧化碳检测仪</span>-->
+                                    <!--<span v-if="equip_type.offline.indexOf('离线甲醛检测仪')!=-1">离线甲醛检测仪</span>-->
+                                    <!--<span v-if="equip_type.offline.indexOf('离线有机挥发物检测仪')!=-1">离线有机挥发物检测仪</span>-->
+                                    <!--<span v-for="arr in equip_type.offline" v-if="arr!='离线温湿度检测仪'&&arr!='离线光照紫外检测仪'&&arr!='离线二氧化碳检测仪'&&arr!='离线甲醛检测仪'&&arr!='离线有机挥发物检测仪'">{{arr}}</span>-->
+                                <!--</div>-->
+                                <!--<div v-if="equip_type.box&&equip_type.offline.length!=0">-->
+                                    <!--<span v-if="equip_type.box.indexOf('智能囊匣传感器')!=-1">智能囊匣传感器</span>-->
+                                    <!--<span v-for="arr in equip_type.box" v-if="arr!='智能囊匣传感器'">{{arr}}</span>-->
+                                    <!--&lt;!&ndash;<hr/>&ndash;&gt;-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    </td>
+                    <td class="newData">
+                        <span>最新数据</span>
+                    </td>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr is="tr-content" v-for="tr in trList" :tr="tr" :index="$index" :sel_equip_no_count.sync="sel_equip_no_count" :sel_equip_no_list.sync="sel_equip_no_list" :page_size="limit"></tr>
+                </tbody>
+            </table>
+        </div>
+        <!--<iframe src="" name="show"  style="width:0;height:0"></iframe>-->
+        <page-list class="permissionHidden" @turn-page="turnPage" :page.sync="page" :allPage="allPage" :count.sync="count" v-permission="{name:'设备管理'}"></page-list>
+        <modify v-if="modifyKey" transition="alert" :key.sync="modifyKey" :tree-data="filterContent"></modify>
+        <add-data v-if="addKey" transition="alert" :key.sync="addKey" :tree-data="filterContent"></add-data>
+        <div v-show="addKey" class="fixedShadow"></div>
+    </div>
+</template>
+
+<!-- table tr模板 -->
+<template id="tr_content">
+    <tr>
+        <td :class="{active:sel_equip_no_list.indexOf(tr.equip_no)!=-1}" @click="selectChange(tr.equip_no)"></td>
+        <td><span class="status" :class="statusChange(tr.status)" v-text="tr.status" :data-title="tr.time"></span></td>
+        <td>
+            <a class="hiddenContent" v-text="tr.equip_no+' | '+tr.name" v-link="'/equipManagement/equip_details/'+tr.equip_no" @click="saveEquipNo(tr.equip_no,tr.equip_type,tr.name)"></a>
+        </td>
+        <td>
+            <div class="nav_map" v-show="mapStatus">
+                <div class="view">
+                    <!--<div class="point nav_icon" :data-title="nav_name"></div>-->
+                    <Icon type="location" size="16" style="position: absolute;z-index:100" color="#1bbc9b"></Icon>
+                    <img :src="urlPosition" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+                </div>
+            </div>
+            <Icon type="location"
+                  size="16"
+                  v-if="tr.locate&&tr.map"
+                  style="position: relative"
+                  @mouseenter.stop="show_position_nav_map($event,tr.locate,tr)"
+                  @mouseleave="hide_position_nav_map"
+            ></Icon>
+            <!--<span class="nav_icon"-->
+                  <!--v-if="tr.locate&&tr.map"-->
+                  <!--@mouseenter.stop="show_position_nav_map($event,tr.locate,tr)"-->
+                  <!--@mouseleave="hide_position_nav_map">-->
+			<!--</span>-->
+            <a class="hiddenContent" v-text="tr.nav?(setName(tr.nav)):''" @click="broEquip(tr.env_no,tr)"></a>
+        </td>
+        <td>
+            <!--:class="nameChange(tr.equip_type)"-->
+            <span :data-title="tr.equip_type" :class="['type',tr.equip_type]"></span>
+        </td>
+
+        <td class="data" @mouseenter="allShow($event)" @mouseleave="allHide($event)">
+            <div class="arrow" v-if="mathLen(tr.new_data)">. . . </div>
+            <div class="pathView">
+                <div v-if="rule_out(tr.equip_type)">
+                    <span v-for="(name,num) in tr.new_data|slice" :class="name" v-text="(num||'-')+unit(name)"></span>
+                </div>
+                <div v-else>
+                    <span v-for="(name,num) in tr.new_data|slice" :class="name" v-text="nameChange(name)+((num==1)?'警报':'正常')"></span>
+                </div>
+
+                <div class="allView" :class="{'bottomKey':!keyCorners}" v-if="mathLen(tr.new_data)">
+                    <p>
+                        <Icon type="android-time" style="font-size: 20px;margin-right: 5px;"></Icon>
+                        <i class="trTime" v-text="tr.time"></i>
+                    </p>
+                    <div v-if="rule_out(tr.equip_type)">
+                        <span class="text-nowrap" v-for="(name,num) in tr.new_data" :class="name"><i></i>{{num||'-'}}{{unit(name)}}</span>
+                    </div>
+                    <div v-else class="Security_sensors">
+                        <span v-for="(name,num) in tr.new_data" :class="name" v-text="nameChange(name)+((num==1)?'警报':'正常')"></span>
+                    </div>
+                </div>
+            </div>
+        </td>
+    </tr>
+
+</template>
+
+
+<!-- 批量修改 模板 -->
+<template id="modify">
+    <div class="alertBox modifyData">
+        <div class="shadow"></div>
+        <header>
+            批量修改
+            <Icon type="close-round" size="20" class="close" @click="close"></Icon>
+        </header>
+        <section>
+            <div class="localInfo">
+                <div>
+                    <h5>安装位置</h5>
+                    <div class="which">
+                        <p class="localName" v-text="localwhich"></p>
+                    </div>
+                    <div class="envTreeContainer">
+                        <Tree :data="treeList" :show-checkbox="false" :multiple="false" track-by="$index" @on-select-change="changeLocal"></Tree>
+                        <!--<div class="treeLoading">-->
+                            <!--树型列表加载动画treeList-->
+                        <!--</div>-->
+                    </div>
+                </div>
+            </div>
+            <div class="equipTypeStatus">
+                <!--<div class="equipTypeInfo">-->
+                    <!--<h5>类型信息</h5>-->
+                    <!--<h6>数据发送间隔</h6>-->
+                    <!--<p><input type="text"> 分 <input type="text"> 秒</p>-->
+                <!--</div>-->
+                <div class="statusInfo">
+                    <h5>状态信息</h5>
+                    <h6>设备状态</h6>
+                    <select>
+                        <option>备用</option>
+                        <option>正常</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <div class="btnsContainer clear">
+                <div class="over multipleModify">批量修改</div>
+            </div>
+        </footer>
+    </div>
+</template>
+
+<!-- 添加设备 模板 -->
+<template id="addData">
+    <div class="alertBox addData">
+        <header>
+            添加设备
+            <Icon type="close-round" size="20" class="close" @click="close"></Icon>
+        </header>
+        <section>
+            <!--通讯信息-->
+            <div class="communicationInfo">
+                <div>
+                    <h5>通讯信息</h5>
+                    <h6>设备类型</h6>
+                    <select v-model="addData.equip_type" @change="typeSelect">
+                        <template v-for="(name,obj) in allEquip">
+                            <option v-for="name in obj">{{name}}</option>
+                        </template>
+                    </select>
+                    <h6>设备ID</h6>
+                    <p class="equip_id">{{addData.id}}</p>
+                    <h6>设备名称</h6>
+                    <input type="text" v-model="addData.name">
+                </div>
+            </div>
+            <!--安装位置-->
+            <div class="localInfo">
+                <div>
+                    <h5>安装位置</h5>
+                    <!-- @mouseenter="statusShow" @mouseleave="statusClose" -->
+                    <div class="which">
+                        <p class="localName" v-text="localwhich"></p>
+                        <!--<div class="p" v-text="localwhich"></div>-->
+                        <!--<div class="typeList" v-show="loaction" transition="change">-->
+                            <!--<div class="chooceWhere">-->
+                                <!--<p v-show="environment.length>=2" class="title"><span v-for="arr in environment" @click="backTree(arr,$index)">{{arr.name}}</span></p>-->
+                                <!--<p v-else class="title">选择环境</p>-->
+                                <!--<div class="chooce" @click="chooce($event)">-->
+                                    <!--<span v-for="floor in filterContent" :class="floor.env_no">{{floor.name}} <span @click.stop="enterTree(floor.children,floor.name,floor.type)" v-if="floor.children">></span></span>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    </div>
+                    <div class="envTreeContainer">
+                        <Tree :data="treeList" :show-checkbox="false" :multiple="false" track-by="$index" @on-select-change="changeLocal"></Tree>
+                        <!--<div class="treeLoading">-->
+                            <!--&lt;!&ndash;树型列表加载动画treeList&ndash;&gt;-->
+                        <!--</div>-->
+                    </div>
+                    <!--<div class="imgView"></div>-->
+                </div>
+            </div>
+            <div class="equipTypeStatus">
+                <div class="equipTypeInfo">
+                    <h5>类型信息</h5>
+                    <h6>数据发送间隔</h6>
+                    <p><input type="text" v-model="addData.minute"> 分 <input type="text" v-model="addData.second"> 秒</p>
+                </div>
+                <div class="statusInfo">
+                    <h5>状态信息</h5>
+                    <h6>设备状态</h6>
+                    <select v-model="addData.status">
+                        <option>备用</option>
+                        <option>正常</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <div class="btnsContainer clear">
+                <div class="over continue" @click="continueOver">继续添加设备</div>
+                <div class="over" @click="postOver">添加设备</div>
+            </div>
+        </footer>
+    </div>
+</template>
+
+<!--带屏温湿度传感器-->
+
+__inline('components/send_down.html')

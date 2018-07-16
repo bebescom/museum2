@@ -1,0 +1,23 @@
+<template id="userManagement">
+    <header class="userManagementHeader clear">
+        <div class="left lf">
+            <!--跳转返回功能暂时取消-->
+            <!--@click="goBack"-->
+            <!--<Icon type="chevron-left" style="margin-right:5px;"></Icon>-->
+            <span class="headerTitle noHand">用户管理</span>
+        </div>
+        <div class="rf">
+            <i-button v-link="{ path: '/addUser' }" class="routerButton permissionHidden" v-permission="{name:'添加用户'}">
+                新建用户
+            </i-button>
+            <i-button v-link="{ path: '/roleSetting' }" class="routerButton permissionHidden" v-permission="{name:'角色设置'}">
+                角色设置
+            </i-button>
+        </div>
+    </header>
+    <section class="userManagementSection clear">
+        <i-table v-show="users&&users.length!=0" :height="sectionHeight" :columns="tableHead" :data="users" :stripe="true" ></i-table>
+        <page-list :page.sync="page" :allpage="page_num" :count="total"></page-list>
+        <div class="loading" v-show="showLoading"></div>
+    </section>
+</template>

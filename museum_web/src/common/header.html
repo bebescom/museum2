@@ -1,0 +1,67 @@
+<div id="header" v-cloak>
+
+    <a class="logo" href="/capsule">
+        <div v-text="web_config.app_name"></div>
+    </a>
+
+    <div class="right_top_box">
+
+
+        <header-down v-ref:down></header-down>
+
+        <div class="warning_logo">
+            <Badge :count="all_num" overflow-count="99">
+                    <img src="../common/images/warning_logo.png" width="24" height="24" alt="" @click="warningList" />
+            </Badge>
+        </div>
+
+        <!--<div class="feedback">-->
+            <!--<a href="http://wpa.qq.com/msgrd?v=3&uin=3356346419&site=qq&menu=yes" target="_blank"></a>-->
+        <!--</div>-->
+
+        <!--<div class="user_logo">-->
+            <!--<img src="/common/images/man.png">-->
+
+        <!--</div>-->
+
+        <div class="user_drop">
+            <Dropdown placement="bottom-end">
+                <div class="user_name" v-text="web_config.user.real_name"></div>
+                <Dropdown-menu slot="list">
+
+                    <Dropdown placement="left-start" class="hide">
+                        <Dropdown-item class="view">
+                            切换视图
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item>地图视图</Dropdown-item>
+                            <Dropdown-item>数据视图</Dropdown-item>
+                            <Dropdown-item>工作视图</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="user_set hide">账户设置</Dropdown-item>
+                    <Dropdown-item class="system_set hide">系统设置</Dropdown-item>
+                    <Dropdown-item class="help hide">帮助中心</Dropdown-item>
+                    <Dropdown-item class="paramSetting" @click="paramSetting">平台参数设置</Dropdown-item>
+                    <Dropdown-item class="user_set permissionHidden" @click="userManagement(user)"
+                                   v-permission="{name:'用户管理'}">用户管理
+                    </Dropdown-item>
+                    <Dropdown placement="left-start">
+                        <Dropdown-item class="view">
+                            切换语言
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item @click="change_language('chinese')">汉语</Dropdown-item>
+                            <Dropdown-item @click="change_language('tibetan')">藏语</Dropdown-item>
+                            <Dropdown-item @click="change_language('english')">英语</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="logout" @click.stop="exit">退出登录</Dropdown-item>
+
+                </Dropdown-menu>
+            </Dropdown>
+        </div>
+    </div>
+</div>
+
+__inline("/common/down.vue")

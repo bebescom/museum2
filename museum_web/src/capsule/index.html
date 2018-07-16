@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>...</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="icon" href="../common/favicon.ico" type="image/x-icon"/>
+</head>
+<body id="app" v-cloak @click="hideOverlay">
+	
+	__inline("/common/header.html")
+
+	<left></left>
+	
+	<div id="content">
+		<router-view  keep-alive transition-mode="out-in"></router-view>
+	</div>
+
+	__inline("/capsule/left.html")							<!--左边侧栏-->
+	__inline("/capsule/Integrated_management.html")			<!--综合管理-->
+	__inline("/capsule/capsule_content.html")				<!--智能囊匣-->
+
+	<!--环境监控-->
+	__inline("/environmentalMonitoring/environmental_monitoring.html")
+	<!--环境超标列表-->
+	__inline("/environmentalMonitoring/Environmental_levels.html")
+	<!--环境详情-->
+	__inline("/environmentalMonitoring/environment.html")
+
+	<!--综合筛选组件-->
+	__inline(/common/components/filterComponent.html)
+
+	<!-- 新综合筛选组件 -->
+	__inline(/common/components/newFilterComponent.html)
+	<!-- 环境树形列表组件-->
+	__inline("/capsule/template/env_tree_list.html")
+	<!--页码插件-->
+	__inline("/capsule/template/pageList.html")
+	<!--时间插件-->
+	__inline("/capsule/template/timeBox.html")
+	<!--文物全筛选插件-->
+	__inline("/capsule/template/cultural_relics_of_various_dynasties.html")
+	<!--统计echarts-->
+	__inline("/capsule/template/statistical_echarts.html")
+	<!--动态变化数字-->
+	__inline("/capsule/template/changes_of_digital.html")
+
+	<!--文物管理-->
+	__inline("/relicManagement/relic.html")
+	<!--文物入库-->
+	__inline("/relicManagement/relicsStorage.html")
+	<!--文物出库-->
+	__inline("/relicManagement/relicsOutStorage.html")
+	<!--文物盘点-->
+	__inline("/relicManagement/relicsCheck.html")
+
+	<!--发起盘点-->
+	__inline("/relicManagement/newPlan.html")
+	<!--盘点详情-->
+	__inline("/relicManagement/planDetail.html")
+
+<script type="text/javascript">
+    require('capsule');
+</script>
+</body>
+</html>

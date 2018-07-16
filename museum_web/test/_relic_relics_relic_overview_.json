@@ -1,0 +1,17 @@
+{
+  "id": "4",
+  "relic_no": "004",
+  "name": "乾坤鼎",
+  "parent_env_no": "00902",
+  "material": "青铜",
+  "category": "青铜器",
+  "level": "一般文物",
+  "age": "洪荒",
+  "sort": "10001",
+  "describe": "文物简介。可放文物解说词，标牌介绍等信息。 Lorem ipsum dolor sit amet, consectetur a形成于天地初开之际，可容纳天地万物,",
+  "image": null,
+  "start_time": "2016-06-01",
+  "end_time": "2016-06-06",
+  "show_days": 5,
+  "rest_days": 1
+}

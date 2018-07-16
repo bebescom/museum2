@@ -1,0 +1,126 @@
+<style>
+	.time_box{
+        line-height: 66px;
+	    padding-top: 14px;
+	    padding-bottom: 14px;	
+	}
+	.time_box span,.time_box p,.typeBox>span{
+        color: #888d92;
+	    font-size: 14px;
+	    padding: 0 10px;
+		margin: 0 5px;
+	    height: 29px;
+	    border: 1px solid #9a9ea2;
+	    line-height: 29px;
+	    text-align: center;
+	    float: left;
+	    cursor: pointer;
+	    margin-right: -1px;
+	    border-radius: 5px;
+	}
+	.time_box p{
+	    border: 0;
+	    margin-right: 27px;
+	    color: #6c7177;
+	}
+	.time_box span:hover,.time_box span.active{
+		color: #ffffff;
+		background: #59bfaa;
+	}
+	.diy{
+        margin-left: -63px;
+	    height: 29px;
+	    background: #fff;
+	    border: 1px solid #9a9ea2;
+	    line-height: 29px;
+	    float: left;
+		border-radius: 5px;
+		padding-left: 3px;
+	}
+</style>
+
+<!--时间选择-->
+<template id="time_box">
+	<div class="time_box clear">
+		<p>时间选择</p>
+		<span @click="change('24h',$event)" class="24h" :class="{'active':time=='24h'}">24h</span><span @click="change('today',$event)" class="today" :class="{'active':time=='today'}">今天</span><span @click="change('week',$event)" class="week" :class="{'active':time=='week'}">本周</span><span @click="change('month',$event)" class="month" :class="{'active':time=='month'}">本月</span><span @click.stop="change('diy',$event)" class="+" :class="{'active':time!='24h'&&time!='today'&&time!='week'&&time!='month'}">自定义</span>
+		<div class="diy" v-show="showHide">
+			<input placeholder="请输入日期" id="start_time" class="laydate-icon" onclick="laydate()">
+			<input placeholder="请输入日期" id="end_time" class="laydate-icon" onclick="laydate()">
+			<div class="button" @click="diyTimePost">确定</div>
+		</div>
+	</div>
+</template>
+
+<script>
+	/*
+	* 2016-9-23 by:曾竞
+	*
+	* 对时间控件进行了调整:增加判断自定义时间区间条件下,时间起始和终止的判断
+	* 对时间控件进行了调整:将active样式的添加调整为Vue样式绑定方式,弃用了jquery查找元素方式
+	*
+	* */
+	Vue.component('time-box',{
+		template:'#time_box',
+		props:{
+			time:'time',
+		},
+		data:function(){
+			return {
+				showHide:false
+			}
+		},
+		methods:{
+			change:function(time){
+				this.time=time;
+				if(time=='diy'){
+					this.diyShowHide();
+				}else{
+					this.timeChange(time);
+					this.showHide=false;
+				}
+			},
+			timeChange:function(time){
+				var This=this;
+				this.$dispatch('time-change',time);
+			},
+			diyShowHide:function(){
+				this.showHide=!this.showHide;
+			},
+			diyTimePost:function(e){
+				var correct = false,//标识时间选择是否正常
+				element=e.target||e.srcElement,$input=$(element).siblings('input'),time='',start_time = $input.filter('#start_time').val(),
+				end_time = $input.filter('#end_time').val();
+				if(start_time==''){
+					this.$Message.warning('请选择时间起点!');
+				}else if(end_time==''){
+					this.$Message.warning('请选择时间终点!');
+				}else{
+					start_time=start_time.split('-');
+					end_time=end_time.split('-');
+					if(start_time[0]<end_time[0]){//比较年份
+						correct = true;
+					}else if(start_time[0]==end_time[0]){
+						if(start_time[1]<end_time[1]){//比较月份
+							correct = true;
+						}else if(start_time[1]==end_time[1]){
+							if(start_time[2]<end_time[2]){//比较日期
+								correct = true;
+							}
+						}
+					}
+					if(correct){
+						$input.each(function(){
+							time+=$(this).val()+','
+						});
+						time=time.slice(0,time.length-1);
+						this.timeChange(time);
+					}else{
+						this.$Message.warning('时间终点必须在时间起点之后!');
+					}
+				}
+			}
+		}
+	});
+
+</script>

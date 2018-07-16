@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../js/bootstrap-3.3.5-dist/css/bootstrap.css"/>
+    <style>
+        [v-cloak]{
+            display: none;
+        }
+        body{
+            padding:20px;
+            font-size: 12px;
+        }
+        body:after{
+            content:'';
+            display: block;
+            clear:both;
+        }
+        .lf{
+            float: left;
+        }
+        .rf{
+            float: right;
+        }
+        div.time_box{
+            width:100%;
+        }
+        div.time_start,div.time_end{
+            position:relative;
+            width:230px;
+        }
+        div.time_pick{
+            border: 1px solid #ddd;
+            position:absolute;
+            width:225px;
+            height:250px;
+            background-color:#fff;
+            padding:10px;
+        }
+        table{
+            margin-top:10px;
+            width:100%;
+        }
+        tfoot{
+            position: absolute;
+            left:47px;
+            bottom:10px;
+            text-align: center;
+        }
+        tr:after{
+            content:'';
+            display: block;
+            clear:both;
+        }
+        thead th,tbody td{
+            width:14.29%;
+            text-align: center;
+            vertical-align: middle;
+        }
+        td span{
+            display: block;
+            width:20px;
+            height:20px;
+            color:#000;
+            text-align: center;
+            line-height: 20px;
+            border:1px solid #000;
+            border-radius: 50%;
+            margin:3px;
+            cursor:pointer;
+            background-color: #fff;
+        }
+        span:not(.disabled):hover,span:not(.disabled).active{
+            color: #ffffff;
+            background-color:#00C1B3;
+            border-color: #00C1B3;
+        }
+        p{
+            padding:5px;
+            width:90px;
+            border:1px solid #ddd;
+        }
+        .date_right{
+            color: #00C1B3;
+            border-color: #00C1B3;
+        }
+        .date_error{
+            color: orangered;
+            border-color: orangered;
+        }
+        .disabled{
+            cursor:not-allowed !important;
+            border-color:#ccc !important;
+            color:#ccc !important;
+        }
+    </style>
+    <style type="text/css"></style>
+</head>
+<body id="app" @click="hide_time_pick" v-cloak>
+    <div v-show="!in_diy">
+        <button type="button" @click="diy">自定义时间</button>
+    </div>
+    <div v-show="in_diy" class="lf time_box">
+        <div class="lf time_start">
+            <span>起始时间：</span>
+            <p @click.stop="show_time_pick" :class="{'date_right':date_status,'date_error':!date_status}">{{start_year_sel}}-{{start_month_sel}}-{{start_day_sel}}</p>
+            <div class="time_pick" v-show="show">
+                <select name="start_year_sel" id="start_year_sel" v-model="start_year_sel" @change="re_calc('start')">
+                    <option v-for="year in year_list" :value="year">{{year}}</option>
+                </select> 年
+                <select name="start_month_sel" id="start_month_sel" v-model="start_month_sel" @change="re_calc('start')">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select> 月
+                <select name="start_day_sel" id="start_day_sel" v-model="start_day_sel">
+                    <option v-for="data in start_day_opt" :value="data">{{data}}</option>
+                </select> 日
+                <table>
+                    <thead>
+                    <tr>
+                        <th>日</th>
+                        <th>一</th>
+                        <th>二</th>
+                        <th>三</th>
+                        <th>四</th>
+                        <th>五</th>
+                        <th>六</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(index,data) in start_day_list" :data-week="'week'+(index+1)">
+                        <td v-for="item in data" track-by="$index"> <span :class="{'active':item==start_day_sel,'disabled':(index==0&&item>=7)||(index!=0&&index!=1&&item<7)}" @click="change_day('start',item,$event)">{{item}}</span> </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="7">
+                            <button type="button" @click="init">重置</button>
+                            <button type="button" @click="submit_diy">确定</button>
+                            <button type="button" @click="cancle_diy">取消</button>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="lf time_end">
+            <span>结束时间：</span>
+            <p @click.stop="show_time_pick" :class="{'date_right':date_status,'date_error':!date_status}">{{end_year_sel}}-{{end_month_sel}}-{{end_day_sel}}</p>
+            <div class="time_pick" v-show="show">
+                <select name="end_year_sel" id="end_year_sel" v-model="end_year_sel" @change="re_calc('end')">
+                    <option v-for="year in year_list" :value="year">{{year}}</option>
+                </select> 年
+                <select name="end_month_sel" id="end_month_sel" v-model="end_month_sel" @change="re_calc('end')">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select> 月
+                <select name="end_day_sel" id="end_day_sel" v-model="end_day_sel">
+                    <option v-for="data in end_day_opt" :value="data">{{data}}</option>
+                </select> 日
+                <table>
+                    <thead>
+                    <tr>
+                        <th>日</th>
+                        <th>一</th>
+                        <th>二</th>
+                        <th>三</th>
+                        <th>四</th>
+                        <th>五</th>
+                        <th>六</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(index,data) in end_day_list" :data-week="'week'+(index+1)">
+                        <td v-for="item in data" track-by="$index"><span :class="{'active':item==end_day_sel,'disabled':(index==0&&item>=7)||(index!=0&&index!=1&&item<7)}" @click="change_day('end',item,$event)">{{item}}</span></td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="7">
+                            <button type="button" @click="init">重置</button>
+                            <button type="button" @click="submit_diy">确定</button>
+                            <button type="button" @click="cancle_diy">取消</button>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="../js/jquery-1.10.2.min.js"></script>
+<script src="../js/vue.js"></script>
+<script src="../js/bootstrap-3.3.5-dist/js/bootstrap.js"></script>
+<script>
+    var time_box = new Vue({
+        el:'#app',
+        data:{
+            show:false,
+            start_year_sel:0,
+            start_month_sel:0,
+            start_day_sel:0,
+            start_day_list:[],
+            end_year_sel:0,
+            end_month_sel:0,
+            end_day_sel:0,
+            end_day_list:[],
+            in_diy:false,//标志是否激活自定义时间功能
+            date_status:true,//标志位,标志时间插件设置是否正确,正确为true，否则为false
+            year_list:[],//存放当前时间前30年时间
+            start_day_opt:[],//存放起始年月下的天数
+            end_day_opt:[],//存放终点年月下的天数
+        },
+        created:function(){
+            this.init();
+        },
+        ready:function(){
+            this.start_day_list = this.init_day_list(this.start_year_sel,this.start_month_sel);
+            this.start_day_opt = this.init_day_opt(this.start_year_sel,this.start_month_sel);
+            this.end_day_list = this.init_day_list(this.end_year_sel,this.end_month_sel);
+            this.end_day_opt = this.init_day_opt(this.end_year_sel,this.end_month_sel);
+            this.validate();
+        },
+        methods:{
+            init:function(){
+                var date = new Date();
+                var year = date.getFullYear(),
+                    month = date.getMonth()+1,
+                    day = date.getDate();
+                this.start_year_sel = year;
+                this.start_month_sel = month;
+                this.start_day_sel = day;
+                this.end_year_sel = year;
+                this.end_month_sel = month;
+                this.end_day_sel = day;
+                for(var i=0,len=40;i<len;i++){
+                    this.year_list[i]=year-30+i;
+                }
+                this.date_status = true;
+            },
+            init_day_list:function(year,month){//初始化日期选择面板
+                var day_count = this.calc_day_count(year,month);//本月天数
+                var pre_day_count = this.calc_day_count(year,month-1);//上个月天数
+
+                var weeks = this.calc_weeks(year,month);
+                var first_date = new Date(year,month-1,1);//本月第一天是周几
+                var last_date = new Date(year,month-1,day_count);//本月最后一天是周几
+
+                var first_day = first_date.getDay();
+                var last_day = last_date.getDay();
+                var obj = {};
+                var arr = [];
+                for(let i=1;i<=day_count;i++){
+                    arr[i-1] = i;
+                }
+                if(first_day!=0){
+                    for(;first_day>0;first_day--,pre_day_count--){
+                        arr.unshift(pre_day_count);
+                    }
+                }
+                if(last_day!=6){
+                    for(let i=1;i<=6-last_day;i++){
+                        arr.push(i);
+                    }
+                }
+                for(let i=0;i<weeks;i++){
+                    obj[i]=[];
+                    for(let k=0;k<=6;k++){
+                        obj[i][k]=arr[6*i+k+i];
+                    }
+                }
+                return obj;
+            },
+            init_day_opt:function(year,month){//初始化日期下拉菜单
+                var day_opt=[];
+                var day_count = this.calc_day_count(year,month);//本月天数
+                for(let i=0;i<day_count;i++){
+                    day_opt[i]=i+1;
+                }
+                return day_opt;
+            },
+            diy:function(){
+                this.in_diy=true;
+                this.init();
+            },
+            cancle_diy:function(){
+                this.show=false;
+            },
+            submit_diy:function(){
+                if(!this.date_status){
+                    alert('结束日期必须在起始日期之后,请重新填写');
+                    return;
+                }
+                this.show=false;
+                alert(''+this.start_year_sel+this.start_month_sel+this.start_day_sel+'-'+this.end_year_sel+this.end_month_sel+this.end_day_sel);
+            },
+            show_time_pick:function(){
+                this.show = true;
+            },
+            hide_time_pick:function(e){
+                if((!$(e.target).hasClass('time_pick'))&&$(e.target).parents('.time_pick').length==0){
+                    this.show = false;
+                }
+            },
+            change_day:function(key,day,e){
+                if($(e.target).hasClass('disabled')){
+                    return;
+                }
+                if(key=='start'){
+                    this.start_day_sel = day;
+                }else if(key=='end'){
+                    this.end_day_sel = day;
+                }
+                this.validate();
+            },
+            calc_weeks:function(year,month){//计算该月的周数
+                //保存本月有多少周
+                var day_count = this.calc_day_count(year,month);
+                var day_total = this.completion(year,month,day_count);
+                return day_total/7;
+            },
+            calc_day_count:function(year,month){//计算X年X月下的天数
+                year = parseInt(year);
+                month = parseInt(month);
+                var day_count,
+                    is_leap_year=false;
+                if(year%400===0||(year%4===0&&year%100!==0)){
+                    is_leap_year=true;
+                }
+                switch (month){
+                    case 1:
+                    case 3:
+                    case 5:
+                    case 7:
+                    case 8:
+                    case 10:
+                    case 12:
+                        day_count=31;
+                        break;
+                    case 4:
+                    case 6:
+                    case 9:
+                    case 11:
+                        day_count=30;
+                        break;
+                    case 2:
+                        if(is_leap_year){
+                            day_count=29;
+                        }else{
+                            day_count=28;
+                        }
+                        break;
+                }
+                return day_count;
+            },
+            completion:function(year,month,day_count){//补全该月的天数至整周
+                //计算出本月第一天和最后一天分别是星期几
+                var first_date = new Date(year,month-1,1);
+                var first_day = first_date.getDay();
+                var last_date = new Date(year,month-1,day_count);
+                var last_day = last_date.getDay();
+                //保存填满每一周之后的天数,实际在本月日历上应该出现的天数
+                var day_total=day_count;
+
+                if(first_day!=0){
+                    day_total += first_day;
+                }
+                if(last_day!=6){
+                    day_total += 6-last_day;
+                }
+                return day_total;
+            },
+            re_calc:function(key){
+                if(key=='start'){
+                    this.start_day_list = this.init_day_list(this.start_year_sel,this.start_month_sel);
+                    this.start_day_opt = this.init_day_opt(this.start_year_sel,this.start_month_sel);
+                }else if(key=='end'){
+                    this.end_day_list = this.init_day_list(this.end_year_sel,this.end_month_sel);
+                    this.end_day_opt = this.init_day_opt(this.end_year_sel,this.end_month_sel);
+                }
+                this.validate();
+            },
+            validate:function(){
+                if(this.start_year_sel>this.end_year_sel){
+                    this.date_status = false;
+                }else if(this.start_year_sel==this.end_year_sel){
+                    if(this.start_month_sel>this.end_month_sel){
+                        this.date_status = false;
+                    }else if(this.start_month_sel==this.end_month_sel){
+                        if(this.start_day_sel>this.end_day_sel){
+                            this.date_status = false;
+                        }else{
+                            this.date_status = true;
+                        }
+                    }else{
+                        this.date_status = true;
+                    }
+                }else{
+                    this.date_status = true;
+                }
+            }
+        }
+    });
+</script>
+</html>

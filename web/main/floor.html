@@ -1,0 +1,39 @@
+<div class="floor_select">
+
+    <div class="floor_prev" v-on:click.stop="prev_floor"></div>
+    <div class="floor_list">
+        <ul id="floor_ul">
+            <li v-for="(index,item) in floor_list"
+                v-bind:class="{'active':(index==floor_index)}"
+                v-on:click.stop="select_floor(index)">
+
+                <img v-bind:src="item.map||'../common/images/layout_default.jpg'" v-bind:alt="item.name" @load="removeBg()"/>
+
+                <svg id="floor_svg_{{item.env_no}}" class="svg_Area">
+
+                </svg>
+            </li>
+        </ul>
+    </div>
+    <div class="floor_next" v-on:click.stop="next_floor"></div>
+
+</div>
+
+<div class="floor_info">
+    <div class="top">
+        <h2>{{floor_name}}</h2>
+        <a class="more" href="../floor?env_no={{floor_env_no}}">进入本层详情<i>&gt;</i></a>
+    </div>
+
+    <div id="env_basic" class="basic">
+
+    </div>
+    <div id="relic_basic" class="basic">
+		
+    </div>
+    <div class="tips">暂无数据</div>
+    <div id="sensor_basic" class="basic">
+
+    </div>
+
+</div>

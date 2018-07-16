@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>生成评估报告</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+    <link href="css/init.css" rel="stylesheet" type="text/css"/>
+    <style>
+        #museum_name {
+            color: #00d;
+        }
+    </style>
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="js/vue.min.js"></script>
+    <script type="text/javascript" src="element/element.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="easyui/window.js"></script>
+
+    <script type="text/javascript" src="js/socket.io.min.js"></script>
+    <script type="text/javascript" src="js/my.socket.io.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+</head>
+
+<body>
+
+<div id="cc" class="easyui-layout" data-options="fit:true">
+
+    <div data-options="region:'north',title:'切换数据源，存在多个数据库才生效'" style="height:70px;padding:10px 10px;">
+
+        选择数据库：
+        <select name="db" id="db">
+
+        </select>
+        注：选择数据库将重启程序，修改配置，需要等待一会，且此操作具有全局唯一性，不能多人进行操作。
+
+    </div>
+    <div data-options="region:'west',title:'手动生成报告',split:true" style="width:500px;">
+
+        <div id="operate" style="height: 125px;padding:1%;display: none;">
+            <div id="sensorText" style="padding-bottom: 3px;line-height: 1.5"></div>
+            <input class="easyui-textbox" style="width: 40%;height: 25px;line-height: 25px;" name="times" id="times"
+                   placeholder="时间段"/>
+            <a class="easyui-linkbutton" data-options="iconCls:'icon-add'" href="javascript:create_report()">生成报告</a>
+            <a class="easyui-linkbutton" data-options="iconCls:'icon-cancel'"
+               href="javascript:stop_report()">停止运行</a>
+
+            <div style="padding: 5px 0;line-height: 1.5">
+                时间段:20170501-20180501,季度:2017[1-4],月度:2017[01-12],年度:2017,
+                <br/>
+                指定报表ID重新生成图片或word：img 1,docx 2,imgdocx 2
+            </div>
+            <div>
+                <a class="easyui-linkbutton" data-options="iconCls:'icon-reload'"
+                   href="javascript:pull_code()">pull代码</a>
+                系统每个季度第一天自动生成上一季度的报告
+
+            </div>
+        </div>
+        <pre id="report_data"
+             style="border: 1px solid #ccc;height: calc(100% - 140px);width: 98%;overflow: auto;white-space: pre-wrap;word-wrap: break-word;margin: 0 auto;"></pre>
+
+    </div>
+    <div data-options="region:'center',title:'评估报告列表(<span id=\'museum_name\'></span>)',split:true" style="width:50%;">
+        <table id="sensorgrid"></table>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    
+
+    socket.on('connect', function () {
+        $('#sensorText').html('<span style="color: #0b0;">连接服务成功</span>');
+        socket.emit('report');
+        $.messager.progress({
+            title:'Please waiting',
+            msg:'Loading data...'
+        });
+
+        load_db(function () {
+            searchSensor();
+            $.messager.progress('close');
+        });
+    });
+
+    socket.on('report_reload', function () {
+        console.log('report_reload');
+        searchSensor();
+    });
+
+    socket.on('report_data', function (data) {
+        console.log('report_data');
+        var $text = $('#report_data');
+        var $str = data.replace(/\[\S*\s/g, ' ').trim() + "\r\n\r\n";
+        $text.append($str);
+        var scrollTop = $text[0].scrollHeight;
+        $text.scrollTop(scrollTop);
+    });
+
+    function searchSensor() {
+        var json = {};
+        json.db = $('#db').val();
+        if (!json.db) {
+            console.log('db is null');
+            return;
+        }
+        if (searchSensor.loading) {
+            return;
+        }
+        if (searchSensor.init) {
+            $('#sensorgrid').datagrid('load', json);
+            return;
+        }
+
+        $('#sensorgrid').datagrid({
+            url: 'report/list',
+            queryParams: json,
+            singleSelect: true,
+            rownumbers: true,
+            fit: true,
+            border: false,
+            pagination: true,
+            pageSize: 50,
+            remoteSort: false,
+            fitColumns: true,
+            onDblClickRow: function (index, row) {
+                open_report(row);
+            },
+            columns: [
+                [
+                    {field: 'id', width: 50, title: '报表ID'},
+                    {field: 'museum_name', width: 150, title: '博物馆名称'},
+                    {field: 'report_type', width: 80, title: '报表类型'},
+                    {field: 'report_name', width: 150, title: '报表名称'},
+                    {field: 'report_time_range', width: 150, title: '时间范围'},
+                    {
+                        field: 'generate_time', width: 150, title: '生成时间', formatter: function (value) {
+                        return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                    }
+                    },
+                    {field: 'generate_status', width: 60, title: '状态'},
+                    {
+                        field: 'generate_total_time', width: 60, title: '执行时间',
+                        formatter: function (value, row, index) {
+                            if (value == 0) {
+                                return '';
+                            } else if (value < 60) {
+                                return value + 's';
+                            } else {
+                                return (value / 60).toFixed(0) + 'm';
+                            }
+                        }
+                    },
+                    {
+                        field: 'report_file', width: 80, title: '下载', sortable: true,
+                        formatter: function (value, row, index) {
+                            if (row.report_file) {
+                                return '<a href="report/down?file=' + row.report_file + '" target="_blank">点击下载</a>';
+                            }
+                            return '';
+                        }
+                    }
+                ]
+            ],
+            onLoadSuccess: function () {
+                searchSensor.loading = false;
+            }
+        });
+        searchSensor.init = true;
+        searchSensor.loading = true;
+    }
+
+    searchSensor.init = false;
+
+    function load_db(callback) {
+
+        var $db = $('#db');
+
+        var $times = $('#times');
+
+        $db.empty();
+
+        store.session('times') && $times.textbox('setValue', store.session('times'));
+
+        $.post('report/db', function (data) {
+
+            if (!data || !data['list']) {
+                callback && callback();
+                return;
+            }
+
+            _.each(data.list, function (row) {
+                $db.append('<option value="' + row.db_name + '">' + row.db_name + '</option>');
+            });
+            store.session('db', data.now);
+            $db.val(data.now);
+            $('#museum_name').text(data.museum_name + '-' + new Date(data.max_equip_time * 1000).Format("yyyy-M-d h:m:s"));
+            $db.change(function () {
+                var db = $db.val();
+                $.messager.confirm("确认切换数据源", '此操作具有唯一性，不能多人进行操作，确认切换？', function (r) {
+                    if (r) {
+                        $.post('report/change_db', {db: db}, function (data) {
+                            if (data.error) {
+                                $.messager.alert('错误', data.error);
+                                return;
+                            }
+                        });
+                    } else {
+                        $db.val(store.session('db'));
+                    }
+                });
+            });
+            $('#operate').show();
+            callback && callback();
+
+        });
+
+    }
+
+
+    function pull_code() {
+        socket.emit('report_pull');
+    }
+
+    function create_report() {
+        var $times = $('#times').textbox('getValue');
+        store.session('times', $times);
+        socket.emit('report_create', {times: $times});
+        setTimeout(searchSensor, 5000);
+    }
+
+    function stop_report() {
+
+        socket.emit('report_stop');
+
+    }
+
+    function open_report(report) {
+        $.window({
+            winId: 'reportWin',
+            title: report.report_name,
+            ajaxType: 'get',
+            width: 1100,
+            height: 510,
+            url: 'report_info.html?v=' + new Date().getTime(),
+            onComplete: function () {
+                $('#report_id').val(report.id);
+                var search_report = store.session('search_report') || {};
+                $('#table').combobox('setValue', search_report.table || 'content');
+                $('#key').textbox('setValue', search_report.key || '');
+                searchReport();
+            }
+        });
+    }
+
+
+    function searchReport() {
+        var json = {};
+        json.report_id = $('#report_id').val();
+        json.table = $('#table').combobox('getValue');
+        json.key = $('#key').textbox('getValue');
+
+        if (!table_columns[json.table]) {
+            return;
+        }
+        store.session('search_report', json);
+
+        $('#reportDataGrid').datagrid({
+            url: 'report/info',
+            toolbar: '#reportTool',
+            queryParams: json || {},
+            fit: true,
+            border: false,
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            pageSize: 15,
+            pageList:[10,15,20,30,50],
+            fitColumns: true,
+            columns: [table_columns[json.table]],
+            onLoadSuccess: function () {
+                $('.img').tooltip({
+                    content: function () {
+                        return "<img src='" + $(this).attr('href') + "' style='width: 400px;'>";
+                    }
+                });
+            }
+        })
+    }
+
+    var table_columns = {
+        content: [
+            {field: 'content_key', width: 300, title: '文本key'},
+            {field: 'content_value', width: 700, title: '文本val'}
+        ],
+        images: [
+            {field: 'id', width: 100, title: 'ID'},
+            {field: 'image_key', width: 300, title: '图片key'},
+            {
+                field: 'image_url', width: 700, title: '图片地址',
+                formatter: function (value) {
+                    var str = '';
+                    if (value) {
+                        str += '<a class="img" href="report/image?file=' + value + '?v=' + new Date().getTime() + '" target="_blank">' + value + '</a>';
+                    }
+                    return str;
+                }
+            },
+            {
+                field: 'image_data', width: 700, title: '图片数据',
+                formatter: function (value, row, index) {
+
+                    return '<textarea rows="3" style="width: 100%">' + unescape(value.replace(/\\/g, "%")) + '</textarea>';
+                }
+            }
+        ],
+        table_data_desc: [
+            {field: 'sheet_name', width: 300, title: '表格标题'},
+            {field: 'env_name', width: 200, title: '环境名称'},
+            {field: 'total_count', width: 80, title: 'N(数据量)'},
+            {field: 'range', width: 80, title: '全距'},
+            {field: 'min', width: 80, title: '极小值'},
+            {field: 'max', width: 80, title: '极大值'},
+            {field: 'avg', width: 80, title: '均值'},
+            {field: 'std', width: 80, title: '标准差'}
+        ],
+        table_rang_std_day: [
+            {field: 'sheet_name', width: 300, title: '表格标题'},
+            {field: 'env_name', width: 200, title: '环境名称'},
+            {field: 'range_max', width: 80, title: '日波动最大值'},
+            {field: 'range_min', width: 80, title: '日波动最小值'},
+            {field: 'range_avg', width: 80, title: '日波动均值'},
+            {field: 'std_max', width: 80, title: '标准差最大值'},
+            {field: 'std_min', width: 80, title: '标准差最小值'},
+            {field: 'std_avg', width: 80, title: '标准差均值'}
+        ],
+        table_rang_std_date: [
+            {field: 'sheet_name', width: 300, title: '表格标题'},
+            {field: 'env_name', width: 200, title: '环境名称'},
+            {field: 'range_max_date', width: 100, title: '日波动最大日期'},
+            {field: 'range_min_date', width: 100, title: '日波动最小日期'},
+            {field: 'std_max_date', width: 100, title: '标准差最大日期'},
+            {field: 'std_min_date', width: 100, title: '标准差最小日期'}
+        ]
+    }
+    
+</script>
+</body>
+</html>

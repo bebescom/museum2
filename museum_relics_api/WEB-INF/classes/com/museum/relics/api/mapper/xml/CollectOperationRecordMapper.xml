@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.relics.api.mapper.CollectOperationRecordMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.museum.relics.api.entity.CollectOperationRecord">
+		<id column="id" property="id" />
+		<result column="op_id" property="opId" />
+		<result column="task_id" property="taskId" />
+		<result column="type" property="type" />
+		<result column="time" property="time" />
+		<result column="operator_username" property="operatorUsername" />
+		<result column="exception_picture_url" property="exceptionPictureUrl" />
+		<result column="exception_desc" property="exceptionDesc" />
+		<result column="exception_process" property="exceptionProcess" />
+		<result column="timestamp" property="timestamp" />
+	</resultMap>
+
+</mapper>

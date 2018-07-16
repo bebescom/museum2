@@ -1,0 +1,91 @@
+/*柜体概况-start*/
+[v-cloak] {
+	display: none;
+}
+.overview .view{
+	width: 70px;
+	height: 70px;
+	float: left;
+}
+.overview .size{
+	float: left;
+	width: 240px;
+	text-indent: 12px;
+	margin-bottom: 26px;
+}
+.overview .size p{
+	height: 35px;
+	line-height: 35px;
+	color: #9fa6ac;
+	font-size: 14px;
+}
+.overview .size p span{
+	color: #66747f;
+}
+.overview .gray{
+	font-size: 14px;
+	margin-bottom: 10px;
+	clear: both;
+}
+
+.overview .police span{
+	margin-top: 10px;
+	padding-left:28px;
+	font-size: 12px; 
+	width: 73px;
+	height: 32px;
+	line-height: 32px;
+    display: inline-block;
+    background: url('images/small.png') no-repeat 0 -190px;
+    display: none;
+}
+.overview .police span.shock{
+	background-position: 0 -224px;
+}
+.overview .police span:hover{
+	text-decoration: underline;
+}
+
+/*以下部分，样式调整，by 曾竞*/
+div.left div.overview ul.surround *{
+	box-sizing: border-box;
+}
+.overview ul.surround{
+	display: block;
+}
+.overview ul.surround:after{
+	display: block;
+	content:'';
+	clear:both;
+}
+.overview ul.surround li{
+	width:50%;
+}
+.overview ul.surround li input{
+	width:35%;
+	padding-left:3px;
+}
+.overview p.gray b {
+	display: inline-block;
+	float:right;
+	height:22px;
+	width:22px;
+	background:url('images/small.png') no-repeat -3px -295px;
+	cursor:pointer;
+	margin-right:10px;
+}
+.overview p.gray b.submit{
+	background:url('images/small.png') no-repeat -3px -265px;
+}
+.overview p.gray b.cancel_icon{
+	background:url('images/small.png') no-repeat -3px -327px;
+}
+.overview p.gray b.error{
+	background:url('images/small.png') no-repeat -3px -350px;
+}
+.overview p.gray span.alert_info{
+	color:#eb4f37;
+	font-weight: bold;
+	margin-left:75px;
+}
+/*柜体概况-end*/

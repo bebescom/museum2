@@ -1,0 +1,52 @@
+/*模块公共样式类*/
+div.moduleContainer{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+}
+div.moduleContainer input.ivu-input{
+    box-sizing: border-box !important;
+}
+div.moduleContainer>header{
+    height: 50px;
+    background: #ffffff;
+    line-height: 50px;
+    position: relative;
+    box-shadow: -1px 1px 3px 1px #ccc;
+}
+div.moduleContainer>section{
+    position: absolute;
+    top:50px;
+    left:0;
+    right:0;
+    bottom:0;
+}
+div.moduleContainer header div.topTitle{
+    font-size: 16px;
+    color: #282a33;
+    font-weight: 800;
+    float:left;
+    margin:0 15px 0 15px;
+    cursor:pointer;
+}
+div.moduleContainer header div.topFunction{
+    position:absolute;
+    right:15px;
+}
+div.moduleContainer section div.cultural_relics_screening{
+    left:15px;
+    right:0;
+    /*border:1px solid red;*/
+}
+div.moduleContainer section .relicTableContainer{
+    top:10px;
+    left:15px;
+    right:15px;
+    bottom:15px;
+    overflow: auto;
+}
+div.moduleContainer section .relicTableContainer section.tableWrap{
+    overflow: auto;
+}

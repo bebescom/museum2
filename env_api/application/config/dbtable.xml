@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dbtable [
+        <!ELEMENT dbtable (tablename)*>
+        <!ELEMENT tablename (field)*>
+        <!ATTLIST tablename
+                chn CDATA #REQUIRED
+                en CDATA #REQUIRED>
+        <!ELEMENT field (#PCDATA)>
+        <!ATTLIST field
+                chn CDATA #REQUIRED
+                en CDATA #REQUIRED>
+        ]>
+<dbtable>
+    <tablename en="equipment" chn="设备概览表">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="status" chn="设备状态"/>
+        <field en="equip_type" chn="设备类型"/>
+        <field en="name" chn="设备名称"/>
+        <field en="equip_no" chn="设备ID"/>
+        <field en="env_no" chn="设备位置"/>
+        <field en="last_equip_time" chn="最新数据时间"/>
+        <field en="parameter_val" chn="最新数据"/>
+        <field en="first" chn="最近事件"/>
+        <field en="second" chn="次近事件"/>
+        <field en="third" chn="近期事件"/>
+        <field en="remark" chn="备注"/>
+    </tablename>
+
+  <tablename en="equip_data" chn="设备监测数据列表">
+    <field en="equip_time" chn="数据测量时间"/>
+    <field en="temperature" chn="温度(℃)"/>
+    <field en="humidity" chn="湿度(%)"/>
+    <field en="light" chn="光照(Lx)"/>
+    <field en="uv" chn="紫外(μw/cm²)"/>
+    <field en="co2" chn="二氧化碳(ppm)"/>
+    <field en="voc" chn="有机挥发物(ppb)"/>
+    <field en="organic" chn="有机污染物(Hz)"/>
+    <field en="sulfur" chn="硫化污染物(Hz)"/>
+    <field en="inorganic" chn="无机污染物(Hz)"/>
+    <field en="canbi" chn="参比(Hz)"/>
+    <field en="wind_direction" chn="风向(度)"/>
+    <field en="wind_speed" chn="风速(m/s)"/>
+    <field en="rain" chn="雨量(mm/min)"/>
+    <field en="pm25" chn="PM2.5(ug/m³)"/>
+    <field en="pm10" chn="PM1.0(ug/m³)"/>
+    <field en="air_presure" chn="气压(hpa)"/>
+    <field en="soil_temperature" chn="土壤温度(℃)"/>
+    <field en="soil_humidity" chn="土壤含水率(RH/%)"/>
+    <field en="soil_conductivity" chn="土壤电导率(us/cm)"/>
+    <field en="soil_salt" chn="土壤含盐量(mg/L)"/>
+      <field en="cascophen" chn="甲醛(ppm)"/>
+      <field en="broken" chn="玻璃破碎"/>
+      <field en="vibration" chn="震动"/>
+      <field en="multi_wave" chn="多维驻波"/>
+    <field en="voltage" chn="电压(V)"/>
+  </tablename>
+
+    <tablename en="equipment_sensor" chn="监测终端">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="equip_id" chn="设备编号"/>
+        <field en="equip_name" chn="设备名称"/>
+        <field en="equip_type" chn="设备类型"/>
+         <field en="parameter" chn="参数"/>
+        <field en="use_situation" chn="使用情况"/>
+        <field en="status" chn="状态"/>
+        <field en="equip_position" chn="设备位置"/>
+        <field en="sleep" chn="休眠时间"/>
+        <field en="voltage" chn="电压值"/>
+        <field en="rssi" chn="信号质量"/>
+        <field en="receivetime" chn="采集时间"/>
+        <field en="header" chn="负责人"/>
+        <field en="producer" chn="生产商"/>
+        <field en="equip_model" chn="设备型号"/>
+        <field en="manufacture_id" chn="出厂编号"/>
+
+    </tablename>
+	
+	 <tablename en="equipment_controller" chn="调控设备">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="equip_id" chn="设备编号"/>
+        <field en="equip_name" chn="设备名称"/>
+        <field en="equip_type" chn="设备类型"/>
+        <field en="use_situation" chn="使用情况"/>
+        <field en="status" chn="状态"/>
+         <field en="parameter" chn="参数"/>
+        <field en="equip_position" chn="设备位置"/>
+         <field en="voltage" chn="电压值"/>
+         <field en="rssi" chn="信号质量"/>
+         <field en="receivetime" chn="采集时间"/>
+        <field en="header" chn="负责人"/>
+        <field en="producer" chn="生产商"/>
+        <field en="equip_model" chn="设备型号"/>
+        <field en="manufacture_id" chn="出厂编号"/>
+    </tablename>
+  <tablename en="relic.operation.back" chn="文物归还记录">
+      <field en="No" chn="单据编号"/>
+      <field en="for" chn="原始单据"/>
+      <field en="relic_No" chn="文物编号"/>
+      <field en="relic_name" chn="文物名称"/>
+      <field en="responsible" chn="责任人"/>
+      <field en="quantity" chn="数量"/>
+      <field en="time" chn="归还日期"/>
+      <field en="who_do" chn="经办人"/>
+      <field en="box_No" chn="保存囊匣编号"/>
+      <field en="box_name" chn="保存囊匣名字"/>
+      <field en="description" chn="备注"/>
+      <field en="discarded" chn="是否废弃"/>
+
+
+  </tablename>
+
+    <tablename en="relic.operation.out" chn="文物外借记录">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="No" chn="单据编号"/>
+        <field en="relic_No" chn="文物编号"/>
+        <field en="relic_name" chn="文物名称"/>
+        <field en="borrowed_unit" chn="外借单位"/>
+        <field en="quantity" chn="数量"/>
+        <field en="time" chn="起始日期"/>
+        <field en="during" chn="外借天数"/>
+        <field en="responsible" chn="责任人"/>
+        <field en="who_do" chn="经办人"/>
+        <field en="box_No" chn="保存囊匣编号"/>
+        <field en="box_name" chn="保存囊匣名字"/>
+        <field en="description" chn="备注"/>
+        <field en="discarded" chn="是否废弃"/>
+
+    </tablename>
+
+    <tablename en="relic.operation.fix" chn="文物维修记录">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="No" chn="单据编号"/>
+        <field en="relic_No" chn="文物编号"/>
+        <field en="relic_name" chn="文物名称"/>
+        <field en="fix_place" chn="维修单位"/>
+        <field en="quantity" chn="数量"/>
+        <field en="time" chn="起始日期"/>
+        <field en="during" chn="维修天数"/>
+        <field en="responsible" chn="责任人"/>
+        <field en="who_do" chn="经办人"/>
+        <field en="box_No" chn="保存囊匣编号"/>
+        <field en="box_name" chn="保存囊匣名字"/>
+        <field en="description" chn="备注"/>
+        <field en="discarded" chn="是否废弃"/>
+    </tablename>
+
+    <tablename en="relic.operation.show" chn="文物展出记录">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="No" chn="单据编号"/>
+        <field en="relic_No" chn="文物编号"/>
+        <field en="relic_name" chn="文物名称"/>
+        <field en="show_place" chn="展出单位"/>
+        <field en="quantity" chn="数量"/>
+        <field en="time" chn="起始日期"/>
+        <field en="during" chn="展出天数"/>
+        <field en="responsible" chn="责任人"/>
+        <field en="who_do" chn="经办人"/>
+        <field en="box_No" chn="保存囊匣编号"/>
+        <field en="box_name" chn="保存囊匣名字"/>
+        <field en="description" chn="备注"/>
+        <field en="discarded" chn="是否废弃"/>
+    </tablename>
+
+    <tablename en="relic.operation.innerMove" chn="文物馆内移动记录">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="No" chn="单据编号"/>
+        <field en="relic_No" chn="文物编号"/>
+        <field en="relic_name" chn="文物名称"/>
+        <field en="from" chn="原地点"/>
+        <field en="to" chn="目的地"/>
+        <field en="time" chn="移动日期"/>
+        <field en="responsible" chn="责任人"/>
+        <field en="quantity" chn="数量"/>
+        <field en="who_do" chn="经办人"/>
+        <field en="description" chn="备注"/>
+        <field en="discarded" chn="是否废弃"/>
+
+    </tablename>
+
+    <tablename en="relic.operation.lost" chn="文物丢失记录">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="No" chn="单据编号"/>
+        <field en="relic_No" chn="文物编号"/>
+        <field en="relic_name" chn="文物名称"/>
+        <field en="place" chn="丢失单位"/>
+        <field en="quantity" chn="丢失数量"/>
+        <field en="time" chn="丢失日期"/>
+        <field en="responsible" chn="责任人"/>
+        <field en="who_do" chn="经办人"/>
+        <field en="description" chn="备注"/>
+        <field en="discarded" chn="是否废弃"/>
+
+    </tablename>
+
+    <tablename en="relic.operation.logout" chn="文物注销记录">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="No" chn="单据编号"/>
+        <field en="relic_No" chn="文物编号"/>
+        <field en="relic_name" chn="文物名称"/>
+        <field en="time" chn="注销日期"/>
+        <field en="responsible" chn="责任人"/>
+        <field en="who_do" chn="经办人"/>
+        <field en="description" chn="备注"/>
+        <field en="discarded" chn="是否废弃"/>
+    </tablename>
+
+    <tablename en="relic_list" chn="文物列表">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="relic_no" chn="文物编号"/>
+        <field en="name" chn="文物名称"/>
+        <field en="level" chn="文物级别"/>
+        <field en="age" chn="年代"/>
+        <field en="material" chn="文物材质"/>
+        <field en="category" chn="文物类别"/>
+        <field en="nav" chn="存放位置"/>
+        <field en="status" chn="状态"/>
+        <field en="describe" chn="文物描述"/>
+    </tablename>
+
+    <tablename en="box_list" chn="囊匣列表">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="No" chn="囊匣编号"/>
+        <field en="name" chn="囊匣名称"/>
+        <field en="box_type" chn="囊匣种类"/>
+        <field en="box_style" chn="囊匣样式"/>
+        <field en="belong" chn="存放位置"/>
+        <field en="long" chn="长（cm)"/>
+        <field en="width" chn="宽(cm)"/>
+        <field en="height" chn="高(cm)"/>
+        <field en="relic_No" chn="保存文物编号"/>
+        <field en="relic_name" chn="保存文物名称"/>
+    </tablename>
+
+    <tablename en="data_table" chn="数据表">
+        <!--<field en="_id" chn="_id"/>-->
+        <field en="equip_no" chn="设备编号"/>
+        <field en="env_no" chn="环境编号"/>
+        <field en="env_name" chn="安装位置"/>
+        <field en="server_time" chn="接收时间"/>
+        <field en="equip_time" chn="发出时间"/>
+        <field en="temperature" chn="温度(℃)"/>
+        <field en="humidity" chn="湿度(RH/%)"/>
+        <field en="co2" chn="二氧化碳(ppm)"/>
+        <field en="voc" chn="VOC(ppb)"/>
+        <field en="organic" chn="有机污染物(Hz)"/>
+        <field en="sulfur" chn="硫化污染物(Hz)"/>
+        <field en="inorganic" chn="无机污染物(Hz)"/>
+        <field en="light" chn="光照(Lx)"/>
+        <field en="uv" chn="紫外(μw/lm)"/>
+        <field en="wind_direction" chn="风向(度)"/>
+        <field en="wind_speed" chn="风速(m/s)"/>
+        <field en="rain" chn="雨量(mm/min)"/>
+        <field en="pm25" chn="PM2.5(ug/m3)"/>
+        <field en="pm10" chn="PM1.0(ug/m3)"/>
+        <field en="air_presure" chn="气压(hpa)"/>
+        <field en="canbi" chn="参比(Hz)"/>
+        <field en="soil_temperature" chn="土壤温度(℃)"/>
+        <field en="soil_humidity" chn="土壤含水率(RH/%)"/>
+        <field en="soil_conductivity" chn="土壤电导率(us/cm)"/>
+        <field en="cascophen" chn="甲醛(ppm)"/>
+        <!--<field en="broken" chn="玻璃破碎"/>-->
+        <!--<field en="vibration" chn="震动"/>-->
+        <!--<field en="multi_wave" chn="多维驻波"/>-->
+        <field en="voltage" chn="电压(V)"/>
+        <field en="rssi" chn="信号强度"/>
+    </tablename>
+
+    <tablename en="monitor_overview" chn="环境监测概览表">
+        <field en="env_name" chn="监测环境"/>
+        <field en="temperature_threshold" chn="温度-阈值"/>
+        <field en="temperature_extremum" chn="温度-极值"/>
+        <field en="temperature_average" chn="温度-平均值"/>
+        <field en="temperature_standard_reach" chn="温度-达标率"/>
+        <!--<field en="temperature_cv" chn="温度-离散系数"/>-->
+        <!--<field en="temperature_max_fluctuate" chn="温度-最大日波动"/>-->
+        <!--<field en="temperature_avg_fluctuate" chn="温度-平均日波动"/>-->
+        <field en="humidity_threshold" chn="湿度-阈值"/>
+        <field en="humidity_extremum" chn="湿度-极值"/>
+        <field en="humidity_average" chn="湿度-平均值"/>
+        <field en="humidity_standard_reach" chn="湿度-达标率"/>
+        <!--<field en="humidity_cv" chn="湿度-离散系数"/>-->
+        <!--<field en="humidity_max_fluctuate" chn="湿度-最大日波动"/>-->
+        <!--<field en="humidity_avg_fluctuate" chn="湿度-平均日波动"/>-->
+    </tablename>
+</dbtable>

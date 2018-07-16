@@ -1,0 +1,464 @@
+.drag {
+    position: absolute;
+    bottom: -11px;
+    background: #f5f2de url('img/drag_btn.png') no-repeat center 9px;
+    width: 98%;
+    height: 27px;
+    margin-left: -10px;
+    cursor: pointer;
+}
+
+.drag.active {
+    background-position: center -31px;
+}
+
+.panel-group{
+    margin-bottom:0;
+}
+/*弹出层*/
+.drag_box {
+    width: 406px;
+    height: 263px;
+    overflow: hidden;
+    position: absolute;
+    background-color: #ffffff;
+    box-shadow: 0 0 15px #d0d0d0;
+    top: 0;
+    z-index: 9999;
+    font-size: 12px;
+    display: none;
+}
+
+.toolbar{
+    background: url('img/close.jpg') no-repeat center;
+    cursor: pointer;
+    padding: 15px;
+    opacity: 1;
+    float: right;
+}
+
+.toolbar:hover {
+    opacity: 0.5;
+}
+.nail{
+    background: url("img/thumbtack.png") no-repeat center;
+    background-size: 75%;
+    transition:all .5s;
+}
+.nail.work,.nail:hover{
+    transform: rotate(-44deg);
+    -ms-transform: rotate(-44deg);       /* IE 9 */
+    -webkit-transform: rotate(-44deg);   /* Safari and Chrome */
+    -o-transform: rotate(-44deg);        /* Opera */
+    -moz-transform: rotate(-44deg);  
+    background-position: 0px 6px;
+}
+.drag_box .box_ {
+    position: relative;
+    height: 148px;
+    top: -24px;
+}
+
+.drag_box .start {
+    position: absolute;
+    top: 19px;
+}
+
+.drag_box .end {
+    position: absolute;
+    top: 19px;
+    right: 0px;
+}
+
+.drag_box .view_line {
+    position: relative;
+    background: url("img/line_bg.png") no-repeat 0px -15px;
+    width: 308px;
+    height: 23px;
+    margin-top: 15px;
+}
+
+.drag_box .two {
+    background-position: 0px 6px;
+    height: 22px;
+    position: relative;
+    top: 8px;
+}
+
+.drag_box .btn1, .drag_box .btn2 {
+    position: absolute;
+    width: 13px;
+    height: 27px;
+    background: url("img/biaoji1.png") no-repeat;
+    top: 38px;
+    left: 0px;
+    margin-left: 19px;
+}
+
+.drag_box .btn2 {
+    top: 109px;
+    background: url("img/biaoji2.png") no-repeat;
+}
+
+.drag_box .btn1 span, .drag_box .btn2 span {
+    position: relative;
+    right: -21px;
+    top: -5px;
+}
+
+.drag_box ._title {
+    width: 100%;
+    height: 24px;
+    line-height: 60px;
+    color: #637380;
+    text-indent: 20px;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.drag_box .leibie {
+    line-height: normal;
+    color: #333333;
+    font-size: 16px;
+    display: block;
+}
+
+.drag_box .equipBox {
+    width: 341px;
+    padding-left: 43px;
+}
+
+.equipBox span.equipName {
+    width: 45px;
+    text-align: left;
+    height: 28px;
+    line-height: 28px;
+    color: #637685;
+    display: inline-block;
+    font-weight: 800;
+    float: left;
+}
+
+.equipBox .equip {
+    display: inline-block;
+    width: 250px;
+    float: left;
+    margin-bottom: 7px;
+}
+
+.equipBox .bgImg {
+    width: 28px;
+    display: inline-block;
+    height: 28px;
+}
+
+.icon_chart .bgImg {
+    width: 28px;
+    display: inline-block;
+    height: 28px;
+    cursor: pointer;
+}
+
+.leibie.relic {
+    top: 270px;
+}
+
+.drag_box .data_view {
+    overflow-y: auto;
+    padding: 0 0 0 30px;
+    width: 396px;
+    height: auto;
+    margin-bottom: 34px;
+    max-height: 84px;
+}
+
+.drag_box .data_view a {
+    width: 173px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 10px;
+}
+
+.change {
+    position: absolute;
+    right: 25px;
+    cursor: pointer;
+}
+
+.change span {
+    width: 48px;
+    height: 18px;
+    display: inline-block;
+    text-align: center;
+    line-height: 18px;
+    color: #7a8991;
+    background-color: #d9d9d2;
+    font-size: 12px;
+}
+
+.change span.active {
+    color: #ffffff;
+    background-color: #6faa7f;
+}
+
+.details {
+    width: 88px;
+    height: 24px;
+    border: 1px solid #9ea5ad;
+    text-align: center;
+    line-height: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    bottom: 34px;
+    left: 50%;
+    margin-left: -44px;
+}
+
+.drag_box .drag {
+    background-color: #fff;
+    position: absolute;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.small_title {
+    color: #9faba8;
+    position: relative;
+    left: 21px;
+    top: 5px;
+}
+
+.small_title span {
+    font-size: 14px;
+    color: #5a9e6d;
+}
+
+.drag_box .dataView {
+    width: 100%;
+    height: 148px;
+    position: absolute;
+    left: 19px;
+    top: 26px;
+}
+
+.dataView .ctip {
+    position: absolute;
+    height: 26px;
+    color: #3db38c;
+    font-size: 14px;
+    padding-left: 13px;
+    background: url('img/tip.png') 0 0 no-repeat;
+}
+
+.dataView .echarts {
+    height: 106px;
+}
+
+.dataView span[key] {
+    width: 50px;
+    height: 25px;
+    border: 1px solid;
+    display: inline-block;
+    margin: 0 4px;
+    font-size: 12px;
+    color: #7a8991;
+    background-color: #d9d9d2;
+    text-align: center;
+    line-height: 25px;
+    cursor: pointer;
+}
+
+.dataView span.active {
+    color: #ffffff;
+    background-color: #6faa7f;
+}
+
+.lineBgimg {
+    width: 345px;
+    height: 60px;
+    background: url('img/ling_bg.png');
+}
+
+.lineBgimg:last-child {
+    background-position: 0 -68px;
+}
+
+.lineBgimg:last-child .ctip {
+    background-position: 0 -28px;
+}
+
+.drag_box .box_ {
+    position: relative;
+    width: 89%;
+    left: 20px;
+    font-size: 18px;
+    font-family: "微软雅黑";
+}
+
+.a1 .box_ {
+    top: 158px;
+}
+
+.a2 .box_ {
+    top: 120px;
+}
+
+.drag_box .box_ .guanlian, .drag_box .different .guanlian {
+    height: 35px;
+    line-height: 35px;
+    color: #637380;
+}
+
+.drag_box .box_ .guanlian div, .drag_box .different .guanlian div {
+    float: right;
+    width: 65%;
+    height: 100%;
+    display: inline-block;
+}
+
+.drag_box .Detail {
+    width: 96px;
+    height: 30px;
+    border: 1px solid;
+    margin: 0 auto;
+    cursor: pointer;
+    text-align: center;
+    line-height: 30px;
+    font-size: 14px;
+}
+
+.a1 .Detail {
+    margin-top: 10px;
+}
+
+.drag_box .different {
+    width: 89%;
+    height: 98px;
+    margin: 0 auto;
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+.drag_box .change_btn {
+    position: relative;
+}
+
+.drag_box .change_btn span {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.drag_box .change_btn div {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+}
+
+.change_btn div .aie_box {
+    width: 49%;
+    float: left;
+    margin-top: 8px;
+    margin-left: 1px;
+}
+
+.change_btn div .save {
+    text-align: center;
+    float: right;
+    width: 45%;
+    cursor: pointer;
+}
+
+.drag_box .change_btn div {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+/*.loading{*/
+    /*position: absolute;*/
+    /*left:0;*/
+    /*right:0;*/
+    /*top:0;*/
+    /*bottom:0;*/
+    /*background:rgba(0,0,0,0.5) url('../common/images/loading.gif') no-repeat center center;*/
+    /*z-index:100000;*/
+/*}*/
+.map_view .img_box{
+    z-index: 100;
+}
+
+.color_distinguish{
+    width: 15px;
+    height: 180px;
+    position: absolute;
+    z-index: 101;
+    bottom: 100px;
+    right: 20px;
+}
+.temperatureColor,
+.humidityColor{
+    width: 100%;
+    height: 100%;
+}
+.temperatureColor div,
+.humidityColor div{
+    width: 15px;
+    height: 20px;
+}
+.tooltip_fox{
+    position: absolute;
+    border: 1px solid #ddd;
+    background-color: lightgrey;
+    border-radius: 4px;
+    text-align: center;
+    width: 115px;
+    height: 20px;
+    top: 0;
+    left: -120px;
+    overflow: hidden;
+    box-shadow: -2px 0 2px #999, /*左边阴影*/
+    2px 0 2px #999, /*右边阴影*/
+    0 -2px 2px #999, /*顶部阴影*/
+    0 2px 2px #999;
+}
+.nav_box .contrast{
+    right: 150px;
+    top: 10px;
+    float: right;
+    position: relative;
+    /*height: 32px;*/
+    /*line-height: 32px;*/
+    /*width: 100px;*/
+    /*text-align: center;*/
+    /*margin-top: 8px;*/
+    /*border-radius: 3px;*/
+    /*background: transparent;*/
+    /*border: 1px solid #ddd;*/
+    /*outline: none;*/
+    /*color: #647481;*/
+}
+.nav_box .contrast:hover{
+    color: #1bbc9b;
+    border-color: #1bbc9b;
+}
+.nav_box .contrast:active{
+    color: #1bbc9b;
+    border-color: #1bbc9b;
+}
+#main{
+    width: 100%;
+    height:100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}

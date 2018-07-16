@@ -1,0 +1,58 @@
+<div class="panel panel-default permissionHidden" id="net_box" v-permission="{name:'设备管理'}">
+
+    <div class="panel-heading net_icon">
+        <div class="img_btn "></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"
+               class="collapsed" aria-expanded="false" v-text="configLanguage.floorHall_net"></a>
+        </h4>
+    </div>
+
+    <div id="collapse3" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+        <div class="panel-body">
+            <div class="internet">
+
+                <div class="row_name" style="display: none;"><p>设备统计</p></div>
+                <div class="information" style="display: none;">
+                    <div class="line">
+                        <p v-bind:style="{background:bgColor}"><span v-bind:style="{width:100*width+'%'}"></span></p>
+                        <div class="edges_div" v-bind:style="{left:50*(gateway_total/net_total)+'%'}">
+                            网关
+                            <span class="num" v-text="gateway_total"></span>个
+                        </div>
+                        <div class="edges_div" v-bind:style="{right:50*(relay_total/net_total)+'%'}">
+                            中继
+                            <span class="num" v-text="relay_total"></span>个
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row_name">
+                    <p class="relic_title">设备列表</p>
+                </div>
+                <form>
+                    <div>
+                        <input type="text" placeholder="请输入你要查找的设备">
+                        <i class="icon iconfont">&#xe614;</i>
+                    </div>
+                </form>
+
+                <div class="li_num">
+                    <p>网关数量<font v-text="gateway_total"></font>个</p>
+                    <div class="fu">
+                        <div class="zi" v-for="item in gateway_list">
+                            <a :href="goNetUrl(item)" :data-title="item.name">{{item.name}}</a>
+                        </div>
+
+                    </div>
+                    <p>中继数量<font v-text="relay_total"></font>个</p>
+                    <div class="fu">
+                        <div class="zi" v-for="item in relay_list">
+                            <a :href="goNetUrl(item)" :data-title="item.name">{{item.name}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

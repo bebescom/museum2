@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>数据曲线</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+
+    <link href="ionicons/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+    <link href="element/element.min.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="css/init.css">
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="highcharts/highcharts.js"></script>
+    <script type="text/javascript" src="highcharts/boost.js"></script>
+
+    <script type="text/javascript" src="js/vue.min.js"></script>
+    <script type="text/javascript" src="element/element.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+    <style type="text/css">
+        html, body {
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .el-checkbox + .el-checkbox {
+            margin-left: 8px;
+        }
+
+        div.row {
+            margin: 5px;
+            line-height: 2;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div id="content" style="padding: 2px;">
+
+    <form action="" onsubmit="return false;">
+        <div class="row">
+            数据来源：
+            <el-select v-model="table" @change="change_table">
+                <el-option value="_data_sensor" label="解析数据"></el-option>
+                <el-option value="data_sensor" label="前端平台数据"></el-option>
+                <el-option value="data_sensor_vibration" label="震动数据"></el-option>
+            </el-select>
+        </div>
+        <div class="row">
+            设备编号：
+            <div style="display: inline-block; width: 80%;vertical-align: middle;">
+
+                <el-input style="width: 80%;margin-bottom: 10px;"
+                          type="textarea"
+                          :autosize="{ minRows: 2}"
+                          placeholder="请输入设备编号"
+                          @change="change_equip_no"
+                          v-model="equip_no">
+                </el-input>
+
+                <el-select style="width: 80%;" v-model="add_equips" @change="change_equips"
+                           filterable multiple collapse-tags placeholder="请选择要添加的设备编号">
+                    <el-option v-for="item in all_equips" :key="item.equip_no" :value="item.equip_no"
+                               :label="item.equip_no"></el-option>
+                </el-select>
+
+            </div>
+        </div>
+        <div class="row">
+            时间类型：
+            <el-select v-model="timeType" style="width:150px;">
+                <el-option value="equip_time" label="设备时间"></el-option>
+                <el-option value="server_time" label="服务器时间"></el-option>
+            </el-select>
+            ,
+            起始时间：
+            <el-date-picker
+                    v-model="ktime"
+                    type="datetime"
+                    placeholder="选择日期时间">
+            </el-date-picker>
+            ,结束时间：
+            <el-date-picker
+                    v-model="dtime"
+                    type="datetime"
+                    placeholder="选择日期时间">
+            </el-date-picker>
+            ,超时时间(分钟)：
+            <el-input v-model="intervalTime" style="width: 100px;"></el-input>
+            ,超过则线不连续.
+
+        </div>
+
+        <div class="row" style="padding-top:5px; ">
+            <el-button type="success" class="el-icon-search" @click="get_chart">读取数据</el-button>
+            <span v-text="msg"></span>
+        </div>
+
+    </form>
+
+    <hr/>
+    <div id="wsoption" class="opt">
+        <el-row>
+            <el-col :span="20" style="line-height: 2">
+                环境参数：
+                <i style="font-style: normal;" v-for="(params,index) in all_params">
+                    <span v-if="index>0"> <br/> </span>
+                    <el-checkbox v-model="paramList" v-for="item in params" :key=""
+                                 :label="item.key" @change="update_chart">{{item.name}}
+                    </el-checkbox>
+                </i>
+
+            </el-col>
+            <el-col :span="4">
+                曲线参数：
+                <el-checkbox v-model="one_y" @change="update_chart">同一Y轴</el-checkbox>
+                <el-checkbox v-model="shared" @change="update_chart">共享提示</el-checkbox>
+            </el-col>
+        </el-row>
+
+
+    </div>
+</div>
+<div id="my_chart"></div>
+
+<script type="text/javascript">
+
+    var all_params = [
+        [
+            {
+                key: 'temperature',
+                name: '温度',
+                unit: '°C',
+                color: '#3db38c'
+            },
+            {
+                key: 'humidity',
+                name: '湿度',
+                unit: '%',
+                color: '#2756FF',
+                opposite: true
+            },
+            {
+                key: 'voc',
+                name: '有机挥发物VOC',
+                unit: 'ppb',
+                color: '#ae9a2e'
+            },
+            {
+                key: 'co2',
+                name: '二氧化碳',
+                unit: 'ppm',
+                color: '#99351f',
+                opposite: true
+            },
+            {
+                key: 'light',
+                name: '光照',
+                unit: 'lx',
+                color: '#ff9000'
+            },
+            {
+                key: 'uv',
+                name: '紫外',
+                unit: 'μw/cm²',
+                color: '#ff5fdb',
+                opposite: true
+            },
+            {
+                key: 'organic',
+                name: '有机污染物',
+                unit: 'Hz',
+                color: '#677c0e'
+            },
+            {
+                key: 'inorganic',
+                name: '无机污染物',
+                unit: 'Hz',
+                color: '#94b046',
+                opposite: true
+            },
+            {
+                key: 'sulfur',
+                name: '硫化污染物',
+                unit: 'Hz',
+                color: '#b6bf8e'
+            },
+            {
+                key: 'cascophen',
+                name: '甲醛',
+                unit: 'ppm'
+            },
+            {
+                key: 'oxygen',
+                name: '氧气浓度',
+                unit: 'ppb',
+                opposite: true
+            },
+            {
+                key: 'so2',
+                name: '二氧化硫',
+                unit: 'ppb'
+            },
+            {
+                key: 'no',
+                name: '氮氧化物',
+                unit: 'ppb'
+            },
+            {
+                key: 'o3',
+                name: '臭氧',
+                unit: 'ppb',
+                opposite: true
+            }
+        ],
+        [
+            {
+                key: 'soil_temperature',
+                name: '土壤温度',
+                unit: '℃',
+                color: '#b5733c'
+            },
+            {
+                key: 'soil_humidity',
+                name: '土壤含水率',
+                unit: '%',
+                color: '#b24d08',
+                opposite: true
+            },
+            {
+                key: 'soil_conductivity',
+                name: '土壤电导率',
+                unit: 'μs/cm',
+                color: '#8c6239'
+            },
+            {
+                key: 'soil_salt',
+                name: '土壤含盐量',
+                unit: 'mg/L',
+                color: '#a415ff',
+                opposite: true
+            },
+            {
+                key: 'accel',
+                name: '加速度',
+                unit: 'm/s²'
+            },
+            {
+                key: 'speed',
+                name: '速度',
+                unit: 'mm/s'
+            },
+            {
+                key: 'displacement',
+                name: '位移',
+                unit: 'mm'
+            },
+            {
+                key: 'voltage',
+                name: '电压',
+                unit: 'V'
+            },
+            {
+                key: 'rssi',
+                name: '信号强度',
+                unit: 'dBm',
+                opposite: true
+            },
+        ]
+    ];
+
+    var all_param_obj = {};
+    _.each(all_params, function (param) {
+        _.each(param, function (row) {
+            all_param_obj[row.key] = row;
+        });
+    });
+
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+
+    var grid_option = store.session('grid_option') || {};
+    var grid_chart_option = store.session('grid_chart_option') || {};
+
+    var vm = new Vue({
+        el: '#content',
+        data: function () {
+            return {
+                table: '_data_sensor',
+                all_params: all_params,
+                equip_no: '',
+                add_equips: [],
+                all_equips: [],//所有设备
+                ktime: grid_option.ktime || new Date().Format('yyyy-MM') + '-01 00:00:00',
+                dtime: grid_option.dtime || '',
+                timeType: grid_option.timeType || 'equip_time',
+                intervalTime: grid_option.intervalTime || 30,
+
+                msg: '',
+
+                one_y: grid_chart_option.one_y || false,
+                shared: grid_chart_option.shared || false,
+                paramList: grid_chart_option.paramList || ['temperature', 'humidity'],
+
+            }
+        },
+        methods: {
+            change_table: change_table,
+            change_equips: function (equips) {
+                window.location.hash = '#/' + vm.table + '/' + equips.join(',');
+                vm.equip_no = equips.join(',');
+            },
+            get_chart: get_chart,
+            update_chart: update_chart,
+            change_equip_no: function () {
+                vm.add_equips = vm.equip_no.split(',');
+            }
+        }
+    });
+
+    function change_table() {
+        $.post('sensor/equips', {table: vm.table}, function (equips) {
+            vm.all_equips = equips;
+            if (vm.add_equips.length) {
+                get_chart();
+            }
+
+        }, 'json');
+    }
+
+    $(function () {
+        var argv = window.location.hash.split('/');
+        if (argv[0] === '#') {
+            vm.table = argv[1];
+            if (argv[2]) {
+                vm.equip_no = argv[2];
+                vm.add_equips = argv[2].split(',');
+            }
+        }
+        change_table();
+    });
+
+    var interval, grid_data;
+
+    var option = {
+        chart: {
+            type: 'spline',
+            zoomType: 'x',
+        },
+        boost: {
+            useGPUTranslations: true
+        },
+        credits: {
+            "enabled": false
+        },
+        title: {
+            text: ''
+        },
+//                plotOptions: {
+//                    series: {
+//                        marker: {
+////                            enabled: false
+//                        }
+//                    }
+//                },
+//        legend: {
+//            layout: 'vertical',
+//            align: 'left',
+//            verticalAlign: 'top'
+//        },
+        xAxis: {
+            visible: true,
+            type: 'datetime',
+        },
+        yAxis: [],
+        tooltip: {
+            crosshairs: true,
+            xDateFormat: '%Y-%m-%d %H:%M:%S'
+        },
+        series: []
+    };
+
+    function get_chart() {
+        var json = {};
+        json.table = vm.table;
+        json.no = vm.add_equips.join(',');
+        json.intervalTime = vm.intervalTime;
+        json.timeType = vm.timeType;
+
+        if (!vm.paramList.length) {
+            vm.msg = '未选择参数';
+            return;
+        }
+
+        json.ktime = vm.ktime;
+        json.dtime = vm.dtime;
+
+        if (!json.no) {
+            vm.msg = '未选择设备';
+            return;
+        }
+
+        store.session('grid_option', json);
+
+        vm.msg = '读取数据中';
+
+        var $index = 1;
+
+        clearInterval(interval);
+
+        interval = setInterval(function () {
+            vm.msg += '.';
+            $index++;
+        }, 1000);
+
+        $('#my_chart').empty();
+
+        $.post('sensor/gridList', json, function (data) {
+            clearInterval(interval);
+            if (!data.total) {
+                vm.msg = '无数据(' + $index + 's)';
+                return;
+            }
+            vm.msg = '读取完成(' + $index + 's)';
+            var height = $(document).height() - $('#content').height() - 20;
+            option.chart.height = height < 500 ? 500 : height;
+            option.chart.width = $('body').width();
+            grid_data = data;
+
+            update_chart();
+
+        });
+
+    }
+
+    function update_chart() {
+
+        $('#my_chart').empty();
+        grid_chart_option.paramList = vm.paramList;
+        grid_chart_option.shared = vm.shared;
+        grid_chart_option.one_y = vm.one_y;
+
+        store.session('grid_chart_option', grid_chart_option);
+
+        option.tooltip.shared = vm.shared;
+        var yAxis_index = 0;
+
+        if (vm.one_y) {//同一Y轴
+            option.yAxis = [{
+                title: {
+                    text: 'Y'
+                },
+                labels: {
+                    format: '{value} ' //+ row.unit
+                },
+            }];
+        } else {
+            option.yAxis = [];
+            _.each(vm.paramList, function (param) {
+                var row = all_param_obj[param];
+                option.yAxis.push({
+                    title: {
+                        text: row.name,
+                    },
+                    labels: {
+                        format: '{value} ' + row.unit
+                    },
+                    opposite: row.opposite
+                });
+                row.yAxis_index = yAxis_index++;
+            });
+        }
+        option.series = [];
+        _.each(vm.add_equips, function (equip_no) {
+
+            _.each(vm.paramList, function (param) {
+                var row = all_param_obj[param];
+
+                if (grid_data && grid_data[param] && grid_data[param][equip_no]) {
+                    option.series.push({
+                        name: equip_no + '-' + row.name,
+//                        type: 'spline',
+                        id: equip_no + '-' + row.name,
+                        // color: row.color || '',
+                        data: grid_data[param][equip_no],
+                        yAxis: vm.one_y ? 0 : row.yAxis_index || 0,
+                        tooltip: {
+                            valueSuffix: row.unit
+                        }
+                    });
+                }
+
+            });
+        });
+
+        Highcharts.chart('my_chart', option);
+
+    }
+</script>
+</body>
+</html>

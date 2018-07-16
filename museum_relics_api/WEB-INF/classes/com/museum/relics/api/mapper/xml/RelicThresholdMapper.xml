@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.relics.api.mapper.RelicThresholdMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.museum.relics.api.entity.RelicThreshold">
+		<id column="id" property="id" />
+		<result column="type" property="type" />
+		<result column="temperature_min" property="temperatureMin" />
+		<result column="temperature_max" property="temperatureMax" />
+		<result column="humidity_min" property="humidityMin" />
+		<result column="humidity_max" property="humidityMax" />
+		<result column="voc_min" property="vocMin" />
+		<result column="voc_max" property="vocMax" />
+		<result column="co2_min" property="co2Min" />
+		<result column="co2_max" property="co2Max" />
+		<result column="light_min" property="lightMin" />
+		<result column="light_max" property="lightMax" />
+		<result column="uv_min" property="uvMin" />
+		<result column="uv_max" property="uvMax" />
+		<result column="organic_min" property="organicMin" />
+		<result column="organic_max" property="organicMax" />
+		<result column="inorganic_min" property="inorganicMin" />
+		<result column="inorganic_max" property="inorganicMax" />
+		<result column="sulfur_min" property="sulfurMin" />
+		<result column="sulfur_max" property="sulfurMax" />
+		<result column="temperature_range" property="temperatureRange" />
+		<result column="humidity_range" property="humidityRange" />
+		<result column="total_light" property="totalLight" />
+		<result column="lock" property="lock" />
+	</resultMap>
+
+</mapper>

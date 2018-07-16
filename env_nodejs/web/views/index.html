@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>数据通信平台</title>
+    <meta charset='utf-8'>
+
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+
+    <link href="css/init.css" rel="stylesheet" type="text/css"/>
+
+    <link href="ionicons/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+    <link href="element/element.min.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="js/vue.min.js"></script>
+    <script type="text/javascript" src="element/element.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="easyui/window.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+    <script type="text/javascript" src="js/socket.io.min.js"></script>
+    <script type="text/javascript" src="js/my.socket.io.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorGrid'></table>
+<div id="sensorTool">
+
+    <el-dropdown size="small" split-button animation="false" menu-align="start">
+
+        <span onclick="go('http://' + location.hostname + '/web')"><i class="ion-ios-home"></i> 前端平台</span>
+
+        <el-dropdown-menu size="small" slot="dropdown">
+            <el-dropdown-item onclick="go('http://' + location.hostname + '/museum')">
+                <i class="ion-ios-home"></i> 1.0/museum
+            </el-dropdown-item>
+            <el-dropdown-item onclick="go('http://' + location.hostname + ':10000/museum')">
+                <i class="ion-ios-home"></i> 1.0:10000/museum
+            </el-dropdown-item>
+            <el-dropdown-item onclick="go('http://' + location.hostname + ':10001/museum')">
+                <i class="ion-ios-home"></i> 1.0:10001/museum
+            </el-dropdown-item>
+
+            <el-dropdown-item divided onclick="go('http://' + location.hostname + '/web')">
+                <i class="ion-ios-home"></i> 2.0/web
+            </el-dropdown-item>
+            <el-dropdown-item onclick="go('http://' + location.hostname + ':10000/web')">
+                <i class="ion-ios-home"></i> 2.0:10000/web
+            </el-dropdown-item>
+            <el-dropdown-item onclick="go('http://' + location.hostname + ':10001/web')">
+                <i class="ion-ios-home"></i> 2.0:10001/web
+            </el-dropdown-item>
+        </el-dropdown-menu>
+    </el-dropdown>
+
+    <el-dropdown style="margin-left: 3px;" split-button size="small" animation="false" menu-align="start">
+
+        <span onclick="go('log/run.log-'+new Date().Format('yyyy-MM-dd')+'.log')">
+            <i class="ion-document-text"></i> LOG
+        </span>
+
+        <el-dropdown-menu size="small" slot="dropdown">
+            <el-dropdown-item onclick="go('socket_all.html')">
+                <i class="ion-ios-list-outline"></i> 最原始socket数据
+            </el-dropdown-item>
+            <el-dropdown-item onclick="go('api_log.html')">
+                <i class="ion-ios-list-outline"></i> API执行情况(30d)
+            </el-dropdown-item>
+        </el-dropdown-menu>
+    </el-dropdown>
+
+
+    <el-dropdown style="margin-left: 3px;" split-button size="small" animation="false" menu-align="start">
+
+        <span onclick="go('sensor_local.html')">
+            <i class="ion-ios-list-outline"></i> local解析数据
+        </span>
+
+        <el-dropdown-menu size="small" slot="dropdown">
+            <el-dropdown-item onclick="go('route_local.html')">
+                <i class="ion-ios-list-outline"></i> local解析路由数据(30d)
+            </el-dropdown-item>
+            <el-dropdown-item divided onclick="go('sensor_php.html')">
+                <i class="ion-ios-list-outline"></i> 前端平台数据
+            </el-dropdown-item>
+            <el-dropdown-item onclick="go('route_php.html')">
+                <i class="ion-ios-list-outline"></i> 前端平台路由数据(30d)
+            </el-dropdown-item>
+            <el-dropdown-item onclick="go('sensor_exception.html')">
+                <i class="ion-ios-list-outline"></i> 前端平台异常数据
+            </el-dropdown-item>
+            <el-dropdown-item divided onclick="go('sensor_vibration.html')">
+                <i class="ion-ios-list-outline"></i> 振动数据
+            </el-dropdown-item>
+            <el-dropdown-item divided onclick="go('sensor_weather.html')">
+                <i class="ion-ios-list-outline"></i> 气象站数据
+            </el-dropdown-item>
+            <el-dropdown-item divided onclick="go('grid.html')">
+                <i class="ion-ios-list-outline"></i> 数据曲线
+            </el-dropdown-item>
+            <el-dropdown-item divided onclick="go('map.html')">
+                <i class="ion-ios-list-outline"></i> 囊匣定位网关地图
+            </el-dropdown-item>
+        </el-dropdown-menu>
+    </el-dropdown>
+
+
+    <el-dropdown style="margin-left: 3px;" split-button size="small" animation="false" menu-align="start">
+
+        <span onclick="showClient()">
+            <i class="ion-network"></i> 网关在线连接
+        </span>
+
+        <el-dropdown-menu size="small" slot="dropdown">
+            <el-dropdown-item onclick="go('down.html')">
+                <i class="ion-android-send"></i> 批量下发数据
+            </el-dropdown-item>
+
+            <el-dropdown-item divided onclick="go('gateway.html')">
+                <i class="ion-ios-list-outline"></i> 网关连接历史
+            </el-dropdown-item>
+            <el-dropdown-item onclick="go('equip_operation.html')">
+                <i class="ion-ios-list-outline"></i> 设备状态改变历史
+            </el-dropdown-item>
+        </el-dropdown-menu>
+    </el-dropdown>
+
+    <el-button style="margin-left: 3px;" size="small" onclick="go('calc.html')">
+        <i class="ion-calculator"></i> 计算器
+    </el-button>
+
+    <el-button style="margin-left: 3px;" size="small" onclick="go('report.html')">
+        <i class="ion-document-text"></i> 评估报告
+    </el-button>
+
+
+    <el-button style="margin-left: 3px;" size="small" onclick="go('connect.html')">
+        <i class="ion-radio-waves"></i> 终端连接(30d)
+    </el-button>
+
+    <el-button style="margin-left: 3px;" size="small" @click="exit">
+        <i class="ion-android-exit"></i> 退出
+    </el-button>
+
+    <input type="checkbox" name="autoReLoad" id="autoReLoad" value="1" checked/><label for="autoReLoad">自动刷新</label>
+
+    <span id="sensorText"></span>
+
+</div>
+
+
+<script type="text/javascript">
+
+    var vm = new Vue({
+        el: '#sensorTool',
+        data: {},
+        methods: {
+            exit: function () {
+                $.post('logout', function (msg) {
+                    if (msg === 'ok') {
+                        window.location.reload();
+                    } else {
+                        vm.$message(msg);
+                    }
+                });
+            }
+        }
+    });
+
+    socket.on('connect', function () {
+        console.log('join senser');
+        socket.emit('sensor');
+        sensorGrid();
+    });
+
+    socket.on('new', function (data) {
+        console.log('new');
+        if ($('#autoReLoad').attr('checked')) {
+            sensorGrid();
+        }
+    });
+    socket.on('online', function (data) {
+        console.log('online');
+        if ($('#autoReLoad').attr('checked') && $('#onLineGrid')[0]) {
+            onLineGrid();
+        }
+    });
+
+    function sensorGrid() {
+        var _this = sensorGrid;
+        console.log('sensorGrid', _this.loading);
+        if (_this.loading) {
+            return;
+        }
+        _this.loading = true;
+        if (_this.init) {
+            $('#sensorGrid').datagrid('reload');
+            return;
+        }
+        $('#sensorGrid').datagrid({
+            url: 'sensor/socketList',
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            pagePosition: 'top',
+            fit: true,
+            pageSize: 50,
+            pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+            columns: [
+                [
+                    {
+                        field: 'server_time', width: 150, title: '服务器时间',
+                        formatter: function (value) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {field: 'ip_port', width: 200, title: 'IP_Port', align: 'right'},
+                    {field: 'crc', width: 50, title: 'CRC', align: 'center'},
+                    {
+                        field: 'raw_data', title: '接收到的数据',
+                        formatter: function (value, row, index) {
+                            if (value) {
+                                return value.replace(/(.{2})/g, "$1 ");
+                            }
+                        }
+                    }
+                ]
+            ],
+            toolbar: '#sensorTool',
+            onLoadSuccess: function () {
+                _this.loading = false;
+            }
+        });
+        _this.init = true;
+
+    }
+
+
+    function showClient() {
+        onLineGrid.init = false;
+        $.window({
+            winId: 'onlineWin',
+            title: '在线连接 - ' + CONFIG.gateway_timeout + 's超时',
+            width: 650,
+            height: 400,
+            align: 'right',
+            contents: '<div id="onLineGrid"></div>',
+            onComplete: function () {
+                onLineGrid();
+            }
+        });
+
+    }
+
+    function onLineGrid() {
+        var _this = onLineGrid;
+        console.log('onLineGrid', _this.loading);
+        if (_this.loading) {
+            return;
+        }
+        _this.loading = true;
+        if (_this.init) {
+            $('#onLineGrid').datagrid('reload');
+            return;
+        }
+
+        $('#onLineGrid').datagrid({
+            url: 'sensor/allUsers',
+            fit: true,
+            border: false,
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            columns: [[
+                {field: 'gateway_no', width: 100, title: '网关编号'},
+                {
+                    field: 'ip_port', width: 170, title: 'IP:PORT',
+                    formatter: function (value, row, index) {
+                        return value.replace('::ffff:', '');
+                    }
+                },
+                {field: 'time', width: 120, title: '连接时间'},
+                {field: 'num', width: 120, title: '发送数据次数(55aa)'},
+                {
+                    field: 'more', width: 80, title: '操作',
+                    formatter: function (value, row, index) {
+                        return '<a href="javascript:killClient(\'' + row.ip_port + '\')">kill</a> | ' +
+                            '<a href="javascript:sendToClient(\'' + row.ip_port + '\')">下发</a>';
+                    }
+                }
+            ]],
+            onLoadSuccess: function () {
+                _this.loading = false;
+            }
+        });
+        _this.init = true;
+    }
+
+    function killClient(ip_port) {
+        $.post('sensor/killOne', {ip_port: ip_port}, function (data) {
+            $('#onLineGrid').datagrid('reload');
+        });
+    }
+
+    function sendToClient(ip_port) {
+
+        $.window({
+            winId: 'sendWin',
+            title: '下发数据',
+            width: 600,
+            height: 400,
+            ajaxType: 'get',
+            url: 'send_down.html',
+            isclosebtn: true,
+            buttons: [
+                {
+                    iconCls: 'icon-ok',
+                    text: '立即发送',
+                    handler: function () {
+                        var json = {};
+                        json.send_ip_port = $('#send_ip_port').val();
+                        json.send_hex = $('#send_hex').val();
+
+                        $.post('sensor/sendDown', json, function (data) {
+                            $.messager.alert('提示', data);
+                        });
+
+                    }
+                }
+            ],
+            onComplete: function () {
+                $('#send_ip_port').val(ip_port);
+            }
+
+        });
+    }
+
+
+</script>
+
+</body>
+</html>

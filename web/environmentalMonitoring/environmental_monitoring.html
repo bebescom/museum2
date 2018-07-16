@@ -1,0 +1,260 @@
+<template id="environmental_monitoring">
+	<div class="environmental_monitoring">
+		<div class="header">
+			<div class="title" v-text="configLanguage.left_environmentalMonitor_long"></div>
+			<div class="ability">
+				<div @click="Export_data(false)" class="permissionHidden" style="display: none;" v-permission="{name:'导出环境数据'}" >导出数据</div>
+				<div class="operationWrap noPointer" @click="contrast">
+					{{configLanguage.environment_monitoring_environmentCompare}}
+					<!--<ul class="operation" v-show="checkList.length>0">-->
+						<!--<li style="max-height:200px;overflow-y:scroll">-->
+							<!--<p  v-for="obj in checkList" track-by="$index">{{obj.name}}<span class="fork" @click="eliminate(obj.env_no)"></span>-->
+							<!--</p>-->
+						<!--</li>-->
+						<!--<li class="warning" v-show="checkList.length>=11">*您最多可以选择10个环境进行对比</li>-->
+						<!--<li class="center"><div class="start" @click="contrast">开始对比</div></li>-->
+					<!--</ul>-->
+				</div>
+				<!--<div class="operationWrap permissionHidden" v-permission="{name:'阈值报警'}"  @click="Environmental_levels">-->
+					<!--{{configLanguage.environment_monitoring_environmentWarning}}-->
+					<!--<ul class="operation">-->
+						<!--<li v-for="obj in Threshold_alarm.rows"  @click="browse(obj.env_no,obj.env_name)">{{obj.env_name}}<span>{{obj.count}}</span></li>-->
+						<!--<li class="center"><div class="start" @click="Environmental_levels">进入环境报警列表</div></li>-->
+					<!--</ul>-->
+				<!--</div>-->
+				<!--<div class="operationWrap">{{configLanguage.integrated_more}}<span class="dragImg"></span>-->
+					<!--<ul class="operation">-->
+						<!--<li class="permissionHidden" v-permission="{name:'导出报告'}" @click="export_reports">导出报告</li>-->
+						<!--<li class="permissionHidden" v-permission="{name:'导出环境数据'}" @click="export_data(true)">导出概览表</li>-->
+						<!--&lt;!&ndash;<li style="display: none;">设置阈值</li>&ndash;&gt;-->
+						<!--&lt;!&ndash;<li style="display: none;">设置表格</li>&ndash;&gt;-->
+						<!--&lt;!&ndash;<li style="display: none;">设置环境</li>&ndash;&gt;-->
+					<!--</ul>-->
+				<!--</div>-->
+				<!--<div class="operationWrap permissionHidden" v-permission="{name:''}"  @click="export_reports">-->
+					<!--导出报告-->
+				<!--</div>-->
+				<div class="operationWrap permissionHidden" v-permission="{name:''}"  @click="export_data(true)">
+					导出概览表
+				</div>
+				<div class="operationWrap permissionHidden" v-permission="{name:''}"  @click="assessment_reports">
+					评估报告
+				</div>
+			</div>
+			<Modal
+			:visible.sync="export_report"
+			title="导出报告"
+			@on-ok="report_ok"
+			@on-cancel="report_cancel"
+			>
+				<!--<p>-->
+					<!--<span class="report_name">选择年份</span>-->
+					<!--<Date-picker type="year" placeholder="选择年" style="width: 200px"  :value.sync="quarter"></Date-picker>-->
+				<!--</p>-->
+				<!--<p>-->
+					<!--<span class="report_name">选择季度</span>-->
+					<!--<div>-->
+						<!--<Checkbox-group :model.sync="checkGroup">-->
+							<!--<Checkbox value="第一季度"></Checkbox>-->
+							<!--<Checkbox value="第二季度"></Checkbox>-->
+							<!--<Checkbox value="第三季度"></Checkbox>-->
+							<!--<Checkbox value="第四季度"></Checkbox>-->
+						<!--</Checkbox-group>-->
+					<!--</div>-->
+				<!--</p>-->
+				<!--<i-select :model.sync="model1" style="width:200px">-->
+					<!--<i-option v-for="item in report_data" :value="item.value">{{ item.label }}</i-option>-->
+				<!--</i-select>-->
+				<i-table :content="self" :columns="columns1" :data="data_report"></i-table>
+			</Modal>
+			<Modal
+					:visible.sync="assessment_report"
+					title="评估报告"
+                    class-name="assessment_report"
+                    :mask-closable="false">
+				<!--<table>-->
+					<!--<tr v-for="obj in report_list.rows">-->
+						<!--<td><Icon type="archive" style="font-size: 20px;padding-right: 10px;cursor: pointer;" @click="fileDown(obj.report_file)"></Icon></td>-->
+						<!--<td>{{obj.report_name}}</td>-->
+					<!--</tr>-->
+				<!--</table>-->
+				<i-table :content="self" :columns="columns_list" :data="report_list" :show-header="false"  ></i-table>
+				<div style="margin: 10px;overflow: hidden">
+					<div style="float: right;">
+						<Page :total="report_total" :current="report_page" :page-size="report_size" @on-change="changePage"></Page>
+					</div>
+				</div>
+			</Modal>
+			<div class="diy">
+				<Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" class="timePicker" :value.sync="timeArr" placeholder="选择日期和时间" :clearable="false" :options="timePickerOption" style="width: 300px" @on-change="changeTime" placement="bottom-end" :editable="false" @on-clear="resetTime" @on-ok="requireData" @on-open-change="saveOldTime"></Date-picker>
+				<!--<input placeholder="请输入日期" v-model="pick_time.start" class="start_time laydate-icon" @click="openTimePicker('start')" > 至-->
+				<!--<input placeholder="请输入日期" v-model="pick_time.end" class="end_time laydate-icon" @click="openTimePicker('end')" >-->
+				<!--<div class="button">确定</div>-->
+			</div>
+		</div>
+		<div class="body">
+			<div class="tableBox">
+				<div class="shadow"></div>
+				<div class="tableBox_shadow" :style="{width:oneTable+'px'}"></div>
+				<table border="1px" class="table _content oneTable">
+					<thead>
+						<tr>
+							<td class="one_location" :class="{active:select}" @click="selectAll"></td>
+							<td class="function">
+								<!--<div v-show="false">-->
+									<!--<span class="floatL searchKey"></span>-->
+									<!--<div class="floatL">-->
+										<!--<div class="floatL hidden_function">-->
+											<!--<input type="text">-->
+										<!--</div>-->
+										<!--<div class="spanWrap">-->
+											<!--<span class="allWheae">所有位置</span><span class="selected">已选[{{trSelect}}]</span>-->
+										<!--</div>-->
+									<!--</div>-->
+								<!--</div>-->
+								<div>
+									<span class="floatL searchKey" @click="switch"></span>
+									<div class="floatL spanShow" :class="{active:spanShowKey}">
+										<div class="floatL hidden_function">
+											<input type="text" placeholder="请输入环境名称" v-model="keyword" @focus="focus" @blur="blur" @keydown.enter="keySearch($event)" @keydown.prevent.up="keyUP" @keydown.prevent.down="keyDOWN"/>
+											<div class="operation" v-show="keyword&&status">
+												<ul id="searchUl">
+													<!--v-for="(num,obj) in fileterContent | filterBy keyword in 'name'"-->
+													<li v-for="(num,obj) in filteredSearchList" :class="{active:(who===num)}" @click.stop.prevent="search(obj.name,obj.env_no)" v-html="fileter_keyword(obj.name,keyword)"></li>
+												</ul>
+											</div>
+										</div>
+										<div class="spanWrap">
+											<span class="allWheae" :class="{active:showType}" @click="toggleType(true)">所有位置</span><span class="selected" :class="{active:!showType}" @click="toggleType(false)">已选[{{trSelect}}]</span>
+										</div>
+									</div>
+								</div>
+							</td>
+							<td class="function">
+								<div class="widthLimit data">
+									<span class="temperature"><i ></i>阈值℃</span>
+								</div>
+							</td>
+							<td>极小值℃</td>
+							<td>极大值℃</td>
+							<td>平均值℃</td>
+							<td>达标率%</td>
+							<!--<td class="four___">离散系数%</td>-->
+							<td class="function">
+								<div class="widthLimit data">
+									<span class="humidity"><i></i>阈值%</span>
+								</div>
+							</td>
+							<td>极小值%</td>
+							<td>极大值%</td>
+							<td>平均值%</td>
+							<td>达标率%</td>
+							<!--<td class="four___1">离散系数%</td>-->
+						</tr>
+					</thead>
+					<tbody>
+						<tr is="tr_list" 
+							v-for="obj in allData" 
+							:data="obj" 
+							:keyll="true" 
+							:tr-List.sync="trList" 
+							:tr-Select.sync="trSelect" 
+							:selected.sync="selected"
+							:top-status.sync="true"
+							>
+						</tr>
+					</tbody>
+				</table>
+				<!--<table border="1px" class="table _content copy" :style="{width:oneTable+'px'}">-->
+					<!--<thead>-->
+						<!--<tr>-->
+							<!--<td class="one_location" :class="{active:select}" @click="selectAll" :style="{width:one_location+'px'}"></td>-->
+							<!--<td class="function two_location">-->
+								<!--<span class="floatL searchKey" @click="switch"></span>-->
+								<!--<div class="floatL spanShow" :class="{active:spanShowKey}">-->
+									<!--<div class="floatL hidden_function">-->
+										<!--<input type="text" placeholder="请输入环境名称" v-model="keyword" @focus="focus" @blur="blur" @keydown.enter="keySearch($event)" @keydown.prevent.up="keyUP" @keydown.prevent.down="keyDOWN"/>-->
+										<!--<div class="operation" v-show="keyword&&status">-->
+											<!--<ul id="searchUl">-->
+												<!--&lt;!&ndash;v-for="(num,obj) in fileterContent | filterBy keyword in 'name'"&ndash;&gt;-->
+												<!--<li v-for="(num,obj) in filteredSearchList" :class="{active:(who===num)}" @click.stop.prevent="search(obj.name,obj.env_no)">-->
+													<!--{{fileter_keyword(obj.name,keyword)}}-->
+												<!--</li>-->
+											<!--</ul>-->
+										<!--</div>-->
+									<!--</div>-->
+									<!--<div class="spanWrap">-->
+										<!--<span class="allWheae" :class="{active:showType}" @click="toggleType(true)">所有位置</span><span class="selected" :class="{active:!showType}" @click="toggleType(false)">已选[{{trSelect}}]</span>-->
+									<!--</div>-->
+								<!--</div>-->
+							<!--</td>-->
+							<!--<td class="function three_location">-->
+								<!--<div class="widthLimit data">-->
+									<!--<span class="temperature"><i></i>阈值℃</span>-->
+								<!--</div>-->
+							<!--</td>-->
+							<!--&lt;!&ndash;<td :style="{width:one___+'px'}">极值℃</td>&ndash;&gt;-->
+							<!--<td>极小值℃</td>-->
+							<!--<td>极大值℃</td>-->
+							<!--<td >平均值℃</td>-->
+							<!--<td >达标率%</td>-->
+							<!--&lt;!&ndash;<td :style="{width:four___+'px'}">离散系数%</td>&ndash;&gt;-->
+							<!--<td class="function four_location">-->
+								<!--<div class="widthLimit data">-->
+									<!--<span class="humidity"><i></i>阈值%</span>-->
+								<!--</div>-->
+							<!--</td>-->
+							<!--&lt;!&ndash;<td :style="{width:one___1+'px'}">极值%</td>&ndash;&gt;-->
+							<!--<td>极小值%</td>-->
+							<!--<td>极大值%</td>-->
+							<!--<td>平均值%</td>-->
+							<!--<td>达标率%</td>-->
+							<!--&lt;!&ndash;<td :style="{width:four___1+'px'}">离散系数%</td>&ndash;&gt;-->
+						<!--</tr>-->
+					<!--</thead>-->
+				<!--</table>-->
+			</div>
+		</div>
+	</div>
+</template>
+<template id="tr_list">
+	<tr :class="[{active:trList.indexOf(data.env_no)!=-1},changeName]" v-show="Judge_conditions">
+		<td :class="{active:trList.indexOf(data.env_no)!=-1}" @click="selectChange(data.env_no)"></td>
+		<td class="name__">
+			<p @click="dragDown" class="clear"><span :class="{environment_icon:data.children&&!this.selected,active:ll}"></span></p>
+			<p @click="browse(data.env_no,data.name)" class="ellipsis">{{data.name}}<p>
+		</td>
+		<!--v-text="data.data.temperature&&data.data.temperature.threshold||'-'"-->
+		<td>{{checkData(data.data,'temperature','threshold')}}</td>
+		<!--v-text="data.data.temperature&&data.data.temperature.extremum||'-'"-->
+
+
+		<!--<td class="tableCenter">{{checkData(data.data,'temperature','extremum')}}</td>-->
+		<td>{{checkData1(data.data,'temperature','min')}}</td>
+		<td>{{checkData1(data.data,'temperature','max')}}</td>
+		<!--<td>{{checkData1(data.data,'temperature','extremum','high')}}</td>-->
+		<!--v-text="data.data.temperature&&data.data.temperature.average||'-'"-->
+		<td>{{checkData(data.data,'temperature','average')}}</td>
+		<!--v-text="data.data.temperature&&data.data.temperature.standard_reach||'-'"-->
+		<td>{{checkData(data.data,'temperature','standard_reach')}}</td>
+		<!--v-text="data.data.temperature&&data.data.temperature.cv||'-'"-->
+		<!--<td>{{checkData(data.data,'temperature','cv')}}</td>-->
+		<!--v-text="data.data.humidity&&data.data.humidity.threshold||'-'"-->
+		<td>{{checkData(data.data,'humidity','threshold')}}</td>
+		<!--v-text="data.data.humidity&&data.data.humidity.extremum||'-'"-->
+		<!--<td>{{checkData(data.data,'humidity','extremum')}}</td>-->
+
+		<td>{{checkData1(data.data,'humidity','min')}}</td>
+		<td>{{checkData1(data.data,'humidity','max')}}</td>
+
+		<!--v-text="data.data.humidity&&data.data.humidity.average||'-'"-->
+		<td>{{checkData(data.data,'humidity','average')}}</td>
+		<!--v-text="data.data.humidity&&data.data.humidity.standard_reach||'-'"-->
+		<td>{{checkData(data.data,'humidity','standard_reach')}}</td>
+		<!--v-text="data.data.humidity&&data.data.humidity.cv||'-'"-->
+		<!--<td>{{checkData(data.data,'humidity','cv')}}</td>-->
+	</tr>
+	<template v-if="data.children">
+		<tr is="tr_list" v-for="obj in data.children"  :data="obj" :keyll.sync="ll" :tr-List.sync="trList" :tr-Select.sync="trSelect" :selected.sync="selected" :top-status.sync="Judge_conditions"></tr>
+	</template>
+</template>

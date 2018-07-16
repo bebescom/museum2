@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>calc</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="easyui/window.js"></script>
+    <script type="text/javascript" src="js/init.js"></script>
+
+
+</head>
+
+<body>
+
+<table>
+    <tr height="30">
+        <td>IEEE754 readFloatBE:</td>
+        <td><input type="text" id="old_readFloatBE"/></td>
+        <td>
+            <button onclick="js('readFloatBE')" type="button">计算</button>
+        </td>
+        <td id="jsr_readFloatBE"></td>
+    </tr>
+    <tr height="30">
+        <td>readUInt32LE(右左):</td>
+        <td><input type="text" id="old_readUInt32LE"/></td>
+        <td>
+            <button onclick="js('readUInt32LE')" type="button">计算</button>
+        </td>
+        <td id="jsr_readUInt32LE"></td>
+    </tr>
+    <tr height="30">
+        <td>readUInt32BE(左右):</td>
+        <td><input type="text" id="old_readUInt32BE"/></td>
+        <td>
+            <button onclick="js('readUInt32BE')" type="button">计算</button>
+        </td>
+        <td id="jsr_readUInt32BE"></td>
+    </tr>
+    <tr height="30">
+        <td>readInt16BE:</td>
+        <td><input type="text" id="old_readInt16BE"/></td>
+        <td>
+            <button onclick="js('readInt16BE')" type="button">计算</button>
+        </td>
+        <td id="jsr_readInt16BE"></td>
+    </tr>
+    <tr height="30">
+        <td>datetime(readUInt32BE):</td>
+        <td><input type="text" id="old_datetime"/></td>
+        <td>
+            <button onclick="js('datetime')" type="button">计算</button>
+        </td>
+        <td id="jsr_datetime"></td>
+    </tr>
+    <tr height="30" valign="top">
+        <td>CRC-16-XModem(不带校验位):</td>
+        <td>
+            <textarea id="old_crc" rows="10" cols="22"></textarea>
+        </td>
+        <td>
+            <button onclick="js('crc')" type="button">计算</button>
+        </td>
+        <td id="jsr_crc"></td>
+    </tr>
+</table>
+
+
+<script type="text/javascript">
+    function js(ty) {
+        var old = $('#old_' + ty).val();
+        $.post('sensor/calc', {ty: ty, old: old}, function (data) {
+            $('#jsr_' + ty).text(data.result);
+        }, 'json');
+    }
+</script>
+
+</body>
+</html>

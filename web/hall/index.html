@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>博物馆综合管理平台</title>
+  <link rel="stylesheet" href="../js/bootstrap-3.3.5-dist/css/bootstrap.min.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/floor_hall/index.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/css/font.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/nav/nav.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/css/left.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../js/iview/iview.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/css/header.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="hall.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/floor_hall/components/envBar/envBar.css?v=2.2.05_P001" />
+</head>
+<body>
+<div id="header" v-cloak>
+
+    <a class="logo" href="../capsule">
+        <div v-text="web_config.app_name"></div>
+    </a>
+
+    <div class="right_top_box">
+
+
+        <header-down v-ref:down></header-down>
+
+        <div class="warning_logo">
+            <Badge :count="all_num" overflow-count="99">
+                    <img src="../common/images/warning_logo.png" width="24" height="24" alt="" @click="warningList" />
+            </Badge>
+        </div>
+
+        <!--<div class="feedback">-->
+            <!--<a href="http://wpa.qq.com/msgrd?v=3&uin=3356346419&site=qq&menu=yes" target="_blank"></a>-->
+        <!--</div>-->
+
+        <!--<div class="user_logo">-->
+            <!--<img src="../common/images/man.png">-->
+
+        <!--</div>-->
+
+        <div class="user_drop">
+            <Dropdown placement="bottom-end">
+                <div class="user_name" v-text="web_config.user.real_name"></div>
+                <Dropdown-menu slot="list">
+
+                    <Dropdown placement="left-start" class="hide">
+                        <Dropdown-item class="view">
+                            切换视图
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item>地图视图</Dropdown-item>
+                            <Dropdown-item>数据视图</Dropdown-item>
+                            <Dropdown-item>工作视图</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="user_set hide">账户设置</Dropdown-item>
+                    <Dropdown-item class="system_set hide">系统设置</Dropdown-item>
+                    <Dropdown-item class="help hide">帮助中心</Dropdown-item>
+                    <Dropdown-item class="paramSetting" @click="paramSetting">平台参数设置</Dropdown-item>
+                    <Dropdown-item class="user_set permissionHidden" @click="userManagement(user)"
+                                   v-permission="{name:'用户管理'}">用户管理
+                    </Dropdown-item>
+                    <Dropdown placement="left-start">
+                        <Dropdown-item class="view">
+                            切换语言
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item @click="change_language('chinese')">汉语</Dropdown-item>
+                            <Dropdown-item @click="change_language('tibetan')">藏语</Dropdown-item>
+                            <Dropdown-item @click="change_language('english')">英语</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="logout" @click.stop="exit">退出登录</Dropdown-item>
+
+                </Dropdown-menu>
+            </Dropdown>
+        </div>
+    </div>
+</div>
+
+<template id="header_down">
+    <div class="equip_down" >
+
+        <Dropdown trigger="custom" :visible="show_list_key">
+            <Badge :count="downLoadingLen">
+                <img src="../common/images/loading_img.png" alt="下载loading" @click.stop="show_list">
+            </Badge>
+            <!--<i class="loadingNumber" v-text="downLoadingLen"></i>-->
+            <Dropdown-menu slot="list" style="width: 350px;">
+                <li class="loading_div" v-for="(index,item) in downLoadList">
+                    <div class="singleDown" :classno="item.noClass">
+                        <i :class="item.down_status"></i>
+                        <Poptip trigger="hover" :content="item.file_name">
+                            <span v-text="item.file_name"></span>
+                        </Poptip>
+                        <Icon v-show="item.url" type="ios-download-outline" @click.stop="down_file(item.url)"
+                              class="download_file" data-title="下载文件" size="24"></Icon>
+                        <i class="reloading" @click.stop="re_down(item.msg_id)"
+                           v-show="item.down_status === 'singleDown_reloading'"></i>
+                        <i class="singleDown_clear" @click.stop="del_down(item.msg_id)"></i>
+                    </div>
+                </li>
+
+            </Dropdown-menu>
+        </Dropdown>
+
+        <Progress :percent="45" :stroke-width="5" status="active" v-show="downLoadingLen" hide-info></Progress>
+
+    </div>
+
+</template>
+<script type="text/javascript" src="../js/mod.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/underscore-min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/jquery-1.10.2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/vue.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/echarts.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/bootstrap-3.3.5-dist/js/bootstrap.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/tooltip.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/floor_hall/monitor.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/floor_hall/relic.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/floor_hall/net.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/floor_hall/contrast.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/floor_hall/map.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/header.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/socket.io.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/iview/iview.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/store2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/socket.io.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/permission.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/vue-router.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/jquery.mousewheel.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/left.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/router.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/nav/nav.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/floor_hall/index.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/draw.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/floor_hall/components/envBar/envBar.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="hall.js?v=2.2.05_P001" ></script>
+<script type="text/javascript">
+    Vue.component('header-down', {
+        template: '#header_down',
+        data: function () {
+            return {
+                show_loading_key: true,//是否显示下载
+                show_list_key: false,//是否显示下拉列表
+                downLoadList: {},//设备下载传输数据
+            }
+        },
+        computed: {
+            downLoadListLength: function () {
+                return _.size(this.downLoadList);
+            },
+            downLoadingLen: function () {
+                var _len = 0;
+                for (var i in this.downLoadList) {
+                    if (this.downLoadList[i].down_status === 'singleDown_status_change') {
+                        ++_len;
+                    }
+                }
+                return _len;
+            }
+        },
+        ready: function () {
+            var _this = this;
+            _this.downLoadList = my_store('downloadEquipData') || {};
+            if (_this.downLoadListLength) {
+                _this.show_loading_key = true;
+            }
+            //下载完成后的通知
+            window.socket.on("downEquipDataEnd", function (json) {
+                console.log(json);
+                setTimeout(function () {
+                    if (_this.downLoadList[json.msg_id]) {
+                        window.socket.emit("downEquipDataAck", json);//确认收到消息
+                        _this.end_down(json);//下载完成
+                    }
+                }, 0);
+            });
+
+            window.new_down = _this.new_down;//新建下载队列
+
+        },
+        methods: {
+            show_list: function () {
+                // console.log(this.downLoadingLen)
+                // if(!this.downLoadingLen){//当下载数据为0时，不执行下载
+                //     return
+                // }
+                this.show_list_key = !this.show_list_key;
+            },
+            re_down: function (msg_id) {//重新下载
+                var _this = this;
+                if (!msg_id || !_this.downLoadList[msg_id]) {
+                    return;
+                }
+                setTimeout(function () {
+                    _this.new_down(_this.downLoadList[msg_id]);
+                }, 0);
+            },
+            del_down: function (item_id) {//删除某个下载任务
+                console.log('del_down', item_id);
+                var _this = this;
+                var _list = my_store('downloadEquipData') || {};
+                delete _list[item_id];
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _this.downLoadList);
+
+                if (_this.downLoadListLength === 0) {
+                    _this.show_loading_key = false;
+                    _this.show_list_key = false;
+                }
+            },
+            down_file: function (url) {//下载文件
+                if (url) {
+                    window.location.href = ('/2.2.05_P001/base_api' + url.slice(1));
+                }
+            },
+            new_down: function (msg) {//新建下载任务
+                var _this = this;
+                msg.msg_id = msg.msg_id || 'down_' + new Date().getTime() + '_' + Math.random();
+                msg.down_status = 'singleDown_status_change';
+                msg.access_token = window.web_config.token;
+                var _list = my_store('downloadEquipData') || {};
+                _list[msg.msg_id] = msg;
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _this.downLoadList);
+                _this.show_loading_key = true;
+                window.socket.emit('downEquipData', msg);
+
+            },
+            end_down: function (json) {//下载队列完成
+                var _this = this;
+                if (!json.result) {
+                    _this.$Message.error('下载失败');
+                }
+                var _list = my_store('downloadEquipData') || {};
+                _list[json.msg_id].down_status = json.result ? 'singleDown_status' : 'singleDown_reloading';
+                if (json.url) {
+                    _list[json.msg_id].url = json.url;
+                }
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _list);
+                setTimeout(function () {
+                    _this.show_list_key = true;
+                    if (json.result && json.url) {
+                        var url = json.url.slice(1);
+                        var a = window.open('/2.2.05_P001/base_api' + url);
+                        console.log(a);
+                    }
+                }, 200);
+            }
+        },
+        events: {
+            hideOverlay: function () {
+                if (this.show_loading_key) {
+                    this.show_loading_key = false;
+                }
+            }
+        }
+    });
+</script>
+
+
+
+<div id="left">
+    <ul>
+    	<li class="integrated permissionHidden" v-permission="{name:'综合管理'}">
+			<a href="../capsule/#!/integrated">
+				<span></span>
+				<span v-text="language.left_integrated"></span>
+			</a>
+		</li>
+		<li class="capsule permissionHidden"  v-if="capsule=='1'" v-permission="{name:'智能囊匣'}">
+			<a href="../capsule/#!capsule">
+				<span></span>
+				智能囊匣
+			</a>
+		</li>
+		<li class="monitoring permissionHidden" v-permission="{name:'环境监控'}">
+			<a href="../capsule/#!/environment">
+				<span></span>
+				<span v-text="language.left_environmentalMonitor"></span>
+			</a>
+		</li>
+		<li class="vibration permissionHidden" v-if="vibration=='1'" v-permission="{name:'震动监测'}">
+            <a href="../vibration">
+                <span></span>
+                震动监测
+            </a>
+        </li>
+		<li class="relic_ permissionHidden" v-permission="{name:'文物管理'}">
+			<a href="../capsule/#!/relic">
+				<span></span>
+				<span v-text="language.left_relicManagement"></span>
+			</a>
+		</li>
+		<li class="equipment permissionHidden" v-permission="{name:'设备管理'}">
+			<a href="../equipManage">
+				<span></span>
+				<span v-text="language.left_equipManagement"></span>
+			</a>
+		</li>
+    </ul>
+</div>
+
+
+<div class="map_view_mask">
+	<div id="nav" class="nav_box">
+		<dl>
+
+		</dl>
+        <div class="map_view_time">
+			<Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" :options="map_view_options" placement="bottom-end" placeholder="选择日期和时间" @on-change="changeTime" @on-open-change="changeEndTime" confirm clearable :value.sync="map_view_data"></Date-picker>
+            <!--<Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" placeholder="选择日期和时间（不含秒）" @on-change="changeTime"></Date-picker>-->
+        </div>
+        <a href="javascript:history.back()" class="back">返回</a>
+        <!--&lt;!&ndash;<Modal&ndash;&gt;-->
+	<!--&lt;!&ndash;:visible.sync="contrastModal"&ndash;&gt;-->
+	<!--&lt;!&ndash;title="普通的Modal对话框标题"&ndash;&gt;-->
+	<!--&lt;!&ndash;@on-ok="ok"&ndash;&gt;-->
+	<!--&lt;!&ndash;@on-cancel="cancel">&ndash;&gt;-->
+	<!--&lt;!&ndash;<p>对话框内容</p>&ndash;&gt;-->
+	<!--&lt;!&ndash;<p>对话框内容</p>&ndash;&gt;-->
+	<!--&lt;!&ndash;<p>对话框内容</p>&ndash;&gt;-->
+	<!--&lt;!&ndash;</Modal>&ndash;&gt;-->
+	</div>
+	<div class="map_view">
+		<div class="color_distinguish" v-show="showDistinguish" v-cloak>
+			<div class="tooltip_fox"></div>
+			<div class="temperatureColor">
+				<div style="background: rgba(173,59,45,1);" index="8"></div>
+				<div style="background: rgba(226,85,66,1);" index="7"></div>
+				<div style="background: rgba(237,118,102,1);" index="6"></div>
+				<div style="background: rgba(236,156,145,1);" index="5"></div>
+				<div style="background: rgba(255,224,220,1);" index="4"></div>
+				<div style="background: rgba(193,222,242,1);" index="3"></div>
+				<div style="background: rgba(136,198,236,1);" index="2"></div>
+				<div style="background: rgba(66,155,210,1);" index="1"></div>
+				<div style="background: rgba(9,105,166,1);" index="0"></div>
+			</div>
+			<div class="humidityColor">
+				<div style="background: rgba(16,78,159,1);" index="8"></div>
+				<div style="background: rgba(78,127,190,1);"  index="7"></div>
+				<div style="background: rgba(98,160,212,1);"  index="6"></div>
+				<div style="background: rgba(142,207,237,1);"  index="5"></div>
+				<div style="background: rgba(188,231,246,1);"  index="4"></div>
+				<div style="background: rgba(249,227,207,1);"  index="3"></div>
+				<div style="background: rgba(218,184,148,1);"  index="2"></div>
+				<div style="background: rgba(184,137,104,1);"  index="1"></div>
+				<div style="background: rgba(161,105,81,1);"  index="0"></div>
+			</div>
+		</div>
+	    <div class="btn_view"></div>
+	    <div class="img_box">
+	        <img v-bind:src="hall.map" style="width:100%" @load="key"/>
+	        <svg id="svg_map" class="svg_Area" width="100%" height="100%">
+
+	        </svg>
+	        <div id="svg_map_div" v-show="showHotspot"></div>
+			<div id="main"></div>
+	    </div>
+	</div>
+	<div class="switch_div">
+		<div class="switch_box">
+			<ul>
+				<li>相对湿度场</li>
+				<li>温度场</li>
+			</ul>
+		</div>
+		<div class="switch_change_box">
+			<div class="switch_change_top">
+				<div class="switch_change_left">
+					<span id="switch_change_text">时刻：<span></span></span>
+				</div>
+				<div class="switch_change_right">
+					<span>设置：</span>
+					<select class="set_select" id="count_time" @change="interValData">
+						<option value="15" selected>15分钟</option>
+						<option value="30">30分钟</option>
+						<option value="60">1小时</option>
+						<option value="120">2小时</option>
+					</select>
+					<select class="set_select" id="play_time">
+						<option value="100" selected>中速</option>
+						<option value="0">快速</option>
+						<option value="1000">慢速</option>
+					</select>
+					<select class="set_select" id="dot_size" @change="dotSize">
+						<option value="30" selected>一般</option>
+						<!--<option value="10">非常精细</option>-->
+						<option value="10">精细</option>
+						<option value="40">粗略</option>
+						<!--<option value="50">非常粗略</option>-->
+					</select>
+				</div>
+			</div>
+			<div class="switch_change_bottom">
+				<div class="play_box">
+
+					<Tooltip placement="top" content="起始时刻" :disabled="!loadComplete" >
+						<div class="play_btn" @click="startTime">
+							<Icon type="ios-skipbackward" v-show="loadComplete"></Icon>
+							<Icon type="ios-skipbackward" v-show="!loadComplete" color="#e3e8ee" ></Icon>
+						</div>
+					</Tooltip>
+					<Tooltip placement="top" content="暂无数据" :disabled="loadComplete" >
+						<div class="play_btn" @click="playPause" v-show="!(playStatus&&loadComplete)" style="padding-left: 5px;" >
+							<Tooltip placement="top" content="播放" :disabled="!loadComplete" >
+								<Icon type="ios-play"  v-show="!playStatus&&loadComplete"></Icon>
+								<Icon type="ios-play"  v-show="!loadComplete" color="#e3e8ee"></Icon>
+							</Tooltip>
+						</div>
+						<div class="play_btn" @click="playPause" v-show="playStatus&&loadComplete"  >
+							<Tooltip placement="top" content="暂停" :disabled="!loadComplete" >
+								<Icon type="ios-pause"></Icon>
+							</Tooltip>
+						</div>
+					</Tooltip>
+					<Tooltip placement="top" content="终止时刻" :disabled="!loadComplete" >
+						<div class="play_btn" @click="endTime">
+							<Icon type="ios-skipforward" v-show="loadComplete" ></Icon>
+							<Icon type="ios-skipforward" v-show="!loadComplete" color="#e3e8ee" ></Icon>
+						</div>
+					</Tooltip>
+					<div class="slider_box">
+						<Slider :value.sync="time_index" :tip-format="format" :disabled="!loadComplete"  @on-change="sliderVal" :max="maxLength"></Slider>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+<div class="show_menu">
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default zero" id="map_switch" @mousemove="move">
+
+    <div class="panel-heading zero">
+        <div class="img_btn"></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse0"
+               class="collapsed" aria-expanded="false" v-text="configLanguage.floorHall_mapSwitch"></a>
+        </h4>
+    </div>
+
+    <div id="collapse0" class="panel-collapse collapse" aria-expanded="false">
+        <div class="panel-body">
+            <div class="Legend">
+
+                <div class="tip">
+                    <span>title</span>
+                    <div class="tri_rig triangle"></div>
+                    <div class="tri_rig_b triangle"></div>
+                </div>
+
+                <div id="small_env" class="all_select permissionHidden" v-permission="{name:'设备管理'}" v-show="show_small_env">
+                    <div class="total">
+                        <label>
+                            <input type="checkbox" class="sel_all" data-init v-on:click="sel_all('small_env')"/>小环境设备
+                        </label>
+                        <p>传感器 : <span v-text="small_sensor_total"></span>个
+                            调控设备 : <span v-text="small_controller_total"></span>个
+                            离线设备 : <span v-text="small_offline_total"></span>个
+                        </p>
+                    </div>
+                    <div class="sensor">
+                        <div class="icon_" v-for="(key,item) in small_sensor_list"
+                             v-on:click="show_map('small_env',key)">
+                            <span class="now type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                    <div class="controller">
+                        <div class="icon_" v-for="(key,item) in small_controller_list"
+                             v-on:click="show_map('small_env',key)">
+                            <span class="now  type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                    <div class="sensor">
+                        <div class="icon_" v-for="(key,item) in small_offline_list"
+                             v-on:click="show_map('small_env',key)">
+                            <span class="now type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="micro_env" class="all_select permissionHidden" v-permission="{name:'设备管理'}" v-show="show_micro_env">
+                    <div class="total">
+                        <label>
+                            <input type="checkbox" class="sel_all" data-init v-on:click="sel_all('micro_env')"/>微环境设备
+                        </label>
+                        <p>传感器 : <span v-text="micro_sensor_total"></span>个
+                            调控设备 : <span v-text="micro_controller_total"></span>个
+                            离线设备 : <span v-text="micro_offline_total"></span>个
+                        </p>
+                    </div>
+                    <div class="sensor">
+                        <div class="icon_" v-for="(key,item) in micro_sensor_list"
+                             v-on:click="show_map('micro_env',key)">
+                            <span class="now  type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                    <div class="controller">
+                        <div class="icon_" v-for="(key,item) in micro_controller_list"
+                             v-on:click="show_map('micro_env',key)">
+                            <span class="now  type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+					<div class="sensor">
+                        <div class="icon_" v-for="(key,item) in micro_offline_list"
+                             v-on:click="show_map('micro_env',key)">
+                            <span class="now type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="network" class="all_select permissionHidden" v-permission="{name:'设备管理'}" v-show="show_network">
+                    <div class="total">
+                        <label>
+                            <input type="checkbox" class="sel_all" data-init v-on:click="sel_all('network')"/>网络设备
+                        </label>
+                        <p>设备总数 : <span v-text="network_total"></span>个</p>
+                    </div>
+                    <div class="network">
+                        <div v-for="(key,item) in network_list" class="icon_"
+                             v-on:click="show_map('network',key)">
+                            <span class="now  type {{key}} small" :data-title="resetName(key)"><i></i></span>
+                            <span v-text="item.count" :data-title="resetName(key)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="relic" class="all_select permissionHidden" v-permission="{name:'文物管理'}" v-show="show_relic">
+                    <div class="total">
+                        <label>
+                            <!--没有data-init属性,初始化时不显示-->
+                            <input type="checkbox" class="sel_all" v-on:click="sel_all('relic')"/>文物
+                        </label>
+                        <p>文物总数 : <span v-text="relic_total"></span>个</p>
+                    </div>
+                    <div class="relic" data-area="relic">
+                        <div v-for="(key,val) in relic_list" class="icon_"
+                             v-on:click="show_map('relic',key)">
+                            <span class="type {{key}} small" :data-title="key"><i></i></span>
+                            <span v-text="val" :data-title="key"></span>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="panel panel-default active permissionHidden" id="monitor_box" v-permission="{name:'环境监控'}" v-cloak>
+    <div class="panel-heading env_icon">
+        <div class="img_btn"></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse1"
+               aria-expanded="false" class="collapsed" v-text="configLanguage.floorHall_monitor"></a>
+        </h4>
+    </div>
+
+    <div id="collapse1" class="panel-collapse collapse in" >
+        <div class="panel-body">
+            <div class="area_lister">
+                <div class="toggle_box">
+                    <span class="small_area active" v-text = "configLanguage.floorHall_micMonitor"></span>
+                    <span class="equip"  v-text = "configLanguage.floorHall_equip">设备</span>
+                </div>
+
+                <div class="area_content">
+                    <div class="row_name" style="display: none;"><p>环境达标率</p></div>
+                    <div class="echarts_box" style="display: none;">
+                        <div id="gauge_chart" class="dashboard active">
+
+                        </div>
+                        <div id="radar_chart" class="radar">
+
+                        </div>
+                    </div>
+
+                    <div class="row_name"><p v-text="configLanguage.floorHall_peakVal">均峰值</p></div>
+                    <p class="switching">
+                        <span data-param="temperature" class="active">温度</span>
+                        <span data-param="humidity">湿度</span>
+                    </p>
+                    <div class="timeLine">
+                        <div class="now_time"><span></span><span>24小时</span></div>
+                        <div class="time_wrap"><div class="shadow"></div><p class="time_box"><span data-time="24h" class="active">24小时</span><span data-time="yesterday">昨天</span><span data-time="today">今天</span><span data-time="week">本周</span><span data-time="month">本月</span></p></div>
+                    </div>
+                    <table class="temper_view">
+                        <thead>
+                        <tr>
+                            <td :width="100/tableHead.length+'%'" v-for="item in tableHead" @click="changeSortType(item.col)" :class="{'textLeft':item.col=='min'||item.col=='SD','textRight':item.col=='max'}">
+                                {{item.cn_name}}<span v-show="item.col!='env_name'">{{currUnit}}</span>
+                                <Icon type="chevron-up" v-show="sort.col==item.col&&sort.type"></Icon>
+                                <Icon type="chevron-down" v-show="sort.col==item.col&&!sort.type"></Icon>
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!--包含下阶环境-->
+                        <tr v-if="poles_list.floor">
+                            <td>
+                                {{poles_list.floor.name}}
+                                <!--<a href="#">-->
+                                    <!--{{poles_list.floor.name}}-->
+                                <!--</a>-->
+                            </td>
+                            <td colspan="2">
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td width="50%" class="textLeft">
+                                            {{poles_list.floor.min}}
+                                            <!--{{poles_list.floor.unit}}-->
+                                        </td>
+                                        <td width="50%" class="textRight">
+                                            {{poles_list.floor.max}}
+                                            <!--{{poles_list.floor.unit}}-->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="barContainer">
+                                            <env-bar :min="poles_list.floor.min" :max="poles_list.floor.max" :param="currParam"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                                {{(poles_list.floor.max-poles_list.floor.min).toFixed(2)}}
+                                <!--{{poles_list.floor.unit}}-->
+                            </td>
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td class="textLeft">
+                                            <!--:class="{'max':contrast.SDCol.max==poles_list.floor.SD,'min':contrast.SDCol.min==poles_list.floor.SD}"-->
+                                            <span>
+                                                 {{poles_list.floor.SD}}
+                                                <!--{{poles_list.floor.unit}}-->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="barContainer">
+                                            <env-bar :min="0" :max="contrast.SDbarMax" :s-d-val="poles_list.floor.SD" :param="currParam" type="noBg"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <!--不含下阶环境-->
+                        <tr v-if="poles_list.self">
+                            <td>
+                               {{poles_list.self.name}}
+                                <!--<a href="#">-->
+                                    <!--{{poles_list.self.name}}-->
+                                <!--</a>-->
+                            </td>
+                            <td colspan="2">
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td width="50%" class="textLeft">
+                                            {{poles_list.self.min}}
+                                            <!--{{poles_list.self.unit}}-->
+                                        </td>
+                                        <td width="50%" class="textRight">
+                                            {{poles_list.self.max}}
+                                            <!--{{poles_list.self.unit}}-->
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="barContainer">
+                                            <env-bar :min="poles_list.self.min" :max="poles_list.self.max" :param="currParam"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                                {{(poles_list.self.max-poles_list.self.min).toFixed(2)}}
+                                <!--{{poles_list.self.unit}}-->
+                            </td>
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td class="textLeft">
+                                            <!--:class="{'max':contrast.SDCol.max==poles_list.self.SD,'min':contrast.SDCol.min==poles_list.self.SD}"-->
+                                            <span>
+                                                 {{poles_list.self.SD}}
+                                                <!--{{poles_list.self.unit}}-->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="barContainer">
+                                            <env-bar :min="0" :max="contrast.SDbarMax" :s-d-val="poles_list.self.SD" :param="currParam" type="noBg"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tbody>
+                        <tr v-for="(key,item) in filteredPolesList" class="tableHover" :data-env="item.env_no" @click="clickEnv($event,item.env_no)" @mouseenter="intoEnv($event,item.env_no)" @mouseleave="leaveEnv($event,item.env_no)">
+                            <td>
+                                <a :href="goEnvUrl(item.type,item.env_no)">
+                                    {{item.name}}
+                                </a>
+                                <!--{{item.type}}-->
+                                <!--{{item.name}}-->
+                                <!--{{item.env_no}}-->
+                            </td>
+                            <td colspan="2">
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td width="50%" class="textLeft">
+                                            <span :class="{'max':contrast.minCol.max==item.min,'min':contrast.minCol.min==item.min}">
+                                                {{item.min}}
+                                                <!--{{item.unit}}-->
+                                            </span>
+                                        </td>
+                                        <td width="50%" class="textRight">
+                                            <span :class="{'max':contrast.maxCol.max==item.max,'min':contrast.maxCol.min==item.max}">
+                                                {{item.max}}
+                                                <!--{{item.unit}}-->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="barContainer">
+                                            <env-bar :min="item.min" :max="item.max" :param="currParam"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>
+                                <span :class="{'max':contrast.rangeCol.max==(item.max-item.min).toFixed(2),'min':contrast.rangeCol.min==(item.max-item.min).toFixed(2)}">
+                                    {{(item.max-item.min).toFixed(2)}}
+                                    <!--{{item.unit}}-->
+                                </span>
+                            </td>
+                            <td>
+                                <table width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td class="textLeft">
+                                            <span :class="{'max':contrast.SDCol.max==item.SD,'min':contrast.SDCol.min==item.SD}">
+                                                {{item.SD}}
+                                                <!--{{item.unit}}-->
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="barContainer">
+                                            <env-bar :min="0" :max="contrast.SDbarMax" :s-d-val="item.SD" :param="currParam" type="noBg"></env-bar>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!--div class="row_name">标量场显示</div>
+                    <div class="scalar"><span class="small_area">温度场</span><span class="components">湿度场</span></div-->
+                </div>
+
+                <div class="equip_content">
+                    <!--<div class="row_name"><p>设备运行状况</p></div>
+                    <div class="information">
+                        <div class="line">
+                            <p :style="{background: sensor_total?'#ff6060':'#ccc'}"><span v-bind:style="{width:100*(normal_total/sensor_total)+'%'}"></span></p>
+                            <div class="edges_div" v-bind:style="{left:50*(normal_total/sensor_total)+'%'}">
+                                正常<span class="num" v-text="normal_total"></span>个
+                            </div>
+                            <div class="edges_div" v-bind:style="{right:50*(abnormal_total/sensor_total)+'%'}">
+                                异常<span class="num" v-text="abnormal_total"></span>个
+                            </div>
+                        </div>
+                    </div>-->
+                    <div class="row_name">
+                        <p v-text="configLanguage.floorHall_equip">设备列表</p>
+                    </div>
+                    <form>
+                        <div>
+                            <input type="text" placeholder="请输入你要查找的设备" v-model="searchTxt" @keydown.enter.stop.prevent="search">
+                            <i class="icon iconfont">&#xe614;</i>
+                        </div>
+                        <div>
+                            <div class="filter">
+                                <div class="font">类别
+                                    <ul>
+                                        <li v-for="type in chooce" v-text="type" @click.stop="addChooce(type)"></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <i class="icon iconfont">&#xe650;</i>
+                        </div>
+                    </form>
+                    <div class="row_name">
+                        <p class="p_detail">共 <span v-text="env_sensor_total"></span> 个设备　
+                            <template v-if="filter_num>=0">
+                                <span v-text="filter_num"></span>个符合筛选
+                            </template>　
+                            
+                        </p>
+                    </div>
+                    <p class="fliter_box">
+                        <span v-for="type in condition" v-text="type" @click="removeChooce(type)"></span>
+                    </p>
+                    <div class="equip_overview">
+                        <div class="data_view small" v-if="small_env_sensor_list" v-show="small_env_sensor_list.length!=0">
+                            <p class="title" v-text ="configLanguage.floorHall_micMonitor"></p>
+                            <span v-for="item in small_env_sensor_list">
+                                <a :href="goEquipUrl(item)" data-title="{{item.name}}" :style="{color:check_status(item.status)}">{{item.name}}</a>
+                            </span>
+                        </div>
+                        <div class="data_view micro" v-show="micro_env_sensor_list">
+                            <p class="title">微环境</p>
+                            <span v-for="item in micro_env_sensor_list" >
+                                <a :href="goEquipUrl(item)" data-title="{{item.name}}" :style="{color:check_status(item.status)}">{{item.name}}</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="visualization permissionHidden" v-permission="{name:'环境监控'}">
+                <div class="row_name" style="text-indent: 0;"><p v-text="configLanguage.floorHall_contrast"></p></div>
+                <span class="hotsPot" v-for="(item,value) in selectStandard">
+                    <button type="primary" v-text="value.cn_name" class="btnSelect" :class="{active:selectBtn == value.cn_name}" @click="selectBtnFun(value.col)"></button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="panel panel-default permissionHidden" id="relic_box" v-permission="{name:'文物管理'}">
+    <div class="panel-heading relic_icon">
+        <div class="img_btn"></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"
+               class="collapsed" aria-expanded="false" v-text="configLanguage.floorHall_relic">文物管理</a>
+        </h4>
+    </div>
+    <div id="collapse2" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+        <div class="panel-body">
+            <div class="relic">
+                <div class="row_name" style="display: none;"><p>文物等级统计</p></div>
+                <div class="information" id="relic_chart" style="display: none;">
+               		<div class="tips">暂无数据</div>
+                </div>
+                <div class="row_name"><p class="relic_title">文物列表</p></div>
+                <form>
+                    <div>
+                        <input type="text" placeholder="请输入你要查找的文物" @keydown.enter.stop.prevent="search" v-model="searchTxt">
+                        <i class="icon iconfont">&#xe614;</i>
+                    </div>
+                    <div>
+                        <div class="filter" :style="styleObject">
+                            <div class="font">材质
+                                <ul>
+                                    <li v-for="name in material" v-text="name" @click.stop="addChooce('material',name)"></li>
+                                </ul>
+                            </div>
+                            <div class="font">年代
+                                <ul>
+                                    <li v-for="name in age" v-text="name" @click.stop="addChooce('age',name)"></li>
+                                </ul>
+                            </div>
+                            <div class="font">类别
+                                <ul>
+                                    <li v-for="name in category" v-text="name" @click.stop="addChooce('category',name)"></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <i class="icon iconfont">&#xe650;</i>
+                    </div>
+                </form>
+                <div class="row_name">
+                    <p class="p_detail">
+                        共 <span v-text="relic_total"></span> 个文物　　
+                        <template v-if="filter_num>=0">
+                            <span v-text="filter_num"></span>个符合筛选
+                        </template>
+                    </p>
+                </div>
+                <p class="fliter_box">
+                    <template v-for="(type,val) in condition">
+                        <span v-for="name in val" v-text="name" @click="removeChooce(type,name)"></span>
+                    </template>
+                </p>
+                <div class="relic_menu">
+                    <div class="relic_data" v-for="item in relic_list">
+                        <img v-bind:src="item.image||'../common/images/relic.png'"/>
+                        <a :href="goRelicUrl(item)" v-bind:data-title="item.name">{{item.name}}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="panel panel-default permissionHidden" id="net_box" v-permission="{name:'设备管理'}">
+
+    <div class="panel-heading net_icon">
+        <div class="img_btn "></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"
+               class="collapsed" aria-expanded="false" v-text="configLanguage.floorHall_net"></a>
+        </h4>
+    </div>
+
+    <div id="collapse3" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+        <div class="panel-body">
+            <div class="internet">
+
+                <div class="row_name" style="display: none;"><p>设备统计</p></div>
+                <div class="information" style="display: none;">
+                    <div class="line">
+                        <p v-bind:style="{background:bgColor}"><span v-bind:style="{width:100*width+'%'}"></span></p>
+                        <div class="edges_div" v-bind:style="{left:50*(gateway_total/net_total)+'%'}">
+                            网关
+                            <span class="num" v-text="gateway_total"></span>个
+                        </div>
+                        <div class="edges_div" v-bind:style="{right:50*(relay_total/net_total)+'%'}">
+                            中继
+                            <span class="num" v-text="relay_total"></span>个
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row_name">
+                    <p class="relic_title">设备列表</p>
+                </div>
+                <form>
+                    <div>
+                        <input type="text" placeholder="请输入你要查找的设备">
+                        <i class="icon iconfont">&#xe614;</i>
+                    </div>
+                </form>
+
+                <div class="li_num">
+                    <p>网关数量<font v-text="gateway_total"></font>个</p>
+                    <div class="fu">
+                        <div class="zi" v-for="item in gateway_list">
+                            <a :href="goNetUrl(item)" :data-title="item.name">{{item.name}}</a>
+                        </div>
+
+                    </div>
+                    <p>中继数量<font v-text="relay_total"></font>个</p>
+                    <div class="fu">
+                        <div class="zi" v-for="item in relay_list">
+                            <a :href="goNetUrl(item)" :data-title="item.name">{{item.name}}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="panel panel-default permissionHidden" id="contrast_box" v-permission="{name:'设备管理'}">
+    <div class="panel-heading contrast_icon">
+        <div class="img_btn "></div>
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse4"
+               class="collapsed" aria-expanded="false" v-text = "configLanguage.floorHall_equipCompare"></a>
+        </h4>
+    </div>
+    <div id="collapse4" class="panel-collapse collapse" aria-expanded="false">
+        <div class="panel-body">
+
+        </div>
+    </div>
+</div>
+
+        <template id="envBar">
+    <div class="bar outerBar" :class={"noBg":type=='noBg'} >
+        <div class="bar innerBar" :class={"noBg":type=='noBg'} :style={width:innerWidth,left:innerLeft}>
+
+        </div>
+    </div>
+</template>
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    require('hall');
+</script>
+</body>
+</html>

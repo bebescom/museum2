@@ -1,0 +1,190 @@
+<template id="planDetail">
+    <div class="moduleContainer planDetail">
+        <header>
+            <div @click="goBack" class="topTitle">
+                <Icon type="chevron-left"></Icon>盘点详情
+            </div>
+            <!--盘点详情涉及垮库查询,暂时使用之前的筛选-->
+            <div class="filterWrap">
+                <filter-component type="relic_manage" hide-type="plan_detail" :task-id="planId"></filter-component>
+            </div>
+            <div class="topFunction">
+                <i-button type="error" @click="deletePlanHandler">删除计划</i-button>
+            </div>
+        </header>
+        <div class="tableWrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>
+                        状态
+                    </th>
+                    <th>
+                        计划名称
+                    </th>
+                    <th>
+                        计划ID
+                    </th>
+                    <th>
+                        盘点件数
+                    </th>
+                    <th>
+                        发起人
+                    </th>
+                    <th>
+                        执行人
+                    </th>
+                    <th>
+                        要求完成时间
+                    </th>
+                    <th>
+                        备注
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-show="!topInfo">
+                    <td colspan="8">
+                        信息读取中...
+                    </td>
+                </tr>
+                <tr v-if="topInfo">
+                    <td :class="topInfo.result">
+                        {{topInfo.result}}
+                    </td>
+                    <td>
+                        {{topInfo.name||'未命名计划'}}
+                    </td>
+                    <td>
+                        {{topInfo.taskId||'-'}}
+                    </td>
+                    <td>
+                        {{topInfo.totalNum||0}}
+                    </td>
+                    <td>
+                        {{topInfo.initiatorUsername}}
+                    </td>
+                    <td>
+                        {{topInfo.operatorUsername}}
+                    </td>
+                    <td>
+                        {{formatTime(topInfo.endTime)}}
+                    </td>
+                    <td>
+                        {{topInfo.desc}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <section>
+            <!--<cultural-relics @new-data="resetOption" :relic_filter="relic_filter" :hide_filter="hideFilter"></cultural-relics>-->
+            <div class="relicTableContainer" style="top:0;">
+                <div class="relic_pic" v-show="big_img_status" @mouseleave="hide_big_img">
+                    <!--<p>这里显示文物图片</p>-->
+                    <img :src="img_src" :alt="img_src"/>
+                </div>
+                <div class="nav_pic" v-show="big_nav_status" @mouseleave="hide_big_nav" @mouseenter="in_big_nav">
+                    <!--<p>这里显示地理位置信息</p>-->
+                    <div class="view">
+                        <div class="point" :data-title="nav_name"></div>
+                        <img :src="nav_map" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+                    </div>
+                </div>
+                <!--显示表格数据-->
+                <section class="tableWrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>
+                                状态
+                            </th>
+                            <th>
+                                RFID标签号
+                            </th>
+                            <th>
+                                藏品名称
+                            </th>
+                            <th>
+                                总登记号
+                            </th>
+                            <th>
+                                材质
+                            </th>
+                            <th>
+                                等级
+                            </th>
+                            <th>
+                                位置
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-show="!tableData||tableData.length===0">
+                            <td colspan="7">
+                                暂无盘点数据
+                            </td>
+                        </tr>
+                        <tr v-for="relic in tableData">
+                            <td>
+                                <!--:checked="selRelics.indexOf(relic.relic_no)!=-1"-->
+                                <!--<input type="checkbox" v-if="relic&&relic.relic_no" @click="changeRelic(relic.relic_no)" :value="relic.relic_no" v-model="selRelics"/>-->
+                                <Icon v-show="relic.result&&relic.result==='相符'" type="checkmark-round" size="16" color="#00cc66"></Icon>
+                                <Icon v-show="relic.result&&relic.result==='盘盈'" type="plus-round" size="16" color="#ff6600"></Icon>
+                                <!--{{relic.result}}-->
+                            </td>
+                            <td>
+
+                                {{relic.tagNo||'未关联'}}
+                            </td>
+                            <!--<td>-->
+                                <!--&lt;!&ndash;{no_need_repair:relic.status=='不需修复'||relic.status=='无需修复',need_repair:relic.status=='需要修复',need_repair_asap:relic.status=='亟需修复'||relic.status=='亟待修复',in:relic.status=='展出'||relic.status=='修复中'||relic.status=='修复'||relic.status=='研究中'||relic.status=='研究'||relic.status=='已归还',out:relic.status=='借出'||relic.status=='借入'}&ndash;&gt;-->
+                                <!--<span class="relic_status_item" :class="relic.status">{{relic.status||'无状态信息'}}</span>-->
+                            <!--</td>-->
+                            <td class="left relic_name_no" style="position: relative;">
+                                <p style="cursor: pointer;padding-left: 30px" @click="jumpDetails(relic.relicNo)">
+                                    <img v-if="relic.image" style="vertical-align: middle;margin-right:5px;" :src="relic.image" :alt="" @mouseenter.stop="show_big_img($event,relic.image)" @mouseleave="hide_big_img"/><span class="relic_name">{{relic.name}}</span>
+                                    <!--<span class="relic_no">{{relic.relic_no}}</span>-->
+                                </p>
+                            </td>
+                            <td>
+                                {{relic.relicId||''}}
+                                <!--{{relic.relicNo||''}}-->
+                            </td>
+                            <td>
+                                {{relic.material}}
+                            </td>
+                            <!--<td>-->
+                                <!--{{relic.category}}-->
+                            <!--</td>-->
+                            <td>
+                                {{relic.level}}
+                            </td>
+                            <!--<td>-->
+                                <!--{{relic.age}}-->
+                            <!--</td>-->
+                            <td class="left">
+                                <!--@click="goEnvDetail(relic.parent_env_no)"位置图不提供跳转功能-->
+                                <p style="position: relative;padding-left: 25px;">
+                                    <span v-if="relic.map&&relic.locate" class="nav_icon" @mouseenter.stop="show_big_nav($event,relic.map,relic.locate,relic)" @mouseleave="hide_big_nav"></span>
+                                    {{nav_info(relic.nav)||'暂无位置信息'}}
+                                </p>
+                            </td>
+                            <!--<td>-->
+                                <!--&lt;!&ndash;{{relic.new_data}}&ndash;&gt;-->
+                                <!--<span v-if="relic.new_data.temperature">温度:{{relic.new_data.temperature}}</span>-->
+                                <!--<span v-if="relic.new_data.humidity">湿度:{{relic.new_data.humidity}}</span>-->
+                            <!--</td>-->
+                        </tr>
+                        </tbody>
+                    </table>
+                </section>
+                <!--显示分页页码-->
+                <footer>
+                    <page-list @turn-page="turnPage" :page.sync="page" :allPage="allPage" :count.sync="count"></page-list>
+                </footer>
+                <div class="loading" v-show="tableLoading"></div>
+            </div>
+        </section>
+    </div>
+</template>

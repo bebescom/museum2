@@ -1,0 +1,114 @@
+
+.overview .status {
+    width: 28px;
+    height: 26px;
+    border-radius: 2px;
+    background-color: #ff4f4f;
+    color: #ffeded;
+    font-size: 12px;
+    text-align: center;
+    margin-left: 7px;
+}
+
+.overview .normal {
+    background-color: #31af31;
+}
+
+.overview .new {
+    font-size: 14px;
+    color: #66747f;
+    margin-bottom: 6px;
+    height:25px;
+    line-height: 25px;
+}
+
+.overview .new i {
+    display: inline-block;
+    background: url('images/new.png') no-repeat center;
+    width: 14px;
+    height: 14px;
+    margin-left:5px;
+    vertical-align: middle;
+}
+
+.overview .wrapper {
+    line-height: 30px;
+    font-size: 14px;
+    color: #66747f;
+}
+
+.overview .wrapper span {
+    font-size: 12px;
+}
+
+.battery {
+    width: 24px;
+    height: 12px;
+    background: url('images/battery.png') no-repeat center;
+    display: inline-block;
+    margin-left: 28px;
+    padding-top: 2px;
+}
+
+.battery span {
+    width: 17px;
+    height: 7px;
+    background: #3BB48B;
+    float: left;
+    display: inline-block;
+    margin: 2px 0 0 4px;
+}
+.battery span.pass{
+    background: #e0e00c;
+    width: 8px;
+}
+.battery span.fail{
+    background: #FF5959;
+    width: 1px;
+}
+
+.caveat {
+    width: 69px;
+    height: 15px;
+    background: url('images/caveat.png') no-repeat;
+    margin-left: 19px;
+    display: none;
+}
+
+.signal {
+    height: 13px;
+    display: inline-block;
+    margin-left: 22px;
+}
+
+.signal span {
+    display: inline-block;
+    background: #35af86;
+    width: 2px;
+    margin-right: 1px;
+}
+
+.signal span.one {
+    height: 3px;
+}
+
+.signal span.two {
+    height: 5px !important;
+}
+
+.signal span.three {
+    height: 8px;
+}
+
+.signal span.four {
+    height: 10px;
+}
+
+.signal span.five {
+    height: 13px;
+}
+
+
+.monitor_table td {
+
+}

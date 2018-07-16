@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.relics.api.mapper.RelicRelicMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.museum.relics.api.entity.RelicRelic">
+		<id column="id" property="id" />
+		<result column="relic_id" property="relicId" />
+		<result column="relic_no" property="relicNo" />
+		<result column="name" property="name" />
+		<result column="parent_env_no" property="parentEnvNo" />
+		<result column="material" property="material" />
+		<result column="category" property="category" />
+		<result column="level" property="level" />
+		<result column="age" property="age" />
+		<result column="sort" property="sort" />
+		<result column="describe" property="describe" />
+		<result column="image" property="image" />
+		<result column="status" property="status" />
+		<result column="locate" property="locate" />
+	</resultMap>
+
+	<update id="inAndOutstock">
+		<foreach collection="relicList" index="index" item="relic" open="" separator=";" close="">
+			update relic set status=#{relic.status}
+			where id=#{relic.id}
+		</foreach>
+	</update>
+</mapper>

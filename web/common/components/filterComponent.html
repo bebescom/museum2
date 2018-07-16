@@ -1,0 +1,1277 @@
+<!--公共筛选条件组件-->
+<!--使用方法-->
+<!--<div class="filterWrap">-->
+    <!--<filter-component type="传入设备类型关键字" hide-type="in/out"></filter-component>-->
+<!--</div>-->
+<!--隐藏部分状态菜单-->
+<!--hide-type="in/out" in:入库,out:出库-->
+<!--设备类型关键字:-->
+<!--环境报警:env_alert-->
+<!--藏品管理:relic_manage(藏品出库,藏品入库)-->
+<!--设备管理:equip_manage-->
+<!--设备报警:equip_alert-->
+<!--盘点详情:plan_detail-->
+
+<style>
+    .filterWrap{
+        min-width:200px;
+        height:50px;
+        float:left;
+        /*border:1px solid blue;*/
+        box-sizing: border-box !important;
+    }
+    .componentContainer{
+        width:360px;
+        box-sizing: border-box !important;
+        line-height: 28px;
+        height:28px;
+        position:relative;
+        top:11px;
+        /*border:1px solid red;*/
+    }
+    .componentContainer .inputWrap ._input::-webkit-input-placeholder { /* WebKit browsers */
+        color:#c0c3c9;
+    }
+    .componentContainer .inputWrap ._input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color:#c0c3c9;
+    }
+    .componentContainer .inputWrap ._input::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color:#c0c3c9;
+    }
+    .componentContainer .inputWrap ._input:-ms-input-placeholder { /* Internet Explorer 10+ */
+        color:#c0c3c9;
+    }
+    .componentContainer .inputWrap{
+        font-size:12px;
+        width:260px;
+        color:#5b6272;
+        position: relative;
+    }
+    .componentContainer .inputWrap .handleWrap{
+        width:75px;
+        position:absolute;
+        top:0;
+        right:0;
+        bottom:0;
+    }
+    .componentContainer ._icon{
+        box-sizing: border-box !important;
+        display: inline-block;
+        width:26px;
+        height:26px;
+        background:url(../common/images/filterIcon.png) no-repeat;
+        /*position: relative;*/
+        /*top:1px;*/
+        /*right:1px;*/
+        cursor:pointer;
+        vertical-align: middle;
+        margin-top: -1px;
+    }
+    .componentContainer .inputWrap .handleWrap .searchIcon{
+        /*border:1px solid red;*/
+        background-position: 0 0;
+    }
+    .componentContainer .inputWrap .handleWrap .searchIcon:hover,.componentContainer .inputWrap .handleWrap .searchIcon.hover{
+        background-position:-26px 0;
+    }
+    .componentContainer .inputWrap .deleteIcon{
+        /*position: absolute;*/
+        /*left:0;*/
+        /*top:0;*/
+        background-position: -52px 0;
+    }
+    .componentContainer .inputWrap ._input{
+        width:100%;
+        border:1px solid #d7d7d7;
+        box-sizing: border-box !important;
+        height:28px;
+        border-radius:3px;
+        /*position: relative;*/
+        /*top:-1px;*/
+        outline: none;
+        vertical-align: top;
+        padding:0 75px 0 10px;
+    }
+    .componentContainer .inputWrap .filterBtn{
+        box-sizing: border-box !important;
+        height:18px;
+        line-height: 18px;
+        font-size:14px;
+        color:#1bbc9b;
+        position: absolute;
+        left:28px;
+        top:5px;
+        /*border:1px solid red;*/
+        border-left:1px solid #5b6272;
+        padding:0 5px;
+    }
+    .componentContainer .resetWrap{
+        font-size: 14px;
+        position: absolute;
+        right:0;
+        top:0;
+        bottom:0;
+        color:#5b6272;
+
+    }
+    .componentContainer .overlay{
+        position: absolute;
+        top:35px;
+        left:0;
+        background-color:#fff;
+        z-index:99999;
+        border-radius:3px;
+        box-shadow: -1px 1px 3px 1px #ccc;
+        font-size: 12px;
+        color:#666;
+    }
+
+    .componentContainer .searchSuggest{
+        right:0;
+        overflow: hidden;
+    }
+    .componentContainer .searchSuggest .listWrap{
+        /*border:1px solid red;*/
+        /*max-height:160px;*/
+        margin:0 auto;
+        overflow: auto;
+    }
+    .componentContainer .searchSuggest .listWrap ul li{
+        cursor:pointer;
+        padding-left:10px !important;
+        color:#5b6272;
+    }
+    .componentContainer .searchSuggest .listWrap ul li:hover{
+        background-color:#1bbc9b;
+        color:#fff;
+    }
+
+    .componentContainer .searchSuggest footer i{
+        font-style:normal;
+    }
+    .componentContainer .searchSuggest footer p{
+        height:26px;
+        text-align: center;
+        line-height: 24px;
+        /*width:80px;*/
+        /*margin: 0 auto;*/
+        cursor:pointer;
+        position: relative;
+    }
+    .componentContainer .searchSuggest footer p:hover{
+        text-decoration: underline;
+    }
+    .componentContainer .ivu-icon{
+        cursor:pointer;
+    }
+    /* always present */
+    .expand-transition {
+        transition: all .25s ease;
+        /*padding: 10px;*/
+        padding:10px 0 10px 0;
+    }
+    /* .expand-enter defines the starting state for entering */
+    /* .expand-leave defines the ending state for leaving */
+    .expand-enter, .expand-leave {
+        height: 0;
+        padding: 0 10px;
+        opacity: 0;
+    }
+
+    .componentContainer .filterPanel{
+        width:840px;
+        height:470px;
+        overflow: auto;
+        /*border:1px solid red;*/
+    }
+    .componentContainer .filterPanel>header{
+        border-bottom:1px solid #d9dde0;
+    }
+    .componentContainer .filterPanel section .side{
+        position: absolute;
+        top:10px;
+        bottom:10px;
+        /*border:1px solid green;*/
+    }
+    .componentContainer .filterPanel section aside.leftPanel{
+        left:10px;
+        right:80%;
+        overflow: hidden;
+    }
+    .componentContainer .filterPanel section aside.leftPanel header{
+        font-weight:bold;
+        line-height: 40px;
+    }
+    /*环境树样式覆盖*/
+    .componentContainer .filterPanel section aside.leftPanel .envTreeContainer{
+        position: absolute;
+        left:0;
+        right:0;
+        top:40px;
+        bottom:0;
+        overflow: auto;
+    }
+    .componentContainer .filterPanel section aside.leftPanel .envTreeContainer .ivu-icon{
+        color:#1bbc9b;
+    }
+    .componentContainer .filterPanel section aside.leftPanel .envTreeContainer .ivu-tree-node-selected{
+        color:#fff;
+        background-color:#1bbc9b;
+        border-color: #1bbc9b;
+    }
+    .componentContainer .filterPanel section aside.leftPanel .envTreeContainer .ivu-tree li span.ivu-tree-switcher.ivu-tree-switcher-noop {
+        display: inline-block !important;
+    }
+    .componentContainer .filterPanel section aside.leftPanel .envTreeContainer .ivu-checkbox-checked .ivu-checkbox-inner{
+        border-color: #1bbc9b;
+    }
+    .componentContainer .filterPanel section aside.leftPanel .envTreeContainer .ivu-checkbox-checked:hover .ivu-checkbox-inner{
+        border-color: #1bbc9b;
+    }
+    .componentContainer .filterPanel section aside.leftPanel .envTreeContainer .ivu-checkbox-checked .ivu-checkbox-inner{
+        background-color:#1bbc9b;
+    }
+    .componentContainer .filterPanel section aside.leftPanel .envTreeContainer .ivu-checkbox-indeterminate .ivu-checkbox-inner {
+        background-color: #1bbc9b;
+        border-color: #1bbc9b;
+    }
+    .componentContainer .filterPanel section div.rightPanel{
+        right:10px;
+        left:20%;
+        overflow: auto;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList{
+        position: absolute;
+        /*border:1px solid #ddd;*/
+        top:0;
+        left:0;
+        right:0;
+        bottom:30px;
+        overflow-y: scroll;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table{
+        width:100%;
+        border-collapse: collapse;
+        position: relative;
+        /*top:30px;*/
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table tr{
+        /*height:40px;*/
+        line-height: 40px;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table th{
+        width:15%;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table th{
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    .componentContainer .filterPanel section div.rightPanel .conditionList table th,
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td{
+        /*border:1px solid red;*/
+        font-size: 12px;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td .ivu-select-dropdown{
+        z-index:30000;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td .timeWarp{
+        box-sizing: border-box !important;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td .timeWarp *{
+        box-sizing: border-box !important;
+    }
+
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td.flexTd{
+        display: flex;
+        flex-direction: row;
+        flex-wrap:wrap;
+        justify-content: flex-start;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td.flexTd.bottomBorder{
+        border-bottom: 1px solid #ddd;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td>span{
+        line-height: 30px;
+        padding:0 10px;
+        border-radius:5px;
+        margin:5px 10px 5px 0;
+        cursor:pointer;
+        white-space: nowrap;
+    }
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td>span:hover,
+    .componentContainer .filterPanel section div.rightPanel .conditionList table td>span.sel{
+        background-color:#1bbc9b;
+        color:#fff;
+    }
+    .componentContainer .filterPanel section div.rightPanel footer{
+        position: absolute;
+        /*border:1px solid #ddd;*/
+        height:30px;
+        left:0;
+        right:0;
+        bottom:0;
+        text-align: right;
+    }
+    .componentContainer .filterPanel section div.rightPanel footer a{
+        display: inline-block;
+        width:55px;
+        height:24px;
+        text-align: center;
+        line-height: 24px;
+        font-size: 14px;
+        background-color:#c0c1c5;
+        color:#fff;
+        margin-right:10px;
+        border-radius:5px;
+    }
+    .componentContainer .filterPanel section div.rightPanel footer a:hover{
+        background-color:#1bbc9b;
+        text-decoration: none;
+    }
+    .componentContainer .filterPanel section div.rightPanel table td .fastSelect{
+        text-align: center;
+    }
+    .componentContainer .filterPanel section div.rightPanel table td .fastSelect a{
+        padding:3px 10px;
+        /*border:1px solid red;*/
+    }
+</style>
+<template id="filterComponent">
+    <!--筛选组件-->
+    <div class="componentContainer">
+        <div class="inputWrap">
+            <!---->
+            <!--resetOption-->
+            <input type="text" v-model="keyword" :placeholder="placeholder" class="_input" @focus="showSuggest" @keyup.esc="escHandler" @keypress.enter="searchKeyword" @click.stop>
+            <div class="handleWrap">
+                <span :class="['_icon','searchIcon',{hover:focusOn}]" @click="searchKeyword"></span>
+                <a href="javascript:void(0)" class="filterBtn" @click.stop="togglePanel"> 筛选 </a>
+            </div>
+            <!--查询建议浮层-->
+            <div class="overlay searchSuggest" v-show="suggestShow">
+                <div class="listWrap">
+                    <ul>
+                        <li v-for="n in searchSuggest" track-by="$index" @click="selSuggestItem(n)">
+                            {{n}}
+                        </li>
+                    </ul>
+                </div>
+                <footer>
+                    <p @click.stop="cleanHistory" >
+                        <span class="_icon deleteIcon"></span>
+                        清空历史
+                    </p>
+                </footer>
+            </div>
+        </div>
+        <div class="resetWrap">
+            <span> {{filterItemCount}}项筛选 </span>
+            <a href="javascript:void(0)" @click="resetOption" style="color:#a0a3ab;"> 清空 </a>
+        </div>
+        <div class="overlay filterPanel" v-show="panelShow" transition="expand" @click.stop>
+            <!--<header>-->
+                <!--已选条件-->
+            <!--</header>-->
+            <section>
+                <aside class="side leftPanel">
+                    <header>环境树</header>
+                    <div class="envTreeContainer" id="environmentTree">
+                        <Tree :data="treeData"
+                              multiple
+                              show-checkbox
+                              @on-check-change="checkedNodes"
+                              @on-select-change="selectNodes"
+                        ></Tree>
+                    </div>
+                </aside>
+                <div class="side rightPanel">
+                    <div class="conditionList">
+                        <table>
+                            <tbody>
+
+                            <!--设备管理筛选-->
+                            <tr v-if="type==='equip_manage'">
+                                <th>
+                                    状态
+                                </th>
+                                <td class="flexTd">
+                                    <span v-for="status in equip_manage_status" :class="{sel:filterObj.equip_manage_status.indexOf(status.name)!==-1}" @click="changeFilter('equip_manage_status',status.name)">{{status.name}} {{status.count}}</span>
+                                </td>
+                            </tr>
+                            <tr v-if="type==='equip_manage'">
+                                <th rowspan="5">
+                                    类型
+                                </th>
+                                <td :class="['flexTd',{bottomBorder:monitor_terminal&&monitor_terminal.length!==0}] ">
+                                    <span v-if="monitor_terminal&&monitor_terminal.length!==0" :class="{sel:equip_type_sel_all.indexOf('monitor_terminal')!==-1}" @click="addAllToFilter('equip_manage_type','monitor_terminal')">所有监测终端{{count('monitor_terminal')}}</span>
+                                    <span v-for="status in monitor_terminal" :class="{sel:filterObj.equip_manage_type.indexOf(status.name)!==-1}" @click="changeFilter('equip_manage_type',status.name,'monitor_terminal')">{{status.name}} {{status.count}}</span>
+                                </td>
+                                <td :class="['flexTd',{bottomBorder:control_equipment&&control_equipment.length!==0}] ">
+                                    <span v-if="control_equipment&&control_equipment.length!==0" :class="{sel:equip_type_sel_all.indexOf('control_equipment')!==-1}" @click="addAllToFilter('equip_manage_type','control_equipment')">所有调控设备{{count('control_equipment')}}</span>
+                                    <span v-for="status in control_equipment" :class="{sel:filterObj.equip_manage_type.indexOf(status.name)!==-1}" @click="changeFilter('equip_manage_type',status.name,'control_equipment')">{{status.name}} {{status.count}}</span>
+                                </td>
+                                <td :class="['flexTd',{bottomBorder:network_equipment&&network_equipment.length!==0}] ">
+                                    <span v-if="network_equipment&&network_equipment.length!==0" :class="{sel:equip_type_sel_all.indexOf('network_equipment')!==-1}" @click="addAllToFilter('equip_manage_type','network_equipment')">所有网络设备{{count('network_equipment')}}</span>
+                                    <span v-for="status in network_equipment" :class="{sel:filterObj.equip_manage_type.indexOf(status.name)!==-1}" @click="changeFilter('equip_manage_type',status.name,'network_equipment')">{{status.name}} {{status.count}}</span>
+                                </td>
+                                <td :class="['flexTd',{bottomBorder:offline_equipment&&offline_equipment.length!==0}] ">
+                                    <span v-if="offline_equipment&&offline_equipment.length!==0" :class="{sel:equip_type_sel_all.indexOf('offline_equipment')!==-1}" @click="addAllToFilter('equip_manage_type','offline_equipment')">所有手持式设备{{count('offline_equipment')}}</span>
+                                    <span v-for="status in offline_equipment" :class="{sel:filterObj.equip_manage_type.indexOf(status.name)!==-1}" @click="changeFilter('equip_manage_type',status.name,'offline_equipment')">{{status.name}} {{status.count}}</span>
+                                </td>
+                                <td class="flexTd">
+                                    <span v-if="other_equipment&&other_equipment.length!==0" :class="{sel:equip_type_sel_all.indexOf('other_equipment')!==-1}" @click="addAllToFilter('equip_manage_type','other_equipment')">所有其它设备{{count('other_equipment')}}</span>
+                                    <span v-for="status in other_equipment" :class="{sel:filterObj.equip_manage_type.indexOf(status.name)!==-1}" @click="changeFilter('equip_manage_type',status.name,'other_equipment')">{{status.name}} {{status.count}}</span>
+                                </td>
+                            </tr>
+
+                            <!--设备报警筛选-->
+                            <tr v-if="type==='equip_alert'" v-show="equip_alert_type&&equip_alert_type.length!==0">
+                                <th>
+                                    报警类型
+                                </th>
+                                <td class="flexTd">
+                                    <span v-for="type in equip_alert_type" :class="{sel:filterObj.equip_alert_type.indexOf(type.name)!==-1}" @click="changeFilter('equip_alert_type',type.name)">{{type.name}} {{type.count}}</span>
+                                </td>
+                            </tr>
+
+                            <!--环境报警筛选-->
+                            <tr v-if="type==='env_alert'">
+                                <th>
+                                    报警参数
+                                </th>
+                                <td class="flexTd">
+                                    <span v-for="param in env_alert_param" :class="{sel:filterObj.env_alert_param.indexOf(param.name)!==-1}" @click="changeFilter('env_alert_param',param.name)">{{dictionary[param.name]}} {{param.count}}</span>
+                                </td>
+                            </tr>
+
+                            <!--文物管理筛选-->
+                            <tr v-if="type==='relic_manage'" v-show="hideType==='plan_detail'">
+                                <th>盘点状态</th>
+                                <td class="flexTd">
+                                    <template v-for="check in relic_check_status" >
+                                        <span v-if="check.name"  v-show="hideType" :class="{sel:filterObj.relic_check_status.indexOf(check.name)!==-1}" @click="changeFilter('relic_check_status',check.name)">{{check.name}} {{check.count}}</span>
+                                    </template>
+                                </td>
+                            </tr>
+
+                            <tr v-if="type==='relic_manage'" v-show="hideType!=='plan_detail'">
+                                <th>状态</th>
+                                <td class="flexTd">
+                                    <template v-for="status in relic_status" >
+                                        <span v-if="status.name"  v-show="!hideType||(hideType==='in'&&status.name!=='亟需修复'&&status.name!=='不需修复'&&status.name!=='需要修复')||(hideType==='out'&&(status.name==='亟需修复'||status.name==='不需修复'||status.name==='需要修复'))" :class="{sel:filterObj.relic_status.indexOf(status.name)!==-1}" @click="changeFilter('relic_status',status.name)">{{status.name}} {{status.count}}</span>
+                                    </template>
+                                </td>
+                            </tr>
+                            <tr v-if="type==='relic_manage'">
+                                <th>等级</th>
+                                <td class="flexTd">
+                                    <template v-for="level in relic_level">
+                                        <span  v-if="level.name&&level.count" :class="{sel:filterObj.relic_level.indexOf(level.name)!==-1}" @click="changeFilter('relic_level',level.name)">{{level.name}} {{level.count}}</span>
+                                    </template>
+                                </td>
+                            </tr>
+                            <tr v-if="type==='relic_manage'">
+                                <th>材质</th>
+                                <td class="flexTd">
+                                    <template v-for="material in relic_material">
+                                        <span  v-if="material.name&&material.count" :class="{sel:filterObj.relic_material.indexOf(material.name)!==-1}" @click="changeFilter('relic_material',material.name)">{{material.name}} {{material.count}}</span>
+                                    </template>
+                                </td>
+                            </tr>
+                            <tr v-if="type==='relic_manage'" v-show="hideType!=='plan_detail'">
+                                <th>类型</th>
+                                <td class="flexTd">
+                                    <template v-for="category in relic_category">
+                                        <span  v-if="category.name&&category.count" :class="{sel:filterObj.relic_category.indexOf(category.name)!==-1}" @click="changeFilter('relic_category',category.name)">{{category.name}} {{category.count}}</span>
+                                    </template>
+                                </td>
+                            </tr>
+                            <tr v-if="type==='relic_manage'" v-show="hideType!=='plan_detail'">
+                                <th>年代</th>
+                                <td class="flexTd">
+                                    <template v-for="age in relic_age">
+                                        <span  v-if="age.name&&age.count" :class="{sel:filterObj.relic_age.indexOf(age.name)!==-1}" @click="changeFilter('relic_age',age.name)">{{age.name}} {{age.count}}</span>
+                                    </template>
+                                </td>
+                            </tr>
+
+
+                            <!--共用时间筛选-->
+                            <tr v-if="type==='equip_alert'||type==='env_alert'">
+                                <th>
+                                    报警时间
+                                </th>
+                                <td>
+                                    <div class="timeWarp">
+                                        <!--style="width: 200px"-->
+                                        <Row>
+                                            <i-col span="14">
+                                                <Date-picker
+                                                        type="datetimerange"
+                                                        format="yyyy-MM-dd HH:mm"
+                                                        :value="timeArr"
+                                                        placeholder="选择日期和时间"
+                                                        :clearable="true"
+                                                        :options="timePickerOption"
+                                                        @on-change="changeTime"
+                                                        placement="bottom-start"
+                                                        :editable="false"
+                                                        @on-ok="requireData"
+                                                        @on-clear="resetTime"
+                                                        @on-open-change="saveOldTime">
+                                                </Date-picker>
+                                            </i-col>
+                                        </Row>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <footer>
+                        <a href="javascript:void(0)" @click="okHandler">确定</a>
+                        <a href="javascript:void(0)" @click="cancelHandler">取消</a>
+                    </footer>
+                </div>
+            </section>
+        </div>
+    </div>
+</template>
+<script type="text/javascript">
+    //参数名称字典
+    var dictionary={
+        temperature:'温度',
+        humidity:'相对湿度',
+        light:'光照强度',
+        uv:'紫外强度',
+        co2:'二氧化碳浓度',
+        voc:'voc',
+        organic:'有机物挥发物浓度',
+        inorganic:'无机物',
+        sulfur:'含硫',
+        box_open_alert:'非法开盖',
+        move_alert:'智能囊匣异常震动',
+        broken:'玻璃破碎',
+        vibration:'安防监测终端异常震动',
+        multi_wave:'多维驻波'
+    };
+    
+    //生成环境树方法
+    var makeTree = function (nodes,expand_key) {
+        //拷贝原数组
+        var treeListCopy = JSON.parse(JSON.stringify(nodes)),
+            result = [];
+        //遍历树结构
+        if (treeListCopy && treeListCopy.length !== 0) {
+            // console.log(treeListCopy)
+            treeListCopy.forEach(function (node, index) {
+                // console.log(node);
+                //默认环境树全部展开
+                var nodeObj = {
+                    title: '',
+                    children: [],
+                    env_no: '',
+                    expand: false
+                };
+                if(node.type==='楼栋' || node.type==='楼层'){
+                    nodeObj.expand = true;
+                }
+                nodeObj.title = node.name;
+                nodeObj.env_no = node.env_no;
+                if (node.children && node.children.length !== 0) {
+                    nodeObj.children = makeTree(node.children);
+                }
+                result.push(nodeObj);
+                nodeObj = null;
+                
+            })
+        }
+        
+        return result;
+    };
+
+    //获取环境树选中节点的方法
+    var getSelectNodes = function(nodes,result){
+        if(!result){
+            result = [];
+        }
+        if(nodes && nodes.length!==0){
+            nodes.forEach(function(node,index){
+                if(node.checked){
+                    if(node.childrenCheckedStatus===2){
+                        if(result.indexOf(node.env_no)===-1){
+                            result.push(node.env_no);
+                        }
+                        if(node.children && node.children.length!==0){
+                            getSelectNodes(node.children,result);
+                        }
+                    }else if(node.childrenCheckedStatus===1){
+                        if(node.children && node.children.length!==0){
+                            getSelectNodes(node.children,result);
+                        }
+                    }
+                }
+            });
+        }
+        return result;
+    };
+
+    //转换时间戳
+    var timeStamp = function(time){
+        if(time){
+            return Date.parse(time);
+        }
+    };
+    //计算时间
+    var calcTime = function(time,type){
+        var year = time.getFullYear(),
+            month = time.getMonth()+1,
+            day = time.getDate(),
+            weekday = time.getDay(),
+            newDate = time;
+        if(type==='today'){
+            newDate.setHours(0,0,0);
+        }
+        else if(type==='yesterday'){
+            newDate.setDate(day-1);
+            newDate.setHours(0,0,0);
+        }
+        else if(type==='week'){
+            newDate.setDate(day-weekday+1);
+            newDate.setHours(0,0,0);
+        }else if(type==='month'){
+            newDate.setDate(1);
+            newDate.setHours(0,0,0);
+        }
+        return newDate;
+    };
+    var defaultFilterObj = {
+        //选择筛选设备的报警类型
+        equip_alert_type:[],
+        //筛选时间
+        time:[],
+        //环境树节点
+        nodes:[],
+        //选择筛选设备的状态类型
+        equip_manage_status:[],
+        //选择筛选设备的类型
+        equip_manage_type:[],
+        //选择筛选环境的报警类型
+        env_alert_param:[],
+        //选择文物状态筛选
+        relic_status:[],
+        //选择文物等级筛选
+        relic_level:[],
+        //选择文物材质筛选
+        relic_material:[],
+        //选择文物类型筛选
+        relic_category:[],
+        //选择文物年代筛选
+        relic_age:[],
+        //选择文物盘点状态筛选
+        relic_check_status:[]
+    };
+    Vue.component('filter-component',{
+        template:'#filterComponent',
+        props:['type','hideType','taskId'],
+        data:function(){
+            return {
+                placeholder:'请输入ID或名称查询',
+                filterObj:JSON.parse(JSON.stringify(defaultFilterObj)),
+
+                //参数字典
+                dictionary:dictionary,
+
+                //拷贝筛选对象,用于条件还原
+                filterObjCopy:null,
+                treeDataCopy:null,
+                timeArrCopy:null,
+                equip_type_sel_all_copy:null,
+                keyword_copy:null,
+                //某种类型设备全选的标记
+                equip_type_sel_all:[],
+                equip_alert_type:[],
+                equip_manage_status:[],
+
+                monitor_terminal:[],
+                control_equipment:[],
+                network_equipment:[],
+                offline_equipment:[],
+                other_equipment:[],
+
+                //文物模块
+                //状态
+                relic_status:[],
+                //年代
+                relic_age:[],
+                //类别
+                relic_category:[],
+                //位置通过环境树选择
+//                relic_hall:[],
+                //材质
+                relic_material:[],
+                //等级
+                relic_level:[],
+                //盘点状态
+                relic_check_status:[], 
+
+                //环境预警参数条件
+                env_alert_param:[],
+                //筛选条件是否展开
+                panelShow:false,
+                //查询建议
+                suggestShow:false,
+                //输入框状态
+                focusOn:false,
+                //搜索关键字
+                keyword:'',
+                //搜索建议(最大长度限制为7项)
+                searchSuggest:[],
+                treeData:[],
+                defaultTreeData:[],
+                timeArr:[],						//显示的时间,默认显示
+                timeOldArr:[],
+                timeChangeArr:[],
+                timeSure:false,//时间标志位,标志是点击确定请求数据还是遮罩层消失
+                timePickerOption:{
+                    shortcuts:[
+                        {
+                            text:'今天',
+                            value:function () {
+                                var start,end;
+                                // shortTime=true;
+                                end = new Date().setHours(23,59,59);
+                                start = calcTime(new Date(),'today');//计算今天00:00起始时间
+                                return [start,end];
+                            }
+                        },
+                        {
+                            text:'昨天',
+                            value:function () {
+                                var start,end;
+                                shortTime=true;
+                                end = new Date().setHours(0,0,0)-1000;
+                                start = calcTime(new Date(),'yesterday');//计算24小时起始时间
+                                return [start,end];
+                            }
+                        },
+                        {
+                            text:'本周',
+                            value:function () {
+                                var start,end;
+                                // shortTime=true;
+                                end = new Date().setHours(23,59,59);
+                                start = calcTime(new Date(),'week');//计算3天前00:00起始时间
+                                return [start,end];
+                            }
+                        },
+                        {
+                            text:'本月',
+                            value:function () {
+                                var start,end;
+                                // shortTime=true;
+                                end = new Date().setHours(23,59,59);
+                                start = calcTime(new Date(),'month');//计算7天前00:00起始时间
+                                return [start,end];
+                            }
+                        }
+                    ],
+                    disabledDate:function(date){//当前时间之后的时间禁用
+                        return date && date.valueOf() > Date.now();
+                    }
+                },
+            }
+        },
+        created:function(){
+            var me = this;
+
+            //准备阶段,请求环境树数据,inc_self,自己节点包括父节点本身
+            $.get('/2.2.05_P001/base_api/base/envs/tree/',{inc_self:1}, function (data) {
+                if(data.error){
+                    me.$Message.error(data.error);
+                    return;
+                }
+                me.treeData = makeTree(data);
+                me.defaultTreeData = JSON.parse(JSON.stringify(me.treeData));
+            });
+            if(this.type==='env_alert'){
+                this.placeholder='报警环境名称、关联文物名称';
+                $.get('/2.2.05_P001/base_api/env/monitor/alerts/alert_count',{clear:1},function(res){
+//                    console.log(res);
+                    if(res.alert_time&&res.alert_time.length!==0){
+
+                    }
+                    if(res.param&&res.param.length!==0){
+                        me.env_alert_param= res.param;
+                    }
+                });
+            }else if(this.type==='equip_manage'){
+                this.placeholder='设备名称、设备ID';
+                //获取设备类别
+                $.get('/2.2.05_P001/base_api/env/equipments/count/type_count',function(res){
+//                    console.log(res);
+                    if(res.监测终端){
+                        me.monitor_terminal = res.监测终端;
+                    }
+                    if(res.调控设备){
+                        me.control_equipment = res.调控设备;
+                    }
+                    if(res.网络设备){
+                        me.network_equipment = res.网络设备;
+                    }
+                    if(res.手持式){
+                        me.offline_equipment = res.手持式;
+                    }
+                    if(res.其它){
+                        me.other_equipment = res.其它;
+                    }
+                });
+                //获取设备状态
+                $.get('/2.2.05_P001/base_api/env/equipments/count/status_count',function(res){
+//                    console.log(res);
+                    me.equip_manage_status = res;
+                });
+            }else if(this.type==='relic_manage'){
+                var options = {};
+                if(this.hideType==='in'||this.hideType==='out'){
+                    options.opt = this.hideType;
+                }
+                if(this.hideType!=='plan_detail'){
+                    this.placeholder='藏品名称、总登记号';
+                    //获取筛选条件列表
+                    $.get('/2.2.05_P001/base_api/relic/relics/count/filter_conditions',options,function(res){
+                        if(res.category){
+                            me.relic_category = res.category;
+                        }
+                        if(res.age){
+                            me.relic_age = res.age;
+                        }
+                        if(res.material){
+                            me.relic_material = res.material;
+                        }
+                        if(res.level){
+                            me.relic_level = res.level;
+                        }
+                        if(res.status){
+                            me.relic_status = res.status;
+                        }
+                    });
+                }else {
+                    this.placeholder='标签号、藏品名称、总登记号';
+                    setTimeout(function(){
+
+                    },0);
+                }
+            }else if(this.type==='equip_alert'){
+//                console.log('设备报警');
+                this.placeholder='设备名称、设备ID';
+                $.get('/2.2.05_P001/base_api/env/equipments/alerts/alert_count',function(res){
+//                    console.log(res);
+                    if(res.param&&res.param.length!==0){
+                        me.equip_alert_type = res.param;
+                    }
+                });
+            }
+        },
+        watch:{
+            taskId:function(val){
+                var options = {},
+                    me = this;
+                if(val){
+                    options.taskId = val;
+                }
+                $.get('/2.2.05_P001/base_api/relics/inventoryDetail/getConditions'+'?requestType=pc',options,function(res){
+                    if(res.error_code===0&&res.message==='操作成功'){
+                        if(res.data){
+//                                console.log(res.data);
+                            if(res.data.material){
+                                me.relic_material = res.data.material;
+                            }
+                            if(res.data.level){
+                                me.relic_level = res.data.level;
+                            }
+                            if(res.data.result){
+                                me.relic_check_status = res.data.result;
+                            }
+                        }
+                    }else{
+                        me.$Message.error(res.message);
+                    }
+                })
+                    .error(function(res){
+                        console.error(res);
+                    })
+            }
+        },
+        ready:function(){
+            var me = this;
+            $('#environmentTree').delegate('.ivu-checkbox-wrapper','click',function(){
+//                console.log(me.treeData);
+                //根据treeData,获取选中的节点数据
+                me.filterObj.nodes = getSelectNodes(me.treeData);
+            });
+        },
+        computed:{
+            //筛选条件总数统计
+            filterItemCount:function(){
+                var count = 0;
+                if(this.type==='equip_alert'){
+                    if(this.filterObj){
+                        for(var key in this.filterObj){
+                            if(key==='keyword'){
+                                continue;
+                            }
+                            //环境树节点不在此处纳入数量统计
+                            if(key!=='time'){
+                                if(this.filterObj[key]){
+                                    count += this.filterObj[key].length;
+                                }
+                            }else if(key==='time'){
+                                if(this.filterObj.time&&this.filterObj.time.length!==0){
+                                    count ++;
+                                }
+                            }
+                        }
+                    }
+                }else if(this.type==='equip_manage'){
+                    if(this.filterObj){
+                        for(var key in this.filterObj){
+                            if(key==='keyword'){
+                                continue;
+                            }
+                            if(this.filterObj[key]){
+                                count += this.filterObj[key].length;
+                            }
+                        }
+                    }
+                }else if(this.type==='env_alert'){
+                    if(this.filterObj){
+                        for(var key in this.filterObj){
+                            if(key==='keyword'){
+                                continue;
+                            }
+                            if(this.filterObj[key]){
+                                count += this.filterObj[key].length;
+                            }
+                        }
+                    }
+                }else if(this.type==='relic_manage'){
+                    if(this.filterObj){
+                        for(var key in this.filterObj){
+                            if(key==='keyword'){
+                                continue;
+                            }
+                            if(this.filterObj[key]){
+                                count += this.filterObj[key].length;
+                            }
+                        }
+                    }
+                }
+                return count;
+            }
+        },
+        methods:{
+            count:function(kind){
+                var count = 0;
+                if(this[kind]){
+                    for(var key in this[kind]){
+                        if(this[kind][key].count){
+                            count += this[kind][key].count;
+                        }
+                    }
+                }
+                return count;
+            },
+            checkedNodes:function(checkedNodes){
+//                console.log(checkedNodes);
+//                var nodes = [];
+//                if(checkedNodes&&checkedNodes.length!==0){
+//                    checkedNodes.forEach(function(node,index){
+//                        if(nodes.indexOf(node.env_no)===-1){
+//                            nodes.push(node.env_no);
+//                        }
+//                    });
+//                }
+//                this.filterObj.nodes = nodes;
+            },
+            selectNodes:function(selectNodes){
+//                console.log(selectNodes);
+//                if(selectNodes&&selectNodes.length!==0){
+//                    selectNodes.forEach(function(node,index){
+//                        if(nodes.indexOf(node.env_no)===-1){
+//                            nodes.push(node.env_no);
+//                        }
+//                    });
+//                }
+//                console.log(selectNodes,nodes);
+//                this.filterObj.nodes = nodes;
+            },
+            //如果有全选联动,每选择一个条件,需要检查是否全选
+            changeFilter:function(type,item,check_type){
+//                console.log(type,item,check_type,this.filterObj);
+                if(item){
+                    var itemList = JSON.parse(JSON.stringify(this.filterObj[type]));
+                    if(itemList){
+                        var index = itemList.indexOf(item);
+                        if(index===-1){
+                            itemList.push(item);
+                            //增加项目后,验证是否被全选
+                            if(check_type){
+                                if(this.checkAll(check_type,itemList)){
+                                    if(this.equip_type_sel_all.indexOf(check_type)===-1){
+                                        this.equip_type_sel_all.push(check_type);
+                                    }
+                                }
+                            }
+                        }else{
+                            itemList.splice(index,1);
+                            //减少项目后,如果该类型之前被全选,取消该类型的全选
+                            if(check_type){
+                                if(this.equip_type_sel_all.indexOf(check_type)!==-1){
+                                    this.equip_type_sel_all.splice(this.equip_type_sel_all.indexOf(check_type));
+                                }
+                            }
+                        }
+                        this.filterObj[type] = itemList;
+                    }
+                }
+            },
+            checkAll:function(check_type,itemList){
+//                console.log(check_type,itemList,this[check_type]);
+                var check_result = true;
+                if(this[check_type]){
+//                    console.log('需要验证');
+                    for(var key in this[check_type]){
+                        if(itemList&&itemList.length!==0){
+                            if(itemList.indexOf(this[check_type][key].name)===-1){
+                                check_result = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return check_result;
+            },
+            addAllToFilter:function(type,kind){
+                var me = this;
+                if(this.equip_type_sel_all.indexOf(kind)===-1){
+                    this.equip_type_sel_all.push(kind);
+                    if(!this.filterObj[type]){
+                        this.filterObj[type] = [];
+                    }
+                    if(this[kind]){
+                        for(var key in this[kind]){
+                            if(this[kind][key]){
+                                if(me.filterObj[type].indexOf(this[kind][key].name)===-1){
+                                    me.filterObj[type].push(this[kind][key].name);
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    this.equip_type_sel_all.splice(this.equip_type_sel_all.indexOf(kind),1);
+                    if(this[kind]){
+                        for(var key in this[kind]){
+                            if(this[kind][key]){
+                                if(me.filterObj[type].indexOf(this[kind][key].name)!==-1){
+                                    me.filterObj[type].splice(me.filterObj[type].indexOf(this[kind][key].name));
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            okHandler:function(){
+//                console.log('向父组件发送消息,读取数据',this.filterObj);
+                //父组件监听reload_data事件,重载数据
+                this.$dispatch('reload_data',this.filterObj);
+                this.panelShow = false;
+            },
+            cancelHandler:function(){
+                this.panelShow = false;
+                this.filterObj = this.filterObjCopy;
+                this.treeData = this.treeDataCopy;
+                this.timeArr = this.timeArrCopy;
+                this.equip_type_sel_all = this.equip_type_sel_all_copy;
+            },
+            saveOldTime:function(open){
+                if(open){
+                    this.timeSure = false;
+                    //拷贝一份原始的时间对象
+                    this.timeOldArr = JSON.parse(JSON.stringify(this.timeArr));
+                    this.timeChangeArr = JSON.parse(JSON.stringify(this.timeArr));
+                }else{
+                    if(!this.timeSure){
+                        this.timeArr = this.timeOldArr;
+                    }
+                }
+            },
+            changeTime:function(val){
+                var filterObj = JSON.parse(JSON.stringify(this.filterObj));
+                //如果时间被清空,则直接返回,然后通过resetTime方法把时间数组复制为空数组
+                if(!val){
+                    filterObj.time = [];
+                    this.filterObj = filterObj;
+                    return;
+                }
+//                console.log('changeTime',val);
+                this.timeArr = val.split(' - ').map(timeStamp);
+                //是否需要将日期终点设置为23点59分59秒,需要添加一次判断,如果日期未发生变化,则只修改时间;
+                var startDate1 = new Date(this.timeArr[0]),
+                    startDate2 = new Date(this.timeChangeArr[0]),
+                    endDate1 = new Date(this.timeArr[1]),
+                    endDate2 = new Date(this.timeChangeArr[1]);
+                if((startDate1.getFullYear()===startDate2.getFullYear()&&endDate1.getFullYear()===endDate2.getFullYear())&&(startDate1.getDate()===startDate2.getDate()&&endDate1.getDate()===endDate2.getDate())&&(startDate1.getMonth()===startDate2.getMonth()&&endDate1.getMonth()===endDate2.getMonth())){//如果同年同月同日
+
+                }else{//并非同年同日
+                    this.timeArr.$set(1,new Date(this.timeArr[1]).setHours(23,59));
+                }
+                filterObj.time = this.timeArr;
+                this.filterObj = filterObj;
+                this.timeChangeArr = this.timeArr;
+            },
+            requireData:function(){
+                this.timeSure = true;
+            },
+            resetTime:function(){
+                var me = this;
+                this.$nextTick(function(){
+                    me.timeArr = [];
+                });
+            },
+            fastSelect:function(type){
+                var start,end,timeObj;
+                timeObj = calcTime(new Date(),type);
+                start = timeObj.start;
+                end = timeObj.end;
+                this.startTime = start;
+                this.endTime = end;
+            },
+            //esc按键处理
+            escHandler:function(e){
+//                console.log(e);
+                var target = e.srcElement||e.target;
+                target.blur();
+                this.hideSuggest();
+            },
+            showSuggest:function(){
+                this.focusOn = true;
+                this.keyword_copy = this.keyword;
+                if(!this.searchSuggest||this.searchSuggest.length===0){
+                    return ;
+                }
+                this.suggestShow = true;
+            },
+            hideSuggest:function(){
+                var me = this;
+                //设置一个延时,当点击放大镜时,先执行searchKeyword
+                setTimeout(function(){
+                    me.focusOn = false;
+                    // me.keyword = me.keyword_copy||'';
+                    me.suggestShow = false;
+                },150);
+            },
+            searchKeyword:function(e){
+                var target = e.srcElement||e.target;
+                target.blur();
+                if(this.keyword.trim()){
+                    //最上方显示最新的查找建议
+                    var index = this.searchSuggest.indexOf(this.keyword);
+                    if(index!==-1){
+                        this.searchSuggest.splice(index,1);
+                    }else{
+                        //如果当前查询建议个数是7个,删除最早的一项
+                        if(this.searchSuggest&&this.searchSuggest.length>=7){
+                            this.searchSuggest.pop();
+                        }
+                    }
+                    this.searchSuggest.unshift(this.keyword);
+                    this.filterObj.keyword = this.keyword;
+                }else{
+                    this.filterObj.keyword = '';
+                }
+                this.keyword_copy = this.keyword;
+                this.$dispatch('reload_data',this.filterObj);
+            },
+            togglePanel:function(){
+                this.panelShow = !this.panelShow;
+                if(this.panelShow){
+                    //打开面板时,拷贝当前设置的对象
+                    this.filterObjCopy = JSON.parse(JSON.stringify(this.filterObj));
+                    this.treeDataCopy = JSON.parse(JSON.stringify(this.treeData));
+                    this.timeArrCopy = JSON.parse(JSON.stringify(this.timeArr));
+                    this.equip_type_sel_all_copy = JSON.parse(JSON.stringify(this.equip_type_sel_all));
+                }
+            },
+            cleanHistory:function(){
+                this.searchSuggest = [];
+                this.focusOn = false;
+                this.suggestShow = false;
+            },
+            selSuggestItem:function(item){
+                this.keyword = item;
+                this.filterObj.keyword = this.keyword;
+                this.keyword_copy = this.keyword;
+                var index = this.searchSuggest.indexOf(this.keyword);
+                if(index!==-1){
+                    this.searchSuggest.splice(index,1);
+                }
+                this.searchSuggest.unshift(this.keyword);
+                this.$dispatch('reload_data',this.filterObj);
+            },
+            resetOption:function(){
+//                console.log('重置条件');
+                var me = this;
+                var resetId='';
+                setTimeout(function(){
+                    me.filterObj = JSON.parse(JSON.stringify(defaultFilterObj));
+                    me.treeData = JSON.parse(JSON.stringify(me.defaultTreeData));
+                    me.timeArr = [];
+                    me.equip_type_sel_all = [];
+                    me.filterObj.keyword = me.keyword='';
+                    console.log(me.keyword)
+                    me.$dispatch('reload_data',me.filterObj,resetId);
+                },0);
+
+            }
+        },
+        events:{
+            hideOverlay:function(){
+                if(this.panelShow){
+                    this.panelShow = false;
+                    this.filterObj = this.filterObjCopy;
+                    this.treeData = this.treeDataCopy;
+                    this.timeArr = this.timeArrCopy;
+                    this.equip_type_sel_all = this.equip_type_sel_all_copy;
+                }
+                if(this.focusOn){
+                    this.focusOn = false;
+                }
+
+                // me.keyword = me.keyword_copy||'';
+                if(this.suggestShow) {
+                    this.suggestShow = false;
+                }
+            },
+            //父组件切换是否隐藏已经处理了的环境报警
+            toggle_env_alert:function(status){
+                var me = this;
+                $.get('/2.2.05_P001/base_api/env/monitor/alerts/alert_count',{clear:status},function(res){
+//                    console.log(res);
+                    if(res.alert_time&&res.alert_time.length!==0){
+
+                    }
+                    if(res.param&&res.param.length!==0){
+                        me.env_alert_param= res.param;
+                    }
+                });
+            },
+            reset_filter_obj:function(){
+                //切换盘点详情时,重置盘点详情的筛选情况
+                this.filterObj = JSON.parse(JSON.stringify(defaultFilterObj));
+            }
+        }
+    });
+</script>

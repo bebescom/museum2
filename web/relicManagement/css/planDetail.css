@@ -1,0 +1,25 @@
+.moduleContainer.planDetail>div.tableWrap{
+    padding:0 15px 0 15px;
+    max-height:90px;
+    position: relative;
+    top:5px;
+}
+.moduleContainer.planDetail>div.tableWrap table{
+    width: 100%;
+    border-collapse: collapse;
+}
+.moduleContainer.planDetail>div.tableWrap table thead tr{
+    background-color: #D4EAE9;
+}
+.moduleContainer.planDetail>div.tableWrap table tbody tr{
+    background-color: #FFFFFF;
+}
+.moduleContainer.planDetail>div.tableWrap table td,
+.moduleContainer.planDetail>div.tableWrap table th{
+    border-collapse: collapse;
+    text-align: center;
+    height: 40px;
+}
+.moduleContainer.planDetail>section{
+    top:140px;
+}

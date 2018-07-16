@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>local route 数据 仅保存30天</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorGrid'>
+</table>
+
+<div id="sensorTool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+
+        设备No(包含网关/中继/终端):<input class="easyui-textbox" type="text" name="sensor_no" id="sensor_no" value=""/>
+        接收起始时间：
+        <input type="text" size="16" class="easyui-datetimebox" name="ktime" id="ktime" value=""/>
+        接收结束时间：
+        <input type="text" size="16" class="easyui-datetimebox" name="dtime" id="dtime" value=""/>
+        <button type="submit" class="easyui-linkbutton">查询</button>
+        <label for="near_total"><input type="checkbox" name="near_total" id="near_total" value="1"
+                                       checked/>总记录数为近似值</label>
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+    $(function () {
+        $('#near_total').click(searchSensor);
+        searchSensor();
+    });
+
+    function searchSensor() {
+        var json = {};
+        json.table = '_data_route';
+        json.sensor_no = $('#sensor_no').textbox('getValue');
+        json.near_total = $('#near_total:checked').val();
+        json.ktime = $('#ktime').datetimebox('getValue');
+        json.dtime = $('#dtime').datetimebox('getValue');
+
+        $('#sensorGrid').datagrid({
+            url: 'sensor/routeList',
+            queryParams: json || {},
+            singleSelect: true,
+            rownumbers: true,
+            pagination: true,
+            pagePosition: 'top',
+//        fitColumns: true,
+            fit: true,
+            pageSize: 50,
+            pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+            idField: 'id',
+            remoteSort: false,
+            columns: [
+                [
+                    {
+                        field: 'server_time', width: 130, title: '服务器时间',
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+
+                    {field: 'gateway_no', width: 100, title: '网关'},
+                    {field: 'relay1_no', width: 100, title: '一级中继'},
+                    {field: 'relay2_no', width: 100, title: '二级中继'},
+                    {field: 'relay3_no', width: 100, title: '三级中继'},
+                    {field: 'sensor_no', width: 100, title: '终端'},
+                    {field: 'ip_port', width: 150, title: 'ip_port'},
+                    {
+                        field: 'raw_data', title: '原始数据', formatter: function (value, row, index) {
+                        if (value) {
+                            return value.replace(/(.{2})/g, "$1 ");
+                        }
+                    }
+                    }
+                ]
+            ],
+            toolbar: '#sensorTool'
+        });
+
+    }
+
+
+</script>
+</body>
+</html>

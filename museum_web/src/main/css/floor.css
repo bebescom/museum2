@@ -1,0 +1,149 @@
+.floor_select {
+    float: left;
+    position: relative;
+    width: 50%;
+    height: 100%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+.floor_prev {
+    background: url("../images/floor/btn_top.png") no-repeat center;
+    cursor: pointer;
+    height: 10%;
+}
+
+.floor_next {
+    background: url("../images/floor/btn_bottom.png") no-repeat center;
+    cursor: pointer;
+    height: 10%;
+}
+
+.floor_list {
+    height: 80%;
+    overflow: hidden;
+    position: relative;
+}
+
+.floor_list ul {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: url('../../common/images/loading.gif') center no-repeat;
+}
+
+.floor_list li {
+    width: 100%;
+    position: relative;
+    height: 30%;
+    cursor: pointer;
+    text-align: center;
+}
+
+.floor_list li.active {
+    height: 40%;
+}
+
+.floor_list img {
+    height: 80%;
+    margin: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    position: absolute;
+}
+
+.floor_list li.active img {
+    height: 100%;
+}
+
+.floor_list li svg {
+    position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+}
+
+.floor_info {
+    float: left;
+    position: relative;
+    width: 49%;
+    height: 98%;
+    background: #F5F2DE;
+    border: 1px solid #B2D4BB;
+}
+.floor_info .top {
+    background: #E7F4E6;
+    height: 48px;
+    border-bottom: 1px solid #B2D4BB;
+}
+.floor_info div[id$='_basic']{
+    background: url('../../common/images/loading.gif') center no-repeat;
+}
+#relic_basic+.tips{
+    width: 108px;
+    line-height: 25px;
+    height: 25px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    font-size: 18px;
+    color: #a79090;
+    display: none;
+}
+.floor_info .top h1, .floor_info .top h2 {
+    font-size: 18px;
+    color: #386f5a;
+    float: left;
+    margin: 15px 0 0 10px;
+}
+
+.floor_info a.more {
+    float: right;
+    margin: 15px 10px 0 0;
+    color: #66747f;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.floor_info a.more i {
+    font-style: normal;
+}
+
+.floor_info .basic {
+    min-height: 29%;
+    width: 95%;
+    margin: 1% auto;
+}
+
+.svg_Area {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    display: block;
+}
+
+.svg_Area polygon {
+    fill: #1eb16d;
+    fill-opacity: 0;
+    cursor: pointer;
+}
+
+.svg_Area polyline {
+    stroke: #1eb16d;
+    stroke-width: 2;
+    fill: #1eb16d;
+}
+
+.svg_Area line {
+    stroke: #1eb16d;
+    stroke-width: 2;
+}

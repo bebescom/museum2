@@ -1,0 +1,8 @@
+@import "common.css";
+.hiddenContent{
+    color:#657180;
+    text-decoration: none;
+}
+.hiddenContent:hover{
+    text-decoration: none;
+}

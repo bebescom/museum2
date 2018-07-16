@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>气象站数据</title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorGrid'>
+</table>
+
+<div id="sensorTool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+
+        设备编号No:<input size="10" type="text" name="no" id="no" value=""/>
+        <!--IP:<input size="10" type="text" name="ip" id="ip" value=""/>-->
+        服务器时间起始：
+        <input type="text" size="16" class="easyui-datetimebox" name="ktime" id="ktime" value=""/>
+        服务器时间结束：
+        <input type="text" size="16" class="easyui-datetimebox" name="dtime" id="dtime" value=""/>
+        <button type="submit" class="easyui-linkbutton">查询</button>
+
+        <label for="near_total">
+            <input type="checkbox" name="near_total" id="near_total" value="1" checked/>
+            总记录数为近似值
+        </label>
+
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+    function searchSensor() {
+        var json = {};
+        json.table = 'weather_data';
+        json.no = $('#no').val();
+        json.ip = '';//$('#ip').val();
+        json.no_repeat = $('#no_repeat:checked').val();
+        json.near_total = $('#near_total:checked').val();
+        json.ktime = $('#ktime').datetimebox('getValue');
+        json.dtime = $('#dtime').datetimebox('getValue');
+
+        grid_init(json);
+
+    }
+
+    $(function () {
+
+        $('#ktime').datetimebox('setValue', new Date().Format('yyyy-MM') + '-01 00:00:00');
+        $('#no_repeat').click(searchSensor);
+        $('#near_total').click(searchSensor);
+        searchSensor();
+
+    });
+
+
+    function grid_init(json) {
+        if (grid_init.init) {
+            $('#sensorGrid').datagrid('load', json);
+            return;
+        }
+
+        $('#sensorGrid').datagrid({
+            url: 'sensor/sensorList',
+            queryParams: json || {},
+            rownumbers: true,
+            pagination: true,
+            pagePosition: 'top',
+//        fitColumns: true,
+            fit: true,
+            pageSize: 30,
+            pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+            remoteSort: false,
+            frozenColumns: [
+                [
+                    {field: 'id', checkbox: true},
+                    {
+                        field: 'server_time', width: 130, title: '服务器时间',
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {field: 'weather_no', width: 150, title: '设备编号(No)'}
+                ]
+            ],
+            columns: [
+                [
+                    {field: 'humidity', width: 90, title: '湿度 0x20 %'},
+                    {field: 'temperature', width: 90, title: '速度 0x21 ℃'},
+                    {field: 'rain', width: 90, title: '雨量 0x45'},
+                    {field: 'co2', width: 90, title: 'co2 0x24'},
+                    {field: 'light', width: 90, title: '光照 0x25'},
+                    {field: 'uv', width: 90, title: '紫外 0x26'},
+                    {field: 'pm10', width: 90, title: 'PM10 0x47'},
+                    {field: 'pm25', width: 90, title: 'PM2.5 0x48'},
+                    {field: 'air_presure', width: 90, title: '气压 0x46'},
+                    {field: 'wind_speed', width: 90, title: '风速 0x43'},
+                    {field: 'wind_direction', width: 90, title: '风向 0x44'},
+                    {field: 'voltage', width: 90, title: '电压 0x01'},
+                    {field: 'rssi', width: 90, title: '信号强度 0x02'},
+
+                    {field: 'ip_port', width: 150, title: 'ip:port', align: 'right'},
+                    {
+                        field: 'equip_time', width: 130, title: '设备时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'server_time', width: 130, title: '服务器时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {
+                        field: 'raw_data', title: '原始数据', formatter: function (value, row, index) {
+                        if (value) {
+                            return value.replace(/(.{2})/g, "$1 ");
+                        }
+                    }
+                    }
+                ]
+            ],
+            toolbar: '#sensorTool'
+        });
+        grid_init.init = true;
+    }
+
+    grid_init.init = false;
+
+</script>
+</body>
+</html>

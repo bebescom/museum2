@@ -1,0 +1,454 @@
+<template id="relicsStorage">
+    <div class="moduleContainer">
+        <header>
+            <div @click="goBack" class="topTitle">
+                <Icon type="chevron-left"></Icon>藏品入库
+            </div>
+            <div class="filterWrap">
+                <filter-component type="relic_manage" hide-type="in"></filter-component>
+            </div>
+            <div class="topFunction">
+                <i-button type="ghost" @click="showUpload">导入藏品图片</i-button>
+                <i-button type="ghost" @click="showUpload">批量导入藏品</i-button>
+                <i-button type="ghost" @click="addRelic" class="permissionHidden" v-permission="{name:'添加文物'}">添加藏品</i-button>
+                <i-button type="ghost" @click="okHandler">入库</i-button>
+            </div>
+        </header>
+        <section>
+            <!--藏品筛选-->
+            <!--<cultural-relics @new-data="resetOption" :relic_filter="relic_filter" :hide_filter="hideFilter"></cultural-relics>-->
+
+            <div class="relicTableContainer">
+                <div class="relic_pic" v-show="big_img_status" @mouseleave="hide_big_img">
+                    <!--<p>这里显示藏品图片</p>-->
+                    <img :src="img_src" :alt="img_src"/>
+                </div>
+                <div class="nav_pic" v-show="big_nav_status" @mouseleave="hide_big_nav" @mouseenter="in_big_nav">
+                    <!--<p>这里显示地理位置信息</p>-->
+                    <div class="view">
+                        <div class="point" :data-title="nav_name"></div>
+                        <img :src="nav_map" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+                    </div>
+                </div>
+                <!--显示表格数据-->
+                <section class="tableWrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="4%">
+                                <!--:indeterminate="true" 部分选中状态-->
+                                <input type="checkbox" v-model="allStatus" @click="changeStatus"/>
+                            </th>
+                            <th>
+                                状态
+                            </th>
+                            <th>
+                                藏品名称
+                            </th>
+                            <th>
+                                总登记号
+                            </th>
+                            <th>
+                                材质
+                            </th>
+                            <th>
+                                类型
+                            </th>
+                            <th>
+                                等级
+                            </th>
+                            <th>
+                                年代
+                            </th>
+                            <th>
+                                位置
+                            </th>
+                            <!--<th>-->
+                                <!--最新数据-->
+                            <!--</th>-->
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="relic in tableData">
+                            <td>
+                                <!--:checked="selRelics.indexOf(relic.relic_no)!=-1"-->
+                                <input type="checkbox" v-if="relic&&relic.relicNo" :value="relic.relicNo" v-model="selRelics" @click="changeRelic(relic)"/>
+                            </td>
+                            <td>
+                                <!--{no_need_repair:relic.status=='不需修复'||relic.status=='无需修复',need_repair:relic.status=='需要修复',need_repair_asap:relic.status=='亟需修复'||relic.status=='亟待修复',in:relic.status=='展出'||relic.status=='修复中'||relic.status=='修复'||relic.status=='研究中'||relic.status=='研究'||relic.status=='已归还',out:relic.status=='借出'||relic.status=='借入'}-->
+                                <span class="relic_status_item" :class="relic.status">{{relic.status||'无状态信息'}}</span>
+                            </td>
+                            <td class="left relic_name_no" style="position: relative;">
+                                <p style="cursor: pointer;padding-left: 30px" @click="jumpDetails(relic.relicNo)">
+                                    <img v-if="relic.image" style="vertical-align: middle;margin-right:5px;" :src="relic.image" :alt="" @mouseenter.stop="show_big_img($event,relic.image)" @mouseleave="hide_big_img"/><span class="relic_name">{{relic.name}}</span>
+                                    <!--<span class="relic_no">{{relic.relic_no}}</span>-->
+                                </p>
+                            </td>
+                            <td>
+                                {{relic.relicId||''}}
+                                <!--{{relic.relicNo||''}}-->
+                            </td>
+                            <td>
+                                {{relic.material}}
+                            </td>
+                            <td>
+                                {{relic.category}}
+                            </td>
+                            <td>
+                                {{relic.level}}
+                            </td>
+                            <td>
+                                {{relic.age}}
+                            </td>
+                            <td class="left">
+                                <!--@click="goEnvDetail(relic.parent_env_no)"位置图不提供跳转功能-->
+                                <p style="position: relative;padding-left: 25px;">
+                                    <span v-if="relic.map&&relic.locate" class="nav_icon" @mouseenter.stop="show_big_nav($event,relic.map,relic.locate,relic)" @mouseleave="hide_big_nav"></span>
+                                    {{nav_info(relic.nav)||'暂无位置信息'}}
+                                </p>
+                            </td>
+                            <!--<td>-->
+                                <!--&lt;!&ndash;{{relic.new_data}}&ndash;&gt;-->
+                                <!--<span v-if="relic.new_data&&relic.new_data.temperature">温度:{{relic.new_data.temperature}}</span>-->
+                                <!--<span v-if="relic.new_data&&relic.new_data.humidity">湿度:{{relic.new_data.humidity}}</span>-->
+                            <!--</td>-->
+                        </tr>
+                        </tbody>
+                    </table>
+                </section>
+                <!--显示分页页码-->
+                <footer>
+                    <page-list @turn-page="turnPage" :page.sync="page" :allPage="allPage" :count.sync="count"></page-list>
+                </footer>
+                <div class="loading" v-show="tableLoading"></div>
+            </div>
+        </section>
+        <add-relic transition="alert" :key.sync="show_key" v-if="show_key"></add-relic>
+        <Modal
+                title="藏品入库"
+                :visible.sync="modalVisible"
+                class-name="vertical-center-modal"
+                :mask-closable="false"
+                :scrollable="false"
+        >
+            <div>
+                <Row type="flex" align="top">
+                    <i-col span="5">
+                        <p style="text-align: left;line-height: 32px;">
+                            入库状态选择 :
+                        </p>
+                    </i-col>
+                    <i-col span="10">
+                        <i-select :model.sync="status">
+                            <Option-group label="库藏藏品">
+                                <i-option value="不需修复">不需修复</i-option>
+                                <i-option value="需要修复">需要修复</i-option>
+                                <i-option value="亟需修复">亟需修复</i-option>
+                            </Option-group>
+                            <!--<Option-group label="离库藏品">-->
+                                <!--<i-option value="展陈">展陈</i-option>-->
+                                <!--<i-option value="科研">科研</i-option>-->
+                                <!--<i-option value="修复">修复</i-option>-->
+                                <!--<i-option value="巡展">巡展</i-option>-->
+                                <!--<i-option value="借出">借出</i-option>-->
+                            <!--</Option-group>-->
+                        </i-select>
+                    </i-col>
+                    <i-col span="9">
+                        <p style="text-align: right;line-height: 32px;padding-right:15px;">
+                            选中藏品数量: {{modalTableData.length}} 件
+                        </p>
+                    </i-col>
+                </Row>
+                <div class="modalTabelContainer">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>藏品名称</th>
+                            <th>总登记号</th>
+                            <th>材质</th>
+                            <th>等级</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="relic in modalTableData" track-by="$index">
+                            <td>{{relic.name}}</td>
+                            <td>{{relic.relicId}}</td>
+                            <!--<td>{{relic.relicNo}}</td>-->
+                            <td>{{relic.material}}</td>
+                            <td>{{relic.level}}</td>
+                            <td>
+                                <Icon type="android-close" size="18" color="red" style="cursor:pointer;" @click="removeRelic(relic)"></Icon>
+                            </td>
+                        </tr>
+                        <tr v-show="!modalTableData||modalTableData.length===0">
+                            <td colspan="5">
+                                未选中入库藏品
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div slot="footer">
+                <i-button type="primary" @click="storage_ok">确认入库</i-button>
+                <i-button type="ghost" @click="storage_cancel">取消</i-button>
+            </div>
+        </Modal>
+        <!--:mask-closable="false"-->
+        <Modal
+                title="批量导入藏品"
+                :visible.sync="relicUploadVisible"
+                class-name="vertical-center-modal"
+                :scrollable="false"
+        >
+            <div>
+                <!--上传一些好东西-->
+                <div style="text-align:center;">
+                    <a href="javascript:void(0)" @click="downloadTemplate">
+                        模版下载地址
+                    </a>
+                </div>
+                <!--<form :action="uploadUrl" method="post" enctype='multipart/form-data' accept-charset="UTF-8">-->
+                    <!--<input type="file" name="file">-->
+                    <!--<button type="submit">确定提交</button>-->
+                <!--</form>-->
+
+                <Upload
+                    type="drag"
+                    name="file"
+                    :action="uploadUrl",
+                    :format="['xls','xlsx']",
+                    :on-success="handleSuccess"
+                    :on-format-error = "handleFormatError",
+                    :accept="xls,xlsx">
+                    <div style="padding: 20px 0">
+                        <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
+                        <p>点击或将文件拖拽到这里上传</p>
+                    </div>
+                </Upload>
+            </div>
+            <div slot="footer">
+                <!--<i-button type="primary" @click="storage_ok">确认入库</i-button>
+                <i-button type="ghost" @click="storage_cancel">取消</i-button>-->
+            </div>
+        </Modal>
+
+        <!-- 添加文物图片Madal -->
+        <Modal
+            title = "导入藏品图片"
+            :visible.sync = "relicPicUploadVisible"
+            class-name = "vertical-center-modal"
+            :scrollable = "false" 
+        >
+            <Upload
+                type="drag"
+                name="file"
+                :action="uploadPicUrl",
+                :format="['zip']",
+                :on-success="handleSuccess"
+                :on-format-error = "handleFormatError",
+                :accept="zip">
+                <div style="padding: 20px 0">
+                    <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
+                    <p>点击或将文件拖拽到这里上传</p>
+                </div>
+            </Upload>
+            <div slot="footer"></div>
+        </Modal>
+    </div>
+</template>
+
+<!-- 添加文物 模板 -->
+<template id="addDataRelic">
+    <div class="alertBox addData" style="position: absolute;z-index: 999">
+        <header>
+            添加藏品
+            <Icon type="close-round" size="20" class="close" @click="close"></Icon>
+        </header>
+        <section>
+            <div class="communicationInfo">
+                <h5>通讯信息</h5>
+                <h6>总登记号</h6>
+                <input type="text" v-model="addData.relic_id" @change="loginRelic"/>
+                <h6>藏品名字</h6>
+                <input type="text" v-model="addData.name"/>
+                <h6>材质</h6>
+                <select v-model="addData.material" @change="meterial_change">
+                    <!--<option v-for="material in material_list" v-show="material.name" :value="material.name">{{material.name}}</option>-->
+                    <option>石质</option>
+                    <option>陶器</option>
+                    <option>瓷器</option>
+                    <option>铁质</option>
+                    <option>青铜</option>
+                    <option>纸质</option>
+                    <option>壁画</option>
+                    <option>漆木器</option>
+                    <option>纺织品</option>
+                    <option>其他</option>
+                </select>
+                <h6>类别</h6>
+                <select v-model="addData.category">
+                    <!--<option v-for="category in category_list" v-show="category.name" :value="category.name">{{category.name}}</option>-->
+                    <option>玉石器、宝石</option>
+                    <option>陶器</option>
+                    <option>瓷器</option>
+                    <option>铜器</option>
+                    <option>金银器</option>
+                    <option>铁器、其他金属器</option>
+                    <option>雕塑、造像</option>
+                    <option>石器、石刻、砖瓦</option>
+                    <option>书法、绘画</option>
+                    <option>文具</option>
+                    <option>甲骨</option>
+                    <option>玺印符牌</option>
+                    <option>钱币</option>
+                    <option>牙骨角器</option>
+                    <option>竹木雕</option>
+                    <option>家具</option>
+                    <option>珐琅器</option>
+                    <option>织绣</option>
+                    <option>古籍善本</option>
+                    <option>碑帖拓本</option>
+                    <option>武器</option>
+                    <option>邮品</option>
+                    <option>文件、宣传品</option>
+                    <option>档案文书</option>
+                    <option>名人遗物</option>
+                    <option>玻璃器</option>
+                    <option>乐器、法器</option>
+                    <option>皮革</option>
+                    <option>音像制品</option>
+                    <option>票据</option>
+                    <option>交通、运输工具</option>
+                    <option>度量衡器</option>
+                    <option>标本、化石</option>
+                    <option>漆器</option>
+                    <option>其他</option>
+                </select>
+                <h6>年代</h6>
+                <select v-model="addData.age |eliminate_space">
+                    <!--<option v-for="age in age_list" v-show="age.name" :value="age.name">{{age.name}}</option>-->
+                    <option>夏</option>
+                    <option>商</option>
+                    <option>周</option>
+                    <option>西周</option>
+                    <option>东周</option>
+                    <option>春秋</option>
+                    <option>战国</option>
+                    <option>秦</option>
+                    <option>汉</option>
+                    <option>西汉</option>
+                    <option>东汉</option>
+                    <option>三国</option>
+                    <option>魏</option>
+                    <option>蜀</option>
+                    <option>孙吴</option>
+                    <option>西晋</option>
+                    <option>东晋十六国</option>
+                    <option>东晋</option>
+                    <option>十六国</option>
+                    <option>南北朝</option>
+                    <option>南朝</option>
+                    <option>宋</option>
+                    <option>齐</option>
+                    <option>梁</option>
+                    <option>陈</option>
+                    <option>北朝</option>
+                    <option>北魏</option>
+                    <option>东魏</option>
+                    <option>北齐</option>
+                    <option>西魏</option>
+                    <option>北周</option>
+                    <option>隋</option>
+                    <option>唐</option>
+                    <option>五代十国</option>
+                    <option>后梁</option>
+                    <option>后唐</option>
+                    <option>后晋</option>
+                    <option>后汉</option>
+                    <option>后周</option>
+                    <option>十国</option>
+                    <option>宋朝</option>
+                    <option>北宋</option>
+                    <option>南宋</option>
+                    <option>辽</option>
+                    <option>西夏</option>
+                    <option>金</option>
+                    <option>元</option>
+                    <option>明</option>
+                    <option>清</option>
+                    <option>中华民国</option>
+                    <option>中华人民共和国</option>
+                </select>
+                <h6>等级</h6>
+                <select v-model="addData.level">
+                    <!--<option v-for="level in level_list" v-show="level.name" :value="level.name">{{level.name}}</option>-->
+                    <option>一级文物</option>
+                    <option>二级文物</option>
+                    <option>三级文物</option>
+                    <option>一般文物</option>
+                    <option>未定级文物</option>
+                </select>
+                <h6>保存状态</h6>
+                <input type="text" v-model="addData.status" disabled>
+                <!--<select v-model="addData.status">-->
+                    <!--<option>不需修复</option>-->
+                    <!--<option>需要修复</option>-->
+                    <!--<option>亟需修复</option>-->
+                    <!--<option>展陈</option>-->
+                    <!--<option>修复</option>-->
+                    <!--<option>巡展</option>-->
+                    <!--<option>借调</option>-->
+                    <!--<option>已归还</option>-->
+                    <!--<option>借入</option>-->
+                <!--</select>-->
+                <div @click.stop="upload_layout()" class="equip_add_image" style="margin-top: 10px">添加藏品图片</div>
+                <!--<input type ="file" id="ImportPicInput" @click="upload_layout()"/>-->
+                <Tag v-if="uploadImageShow" closable @on-close="handleClose">{{uploadImageName}}</Tag>
+            </div>
+            <div class="Environmental_requirements data">
+                <h5>环境要求</h5>
+                    <div class="twoLine"><span class="temperature"><i ></i></span>
+                    <div>
+                        <p>温度范围 <input type="text" v-model="rangeData.temperature_min"/> ~ <input type="text" v-model="rangeData.temperature_max"/> ℃ </p>
+                        <p>温度日波动 ≤ <input type="text" v-model="rangeData.temperature_range"/> °C/d</p>
+                    </div>
+                </div>
+                <div class="twoLine"><span class="humidity"><i></i></span>
+                    <div>
+                        <p>湿度范围 <input type="text" v-model="rangeData.humidity_min"/> ~ <input type="text" v-model="rangeData.humidity_max"/> % </p>
+                        <p>湿度日波动 ≤ <input type="text" v-model="rangeData.humidity_range"/> %/d</p>
+                    </div>
+                </div>
+                <div class="twoLine"><span class="light"><i></i></span>
+                    <div>
+                        <p>照度  ≤ <input type="text" v-model="rangeData.light_max"/> lx </p>
+                        <p>累积照度  ≤ <input type="text" v-model="rangeData.total_light"/> lx</p>
+                    </div>
+                </div>
+                <div class="oneLine"><span class="uv"><i></i></span>
+                    <p>紫外照度 ≤ <input type="text" v-model="rangeData.uv_max"/> μW/cm²</p>
+                </div>
+                <div class="oneLine"><span class="voc"><i></i></span>
+                    <p>有机挥发物 ≤ <input type="text" v-model="rangeData.voc_max"/> ppb</p>
+                </div>
+            </div>
+            <div class="Management_information">
+                <h5>管理信息</h5>
+                <h6 @click="showBox" v-text="infor"></h6>
+                <div class="treeSelect hideInput">
+                    <tree-list :tree_list="tree_list" :keyword="keyword" :sel_list.sync="sel_env" :session_key="session_key"></tree-list>
+                </div>
+                <!--<div class="imgView"></div>-->
+            </div>
+        </section>
+        <footer>
+            <div class="btnsContainer">
+                <div class="over continue" @click="continueOver">继续添加藏品</div>
+                <div class="over" @click="postOver">添加藏品</div>
+            </div>
+        </footer>
+    </div>
+</template>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>囊匣定位网关地图</title>
+    <meta charset='utf-8'>
+
+    <link href="ionicons/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
+    <link href="element/element.min.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="css/init.css">
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+    <script type="text/javascript" src="js/store2.min.js"></script>
+
+    <script type="text/javascript" src="js/vue.min.js"></script>
+    <script type="text/javascript" src="element/element.min.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+    <script type="text/javascript" src="js/coordtransform.js"></script>
+
+    <style type="text/css">
+        html, body {
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .el-checkbox + .el-checkbox {
+            margin-left: 8px;
+        }
+
+        div.row {
+            margin: 5px;
+            line-height: 2;
+        }
+
+        .el-table .cell, .el-table th > div {
+            padding-left: 5px;
+            padding-right: 5px;
+            font-size: 13px;
+        }
+
+        .curror_point {
+            cursor: pointer;
+        }
+
+        .map_target_ul {
+            list-style: none;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .map_target_ul li {
+            height: 25px;
+        }
+    </style>
+</head>
+
+<body>
+<div id="app">
+    <div id="content" style="padding: 2px;">
+
+        <form action="" onsubmit="return false;">
+
+            <div class="row">
+                选择囊匣网关：
+                <el-select v-model="equip_no" @change="change_equip"
+                           filterable collapse-tags placeholder="请选择网关编号">
+                    <el-option v-for="item in all_equips" :key="item.equip_no" :value="item.equip_no"
+                               :label="item.equip_no"></el-option>
+                </el-select>
+
+                起始时间：
+                <el-date-picker
+                        v-model="ktime"
+                        type="datetime" @change="load_data"
+                        placeholder="选择日期时间">
+                </el-date-picker>
+                ,结束时间：
+                <el-date-picker
+                        v-model="dtime"
+                        type="datetime" @change="load_data"
+                        placeholder="选择日期时间">
+                </el-date-picker>
+                <el-checkbox v-model="near">合并近距点</el-checkbox>
+
+                <el-button type="success" class="el-icon-search" @click="load_data">读取数据</el-button>
+                <span v-text="msg"></span>
+
+                <el-popover
+                        ref="popover4"
+                        placement="bottom"
+                        width="600"
+                        trigger="click">
+                    <el-table :data="box_data" v-loading.body="box_loading">
+                        <el-table-column width="120" label="设备编号" :render-header="renderHeader">
+                            <template scope="scope">
+                                <a :href="'sensor_local.html?sensor_no='+scope.row.equip_no" target="_blank">{{
+                                    scope.row.equip_no }}</a>
+                            </template>
+                        </el-table-column>
+                        <el-table-column width="150" label="第一次接入设备时间">
+                            <template scope="scope">
+                                {{ date_format(scope.row.first_time) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column width="150" label="最后一次设备时间">
+                            <template scope="scope">
+                                {{ date_format(scope.row.equip_time) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column width="80" prop="humidity" label="湿度 0x20"></el-table-column>
+                        <el-table-column width="80" prop="temperature" label="温度 0x21"></el-table-column>
+                        <el-table-column width="80" prop="voltage" label="电压 0x01"></el-table-column>
+                        <el-table-column width="100" prop="rssi" label="信号强度 0x02"></el-table-column>
+                        <el-table-column width="200" prop="move_alert"
+                                         label="移动报警 0x40(0不报警,1报警)"></el-table-column>
+                        <el-table-column width="220" prop="box_open_alert"
+                                         label="囊匣打开报警 0x41(0不报警,1报警)"></el-table-column>
+                        <el-table-column width="200" prop="box_status"
+                                         label="囊匣状态值 0x42(0运输,1工作)"></el-table-column>
+                        <el-table-column width="140" prop="box_sensitivity" label="囊匣振动灵敏度 0x5e"></el-table-column>
+                    </el-table>
+                </el-popover>
+
+                <el-button v-popover:popover4 v-show="box_data.length" style="float:right">查看囊匣</el-button>
+
+            </div>
+
+        </form>
+
+        <hr/>
+
+    </div>
+    <el-row>
+        <el-col :span="6">
+            <el-table
+
+                    ref="table"
+                    border
+                    v-loading.body="table_loading"
+                    :height="height"
+                    :data="tableData"
+                    row-class-name="curror_point"
+                    @row-click="open_target"
+                    style="width: 100%">
+                <el-table-column
+                        type="index"
+                        align="center"
+                        width="50">
+                </el-table-column>
+                <el-table-column
+                        label="日期">
+                    <template scope="scope">
+                        <el-icon name="time"></el-icon>
+                        {{ date_format(scope.row.equip_time) }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        width="90" label="经度lng" prop="lng"></el-table-column>
+                <el-table-column
+                        width="90" label="纬度lat" prop="lat"></el-table-column>
+
+            </el-table>
+        </el-col>
+        <el-col :span="18">
+            <div id="map">
+
+            </div>
+        </el-col>
+    </el-row>
+</div>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=eLviVW6qGMflIuFmPTaW2pMRNz6ySA8i"></script>
+
+<script type="text/javascript">
+
+    var map_option = store.session('map_option') || {};
+
+    var vm = new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                equip_no: '',
+                all_equips: [],//所有设备
+                ktime: map_option.ktime || new Date().Format('yyyy-MM') + '-01 00:00:00',
+                dtime: map_option.dtime || '',
+                msg: '',
+                height: 100,
+                tableData: [],
+                near: true,
+                box_data: [],
+                box_loading: false,
+                table_loading: false,
+            }
+        },
+        methods: {
+            change_equip: function (equip) {
+                window.location.hash = '#/' + equip;
+                load_data();
+            },
+            date_format: function (val) {
+                return new Date(val * 1000).Format('yyyy-MM-dd hh:mm');
+            },
+            open_target: function (row) {
+                console.log(row);
+                var node = targets[row.id];
+                if (node) {
+                    map.panTo(node.point);
+
+                    node.marker.setAnimation(BMAP_ANIMATION_BOUNCE);
+                    setTimeout(function () {
+                        node.marker.setAnimation(null);
+                    }, 800);
+                    map.openInfoWindow(node.infoWindow, node.point); //开启信息窗口
+                }
+            },
+            select_target: function (row) {
+                this.$refs.table.setCurrentRow(row);
+            },
+            renderHeader: function (h) {
+                return h("span", [
+
+                    h("span", "设备名称 "),
+                    h("i", {
+                        class: 'ion-android-refresh size-16 cursor_pointer',
+                        attrs: {title: '点击刷新'},
+                        on: {
+                            '!click': function (e) {
+                                load_box_data(1);
+                            }
+                        }
+                    }),
+                ])
+
+            }
+        }
+    });
+
+    function get_gateways() {
+
+        $.post('sensor/box_gateways', function (equips) {
+            vm.all_equips = equips;
+            map_init();
+
+        }, 'json');
+    }
+
+
+    $(function () {
+        var argv = window.location.hash.split('/');
+        if (argv[0] === '#') {
+            if (argv[1]) {
+                vm.equip_no = argv[1];
+            }
+        }
+
+        get_gateways();
+    });
+
+    var map;
+
+    function map_init() {
+        vm.height = $(document).height() - $('#content').height() - 20;
+        $('#map').height(vm.height);
+
+        if (!window.BMap) {
+            vm.$message("百度地图无法加载");
+            return;
+        }
+        map = new BMap.Map("map", {enableMapClick: false});
+        map.centerAndZoom('重庆', 14);
+        map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));// 左上角，添加比例尺
+        map.addControl(new BMap.NavigationControl());//平移缩放
+        map.addControl(new BMap.MapTypeControl({
+            mapTypes: [
+                BMAP_NORMAL_MAP,
+                BMAP_HYBRID_MAP
+            ]
+        }));
+        map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+        //map.setMapType(BMAP_HYBRID_MAP);
+        map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_BOTTOM_LEFT}));//比例尺
+        map.addEventListener("load", function () {
+            load_data();
+        });
+
+
+    }
+
+    var polyline;
+
+    var targetIcon = new BMap.Icon("images/target.png", new BMap.Size(20, 34), {
+        anchor: new BMap.Size(10, 34),
+        imageOffset: new BMap.Size(0, 0)
+    });
+
+    var targetStartIcon = new BMap.Icon("images/start.png", new BMap.Size(20, 34), {
+        anchor: new BMap.Size(10, 34),
+        imageOffset: new BMap.Size(0, 0)
+    });
+    var targetEndIcon = new BMap.Icon("images/end.png", new BMap.Size(20, 34), {
+        anchor: new BMap.Size(10, 34),
+        imageOffset: new BMap.Size(0, 0)
+    });
+    var targets = {};
+
+    function load_data() {
+        if (!map) {
+            return;
+        }
+        map.clearOverlays();
+        var param = {equip_no: vm.equip_no, ktime: vm.ktime, dtime: vm.dtime};
+        if (!param.equip_no || !param.ktime) {
+            return;
+        }
+        store.session('map_option', param);
+        vm.msg = '加载数据中...';
+        vm.tableData = [];
+        vm.table_loading = true;
+        $.post('sensor/box_map', param, function (json) {
+            vm.table_loading = false;
+            vm.msg = '';
+            if (json.error) {
+                vm.msg = json.error || '未读取到数据';
+                return;
+            }
+            var points = [], markers = [], lng_lat = {}, tdata = [];
+            _.each(json.data, function (row, index) {
+                if (row.lng && row.lng != 0 && row.lat && row.lat != 0) {
+                    var lng_lat_key = (row.lng * 1).toFixed(vm.near ? 3 : 6) + '_' + (row.lat * 1).toFixed(vm.near ? 3 : 6);
+
+                    if (lng_lat[lng_lat_key]) {
+                        return;
+                    }
+                    lng_lat[lng_lat_key] = 1;
+                    var wgs84togcj02 = coordtransform.wgs84togcj02(row.lng, row.lat);
+                    var gcj02tobd09 = coordtransform.gcj02tobd09(wgs84togcj02[0], wgs84togcj02[1]);
+                    var point = new BMap.Point(gcj02tobd09[0], gcj02tobd09[1]);
+                    points.push(point);
+                    var marker = new BMap.Marker(point);
+                    // if (index === 0) {
+                    //     marker.setIcon(targetEndIcon);
+                    // } else if (index === data.length - 1) {
+                    //     marker.setIcon(targetStartIcon);
+                    // } else {
+                    //     marker.setIcon(targetIcon);
+                    // }
+                    var sContent = "<div class='map_target_box'>";
+                    // console.log(point);
+                    sContent += '<ul class="map_target_ul">' +
+                        '<li>时间：' + new Date(row.equip_time * 1000).Format('yyyy-MM-dd hh:mm:ss') + '</li>' +
+                        '<li>地理经纬度：' + row.lng + ' , ' + row.lat + '</li>' +
+                        '<li>　百度坐标：' + point.lng.toFixed(6) + ' , ' + point.lat.toFixed(6) + '</li>' +
+                        '<li><a href="javascript:gps_to_bd(' + row.lng + ',' + row.lat + ')">调用百度api将地理经纬度转百度坐标</a></li>' +
+                        '<li id="bd_result"></li>' +
+                        '</ul></div>';
+                    var infoWindow = new BMap.InfoWindow(sContent);
+                    marker.addEventListener("click", function () {
+                        map.openInfoWindow(infoWindow, point); //开启信息窗口
+                        vm.select_target(row);
+                    });
+                    targets[row.id] = {
+                        point: point,
+                        marker: marker,
+                        infoWindow: infoWindow
+                    };
+                    map.addOverlay(marker);
+                    markers.push(marker);
+                    tdata.push(row);
+                }
+            });
+
+            if (!points.length) {
+                vm.msg = '无定位数据';
+                return;
+            }
+            vm.tableData = tdata;
+
+            polyline = new BMap.Polyline(points, {strokeColor: "blue", strokeWeight: 2, strokeOpacity: 0.5});
+            map.addOverlay(polyline);   //增加折线
+
+            var last_point = _.last(points);
+            map.setCenter(last_point);
+
+        }, 'json').error(function () {
+            vm.$message("读取囊匣定位网关数据错误");
+            vm.table_loading = false;
+        });
+
+        load_box_data();
+
+    }
+
+    function load_box_data(clear) {
+
+        var param = {equip_no: vm.equip_no, ktime: vm.ktime, dtime: vm.dtime};
+        if (!param.equip_no || !param.ktime) {
+            return;
+        }
+        if (!clear) {
+            vm.box_data = [];
+        }
+        vm.box_loading = true;
+        $.post('sensor/box_data', param, function (json) {
+            vm.box_loading = false;
+            if (!json || json.error) {
+                console.log(json.error);
+                return;
+            }
+            vm.box_data = json.data;
+
+        }, 'json').error(function () {
+            vm.$message("读取囊匣数据错误");
+            vm.box_loading = false;
+        });
+
+    }
+
+    function translateCallback(data) {
+        if (data.status === 0) {
+            console.log(data.points[0]);
+            $('#bd_result').text('　百度坐标：' + data.points[0].lng.toFixed(6) + ' , ' + data.points[0].lat.toFixed(6));
+        } else {
+            $('#bd_result').text('转换失败');
+        }
+    }
+
+    function gps_to_bd(lng, lat) {
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        var ggPoint = new BMap.Point(lng, lat);
+        pointArr.push(ggPoint);
+        convertor.translate(pointArr, 1, 5, translateCallback);
+    }
+
+    function toRad(d) {
+        return d * Math.PI / 180;
+    }
+
+    function getDisance(lat1, lng1, lat2, lng2) { //lat为纬度, lng为经度, 一定不要弄错
+        var radLat1 = toRad(lat1);
+        var radLat2 = toRad(lat2);
+        var deltaLat = radLat1 - radLat2;
+        var deltaLng = toRad(lng1) - toRad(lng2);
+        var dis = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(deltaLat / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(deltaLng / 2), 2)));
+        return dis * 6378137;
+    }
+
+
+</script>
+</body>
+</html>

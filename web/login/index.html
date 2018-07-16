@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='utf-8'>
+    <title>...</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="../common/favicon.ico" type="image/x-icon"/>
+  <link rel="stylesheet" href="../js/iview/iview.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="login.css?v=2.2.05_P001" />
+</head>
+<body>
+    <div class="bgImg"></div>
+    <div id="login">
+        <div class="logo"></div>
+        <div class="app_name"><a href='index.html' v-text="app_name"></a></div>
+        <form class="login_form" v-on:submit.prevent="login">
+            <input class="insert user" type="text" name="username" placeholder="请输入用户名..."  v-model="user" autocomplete="off">
+            <input class="insert pass" type="password" name="password" placeholder="请输入密码..." v-model="pwd" autocomplete="off">
+            <p class="agreement">
+                <!-- <input class="check" type="checkbox" name="check_box" v-model="check_box" id="check_box"><span>我同意该系统保密协议所有规定</span> -->
+            </p>
+            <div class="agreement_box"></div>
+            <input class="insert submit" type="submit" value="登录/LOGIN">
+            <div class="msg" v-text="msg"></div>
+        </form>
+        <div class="footer">
+            <p>©2016 <span v-text="app_name"></span></p>
+            <div class="QR">
+                <div id ="QR_code">
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript" src="../js/mod.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/vue.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/iview/iview.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/jquery-1.10.2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/underscore-min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/jquery.qrcode.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/store2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="login.js?v=2.2.05_P001" ></script>
+<script type="text/javascript">
+    require('login');
+</script>
+</body>
+</html>

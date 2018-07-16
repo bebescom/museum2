@@ -1,0 +1,50 @@
+<template id="equip_compare">
+    <div class="equipCompare">
+        <div class="header">
+            <div class="title">
+                <a href="javascript:window.history.go(-1)" class="goBack"><Icon type="chevron-left" style="margin-right: 10px;"></Icon>设备对比</a>
+            </div>
+            <div class="timePickContainer">
+                <!--:clearable="false" :options="timePickerOption" style="width: 300px" @on-change="changeTime" :value="timeArr" -->
+                <Date-picker type="datetimerange" format="yyyy-MM-dd HH:mm" class="timePicker" :value="timeArr" placeholder="选择日期和时间" :clearable="false" :options="timePickerOption" style="width: 300px" @on-change="changeTime" placement="bottom-end" :editable="false" @on-clear="resetTime" @on-ok="requireData" @on-open-change="saveOldTime"></Date-picker>
+            </div>
+        </div>
+        <section class="main">
+            <aside class="equipList">
+                <div class="equipSearch">
+                    <i-input icon="search" placeholder="请输入搜索内容..." style="width: 100%;" :value.sync="searchKeyword"></i-input>
+                </div>
+                <div class="checkBoxContainer">
+                    <Checkbox-group :model.sync="sel_equip" @on-change="changeSelEquip">
+                        <Checkbox v-for="equip in equip_no_list" v-show="filterEquipList.indexOf(equip)!=-1" :value="equip" class="equipItem" :disabled="haveDataEquip.indexOf(equip)==-1" :class="{active:(sel_equip.indexOf(equip)!=-1)&&(haveDataEquip.indexOf(equip)!=-1)}">
+                            <span>{{equip}}</span>
+                        </Checkbox>
+                    </Checkbox-group>
+                </div>
+            </aside>
+            <div class="rightContainer">
+                <div class="filter_box">
+                    <p class="lf">
+                        环境参数
+                    </p>
+                    <p class="lf">
+                        <span v-for="param in paramsList" @click="changeParams(param.key)" :class="[param.key,{'active':sel_params.indexOf(param.key)!=-1}]">
+                            {{param.name}}
+                            <i></i>
+                        </span>
+                    </p>
+                </div>
+                <div class="chartsContainer">
+                    <!--style="visibility: hidden"-->
+                    <div id="compareCharts">
+
+                    </div>
+                </div>
+                <div class="noDataAlert" style="position: absolute;color:red;z-index:1000000;left:10px;bottom:10px;" v-show="noDataEquip.length!=0">
+                    设备编号: <span v-text="noDataEquip.join(',')"></span>没有数据!
+                </div>
+            </div>
+        </section>
+        <!--<img :src="testUrl" width="500px" height="300px" style="border: 1px solid red" alt="图片无法正常显示">-->
+    </div>
+</template>

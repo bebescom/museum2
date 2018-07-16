@@ -1,0 +1,56 @@
+{
+  "env_no": "123",
+  "parent_env_no": "",
+  "name": "珍宝馆",
+  "type": "楼栋",
+  "map": "",
+  "locate": "",
+  "sort": "0",
+  "children": [
+    {
+      "env_no": "1231",
+      "parent_env_no": "123",
+      "name": "一层",
+      "type": "楼层",
+      "image": "images/floor0.png",
+      "locate": "",
+      "sort": 0
+    },
+    {
+      "env_no": "1232",
+      "parent_env_no": "123",
+      "name": "二层",
+      "type": "楼层",
+      "image": "images/floor1.png",
+      "locate": "",
+      "sort": 0
+    },
+    {
+      "env_no": "1233",
+      "parent_env_no": "123",
+      "name": "三层",
+      "type": "楼层",
+      "image": "images/floor2.png",
+      "locate": "",
+      "sort": 0
+    },
+    {
+      "env_no": "1234",
+      "parent_env_no": "123",
+      "name": "四层",
+      "type": "楼层",
+      "image": "images/floor1.png",
+      "locate": "",
+      "sort": 0
+    },
+    {
+      "env_no": "1235",
+      "parent_env_no": "123",
+      "name": "五层",
+      "type": "楼层",
+      "image": "images/floor0.png",
+      "locate": "",
+      "sort": 0
+    }
+  ]
+}

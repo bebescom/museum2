@@ -1,0 +1,59 @@
+<style>
+	.changes_digital{
+	    height: 35px;
+    	overflow: hidden;
+	}
+	.changes_digital ul{
+		float: left;
+		width: 12px;
+		list-style: none;
+		position: relative;
+		top: 0;
+		transition: top 0.5s;
+	}
+	.changes_digital ul li{
+		line-height: 35px;
+	}
+</style>
+<template id="changes_digital_template">
+	<div class="changes_digital clear">
+		<ul-num v-for="i in newNum" :index="i" track-by="$index"></ul-num>
+	</div>
+	<slot></slot>
+</template>
+<template id="ulNum">
+	<ul :style="{top:top_+'px'}">
+		<li>0</li>
+		<li>1</li>
+		<li>2</li>
+		<li>3</li>
+		<li>4</li>
+		<li>5</li>
+		<li>6</li>
+		<li>7</li>
+		<li>8</li>
+		<li>9</li>
+	</ul>
+</template>
+<script>
+	Vue.component('changes-digital',{
+		template:'#changes_digital_template',
+		props:['num'],
+		computed:{
+			newNum:function(){
+				return this.num.split('');
+			}
+		},
+		components:{
+			'ul-num':{
+				template:'#ulNum',
+				props:['index'],
+				computed:{
+					top_:function(){
+						return -35*this.index;
+					}
+				}
+			}
+		}
+	});
+</script>

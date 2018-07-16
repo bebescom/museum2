@@ -1,0 +1,330 @@
+<style>
+.cultural_relics_screening{
+	overflow: hidden;
+    background: #EBF0F4;
+    position: absolute;
+    z-index: 9;
+    padding-right: 17px;
+}
+
+.cultural_relics_screening.active{
+	position: fixed;
+	z-index: 1;
+}
+
+.cultural_relics_screening .fliter_box{
+	cursor: pointer;
+}
+.fliter_box font{
+    font-size: 12px;
+    color: #76aed5;
+    cursor: pointer;
+    line-height: 42px;
+}
+.fliter_box .ability{
+    margin-top: 9px;
+}
+.filterChooce{
+    position: relative;
+    border-bottom: 1px solid #ccc;
+    line-height: 30px;
+}
+.filterChooce span{
+    font-size: 14px;
+    color: #979797;
+    display: inline-block;
+    padding: 0 0 0 2%;
+}
+.filterChooce span.typeName{
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-bottom: 1px solid #ccc;
+    color: #5b6273;
+}
+.filterChooce span:not(.typeName):hover{
+	text-decoration: underline;
+    cursor: pointer;
+}
+.filterChooce .pWrap{
+    margin: 0 100px 0 103px;
+    height: 30px;
+    overflow: hidden;
+}
+.filterChooce p span{
+    font-size: 14px;
+}
+.filterChooce .showHide{
+    right: 0;
+	float: right;
+    width: 46px;
+    height: 20px;
+    border: 1px solid #1bbc9b;
+    font-size: 12px;
+    color: #9fa3ac;
+    line-height: 20px;
+    padding-left: 13px;
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+    top: 4px;
+    padding-right: 31px;
+}
+.filterChooce .showHide span{
+    position: absolute;
+    right: -7px;
+    top: 0;
+    width: 30px;
+    height: 20px;
+}
+.filterChooce .showHide span.active{
+	background-position-y:-430px;
+}
+.filter_content{
+	/*display: none;*/
+	height: 0;
+	overflow: hidden;
+}
+.relicFilterList{
+	max-height:55px;
+	overflow:scroll;	
+}
+</style>
+<!--文物筛选-->
+<template id="cultural_relics_screening_template">
+	<div class="cultural_relics_screening permissionHidden" @mouseenter="slideEnter" @mouseleave="slideLeave" v-permission="{name:'文物管理'}">
+		<div class="fliter_box">
+			<div class="ability">
+				<!--<div v-text="the_form_change"></div>-->
+			</div>
+			<p class="relicFilterList">筛选条件 :
+				<template v-for="(type,obj) in filterContent">
+					<span @click="removeFilter(type,name)" class="filterItem" v-for="name in obj">
+						{{name}}
+						<i class="removeBtn"></i>
+					</span>
+				</template>
+				<font v-show="showOrHide" @click="allClear" style="white-space: nowrap">清空筛选</font>
+			</p>
+		</div>
+		<div class="filter_content" @click="packUp($event)">
+			<div class="getHeight">
+				<div class="filterChooce" v-if="!hideFilter||(hideFilter&&hideFilter.indexOf('保存状态')===-1)">
+					<span class="typeName">保存状态</span>
+					<div class="pWrap">
+						<p @click="addFilter('status',$event)">
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('待入库')!==-1)">待入库</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('不需修复')!==-1)">不需修复</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('需要修复')!==-1)">需要修复</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('亟需修复')!==-1)">亟需修复</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('展陈')!==-1)">展陈</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('科研')!==-1)">科研</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('修复')!==-1)">修复</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('巡展')!==-1)">巡展</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('借出')!==-1)">借出</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('已归还')!==-1)">已归还</span>
+							<span v-show="!hideFilter||!(hideFilter&&hideFilter.indexOf('借入')!==-1)">借入</span>
+						</p>
+					</div>
+				</div>
+				<div v-for="(name,filter) in relic_filter" class="filterChooce" v-if="!hideFilter||!(hideFilter&&hideFilter.indexOf(rename(name))!==-1)">
+					<span v-text="rename(name)" class="typeName"></span>
+					<div class="showHide" @click="showHide($event)">展开</div>
+					<div class="pWrap">
+						<p @click="addFilter(name,$event)">
+							<span :class="resetClass(parent,name)" v-for="(parent,obj) in filter" v-if="obj.name" v-text="obj.name"></span>
+						</p>
+					</div>
+				</div>
+				<div class="filterChooce" v-if="!hideFilter||!(hideFilter&&hideFilter.indexOf('等级')!==-1)">
+					<span class="typeName">等级</span>
+					<div class="pWrap">
+						<p @click="addFilter('level',$event)">
+							<span>一级文物</span><span>二级文物</span><span>三级文物</span><span>一般文物</span><span>未定级文物</span>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>	
+
+<script>
+    var hideFilter = [
+        '保存状态',
+        '年代',
+        '类别',
+        '位置',
+        '材质',
+        '等级',
+
+        '待入库',
+        '不需修复',
+        '需要修复',
+        '亟需修复',
+        '展陈',
+		'科研',
+        '修复',
+        '巡展',
+        '借出',
+        '已归还',
+        '借入',
+    ];
+//	状态列表
+	Vue.component('cultural-relics',{
+		template:'#cultural_relics_screening_template',
+		props:['relic_filter','hide_filter'],//,'key_isreturn'
+		data:function(){
+			return {
+				filterContent:{
+					level:[],
+					status:[]
+				},
+				hall:[],
+				the_form_change:'展开筛选',
+				filter_content:'',
+				$getHeight:null,
+                hideFilter:[],
+			}
+		},
+		created:function(){
+
+		},
+		ready:function(){
+			var el=this.$el,$relic=$('#relic');
+			el.style.width=$relic.width()-17+'px';
+			window.onresize=function(){
+				el.style.width=$relic.width()-17+'px';
+			};
+			this.filter_content=$(el).find('.filter_content');
+			this.$getHeight=this.filter_content.find('.getHeight');
+            this.hideFilter = this.hide_filter;
+//            console.log(this.hideFilter);
+		},
+		methods:{
+			resetClass:function(parent,name){
+				if(name!='hall'){
+					return;
+				}
+				return parent;
+			},
+			postData:function(){
+				// console.log(this.filterContent);
+				this.$dispatch('new-data',this.filterContent,this.hall);
+			},
+			rename:function(name){
+				this.$set('filterContent.'+name,[]);
+				return nameList[name];
+			},
+			showHide:function(e){
+				var element=e.target||e.srcElement,
+					$element=$(element),
+					$p=$element.next();
+					
+				setTimeout(function(){
+					var bool=$element.html()=='展开',height;
+					$element.html(bool?'收起':'展开');
+					if(!bool){
+						$element.removeClass('active');
+						height=30;
+					}else{
+						$element.addClass('active');
+						height=$p.children().height()-1;
+					}
+					$p.stop().animate({'height':height},300);
+				},0);
+			},
+			packUp:function(e){
+				var element=e.target||e.srcElement;
+				if(element.className!='showHide'){
+					return;
+				}
+				this.filter_content.children().find('.pWrap')
+					.animate({'height':30},300)
+					.prev('.showHide').not($(element)).html('展开').removeClass('active');
+			},
+			addFilter:function(type,e){
+//			    console.log(type);
+			    //添加一个筛选条件
+//				if(!this.key_isreturn){
+//					return;
+//				}
+				var element=e.target||e.srcElement;
+					if(element.tagName!='SPAN'){
+						return;
+					}
+
+				if(type=='hall'&&element.className){
+					var hallIndex=this.hall.indexOf(element.className);
+					if(hallIndex!=-1){
+						this.hall.splice(hallIndex,1);
+					}else{
+						this.hall.push(element.className);
+					}
+				}
+				
+				var val=element.innerHTML.replace(/&nbsp;/g,''),
+					type=this.filterContent[type],
+					index=type.indexOf(val);
+					
+				if(index!=-1){
+					type.splice(index,1);
+				}else{
+					type.push(val)
+				}
+				this.postData();
+			},
+			removeFilter:function(type,name){
+//				if(!this.key_isreturn){
+//					return;
+//				}
+				if(type=='hall'){
+					this.hall.splice(this.filterContent.hall.indexOf(name),1);
+				}
+
+				this.filterContent[type].splice(this.filterContent[type].indexOf(name),1);
+				this.postData();
+			},
+			allClear:function(){
+//				if(!this.key_isreturn){
+//					return;
+//				}
+				var filter=this.filterContent;
+				for(var i in filter){
+					filter[i]=[];
+				}
+				this.hall=[];
+				this.postData();
+			},
+			slideEnter:function(){
+				this.the_form_change='收起筛选';
+				$(this.$el).find('>div:last').stop().animate({height:this.$getHeight.height()},300,function(){
+					$(this).css({'height':'auto'});
+				});
+			},
+			slideLeave:function(){
+				this.the_form_change='展开筛选';
+				$(this.$el).find('>div:last').stop().animate({height:0});
+			}
+		},
+		computed:{
+			showOrHide:function(){
+				var num=0,
+					filterContent=this.filterContent;
+
+				for(var i in filterContent){
+					num+=filterContent[i].length;
+				}
+				return num;
+			},
+		}
+	});
+
+	var nameList={
+		'age':'年代',
+		'category':'类别',
+		'hall':'位置',
+		'material':'材质'
+	};
+
+</script>

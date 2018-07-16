@@ -1,0 +1,161 @@
+<template id="relic_template">
+	<div id="relic_container">
+		<div id="relic" class="relic_manage">
+			<div class="header">
+				<div class="title" v-text="configLanguage.left_relicManagement_long"></div>
+				<div class="filterWrap">
+					<filter-component type="relic_manage"></filter-component>
+				</div>
+				<div class="ability">
+					<div @click="relicsOverviewSheet">导出藏品概览表</div>
+					<div @click="goRelicsStorage">藏品入库</div>
+					<div @click="goRelicsOutStorage">藏品出库</div>
+					<div @click="goRelicsCheck">藏品盘点</div>
+				</div>
+			</div>
+			<!--藏品筛选-->
+			<!--:key_isreturn.sync=isreturn-->
+			<!--<cultural-relics @new-data="resetOption" :relic_filter="relic_filter" :hide_filter="hideFilter"></cultural-relics>-->
+			<!--<div class="scrollWrap permissionHidden" @scroll="scroll" v-permission="{name:'藏品管理'}">-->
+				<!--<div class="scrollContent">-->
+					<!--&lt;!&ndash;统计echarts&ndash;&gt;-->
+					<!--<statistical-echarts></statistical-echarts>-->
+					<!--&lt;!&ndash;瀑布流&ndash;&gt;-->
+					<!--<div class="relicWaterfall">-->
+						<!--<div class="relicWrap">-->
+							<!--<div class="relic" v-for="relic in waterfall" @click="jumpDetails(relic.relic_no)">-->
+								<!--<div class="options"></div>-->
+								<!--<div class="equipView">-->
+									<!--<img :src="relic.image||'images/default.png'">-->
+									<!--<p class="equipName textOver" v-text="relic.name"></p>-->
+									<!--<ul>-->
+										<!--<li><span class="equipLocation category" v-text="relic.category"></span></li>-->
+										<!--<li><span class="equipLocation age" v-text="relic.age"></span></li>-->
+										<!--<li><span class="equipLocation" v-text="rename(relic.nav)"></span></li>-->
+									<!--</ul>-->
+								<!--</div>-->
+								<!--<div class="footer">-->
+									<!--<p><span class="humidityTitle">{{relic.new_data.humidity||'-'}}%</span></p>-->
+									<!--<p><span class="temperatureTitle">{{relic.new_data.temperature||'-'}}℃</span></p>-->
+								<!--</div>-->
+							<!--</div>-->
+						<!--</div>-->
+					<!--</div>-->
+				<!--</div>-->
+				<!--&lt;!&ndash;<div class="drag"></div>&ndash;&gt;-->
+			<!--</div>-->
+		</div>
+		<div class="relicTableContainer">
+			<div class="relic_pic" v-show="big_img_status" @mouseleave="hide_big_img">
+				<!--<p>这里显示藏品图片</p>-->
+				<img :src="img_src" :alt="img_src"/>
+			</div>
+			<div class="nav_pic" v-show="big_nav_status" @mouseleave="hide_big_nav" @mouseenter="in_big_nav">
+				<!--<p>这里显示地理位置信息</p>-->
+				<div class="view">
+					<div class="point" :data-title="nav_name"></div>
+					<img :src="nav_map" alt="图片无法显示" :width="nav_width" :height="nav_height" id="nav_map"/>
+				</div>
+			</div>
+			<!--显示表格数据-->
+			<section class="tableWrap">
+				<table>
+					<thead>
+					<tr>
+						<th width="4%">
+							<!--:indeterminate="true" 部分选中状态-->
+							<!---->
+							<input type="checkbox" v-model="allStatus" @click="changeStatus" />
+						</th>
+						<th>
+							状态
+						</th>
+						<th>
+							藏品名称
+						</th>
+						<th>
+							总登记号
+						</th>
+						<th>
+							材质
+						</th>
+						<th>
+							类型
+						</th>
+						<th>
+							等级
+						</th>
+						<th>
+							年代
+						</th>
+						<th>
+							位置
+						</th>
+						<th>
+							最新数据
+						</th>
+					</tr>
+					</thead>
+					<tbody>
+					<tr v-for="relic in tableData">
+						<td>
+							<!--:checked="selRelics.indexOf(relic.relic_no)!=-1"-->
+							<input type="checkbox" v-if="relic&&relic.relic_no" :value="relic.relic_no" v-model="selRelics" @click="changeRelic(relic.relic_no)"/>
+						</td>
+						<td>
+							<!--{no_need_repair:relic.status=='不需修复'||relic.status=='无需修复',need_repair:relic.status=='需要修复',need_repair_asap:relic.status=='亟需修复'||relic.status=='亟待修复',in:relic.status=='展出'||relic.status=='修复中'||relic.status=='修复'||relic.status=='研究中'||relic.status=='研究'||relic.status=='已归还',out:relic.status=='借出'||relic.status=='借入'}-->
+							<span class="relic_status_item" :class="relic.status">{{relic.status||'无状态信息'}}</span>
+						</td>
+						<td class="left relic_name_no" style="position: relative;">
+							<p style="cursor: pointer;padding-left: 30px" @click="jumpDetails(relic.relic_no)">
+								<img v-if="relic.image" style="vertical-align: middle;margin-right:5px;" :src="relic.image" :alt="" @mouseenter.stop="show_big_img($event,relic.image)" @mouseleave="hide_big_img"/><span class="relic_name">{{relic.name}}</span>
+								<!--<span class="relic_no">{{relic.relic_no}}</span>-->
+							</p>
+						</td>
+						<td>
+							<!--{{relic.relic_no||''}}-->
+							{{relic.relic_id||''}}
+						</td>
+						<td>
+							{{relic.material}}
+						</td>
+						<td>
+							{{relic.category}}
+						</td>
+						<td>
+							{{relic.level}}
+						</td>
+						<td>
+							{{relic.age}}
+						</td>
+						<td class="left">
+							<!--@click="goEnvDetail(relic.parent_env_no)"位置图不提供跳转功能-->
+							<p style="position: relative;padding-left: 25px;">
+								<a href="javascript:void(0)" @click="goEnvDetail(relic.parent_env_no)">
+									<span v-if="relic.map&&relic.locate" class="nav_icon" @mouseenter.stop="show_big_nav($event,relic.map,relic.locate,relic)" @mouseleave="hide_big_nav"></span>
+								{{nav_info(relic.nav)||'暂无位置信息'}}</a>
+							</p>
+						</td>
+						<td>
+							<!--{{relic.new_data}}-->
+							<span v-if="relic.new_data.temperature">温度:{{relic.new_data.temperature}}</span>
+							<span v-if="relic.new_data.humidity">湿度:{{relic.new_data.humidity}}</span>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+			</section>
+			<!--显示分页页码-->
+			<footer>
+				<page-list class="permissionHidden" @turn-page="turnPage" :page.sync="page" :allPage="allPage" :count.sync="count" v-permission="{name:'设备管理'}"></page-list>
+			</footer>
+			<div class="loading" v-show="tableLoading"></div>
+		</div>
+		<!--<div class="contentFooter" :class={active:showLoading} v-text="footer" v-show="showfooter"></div>-->
+		<!--<div class="shadow" v-show="show_key"></div>-->
+		<!--<div v-show="show_key" class="fixedShadow"></div>-->
+		<add-relic transition="alert" :key.sync="show_key" v-if="show_key"></add-relic>
+	</div>
+</template>
+
+

@@ -1,0 +1,87 @@
+<template id="relicsCheck">
+    <div class="moduleContainer">
+        <header>
+            <div @click="goBack" class="topTitle">
+                <Icon type="chevron-left"></Icon>藏品盘点
+            </div>
+            <div class="topFunction">
+                <i-button type="ghost" @click="newPlanHandler">发起盘点</i-button>
+            </div>
+        </header>
+        <section>
+            <div class="relicTableContainer">
+                <!--显示表格数据-->
+                <section class="tableWrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>
+                                状态
+                            </th>
+                            <th>
+                                计划名称
+                            </th>
+                            <th>
+                                计划ID
+                            </th>
+                            <th>
+                                盘点件数
+                            </th>
+                            <th>
+                                发起人
+                            </th>
+                            <th>
+                                执行人
+                            </th>
+                            <th>
+                                完成时间
+                            </th>
+                            <th>
+                                备注
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-show="!tableData||tableData.length===0">
+                            <td colspan="8">
+                                暂无盘点任务
+                            </td>
+                        </tr>
+                        <tr v-for="plan in tableData">
+                            <td :class="plan.result">
+                                {{plan.result||'-'}}
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" @click="goPlanDetail(plan.id)">{{plan.name||'未命名计划'}}</a>
+                            </td>
+                            <td>
+                                {{plan.taskId||'-'}}
+                            </td>
+                            <td>
+                                {{plan.totalNum||0}}
+                            </td>
+                            <td>
+                                {{plan.initiatorUsername}}
+                            </td>
+                            <td>
+                                {{plan.operatorUsername}}
+                            </td>
+                            <td>
+                                {{formatTime(plan.endTime)}}
+                            </td>
+                            <td>
+                                {{plan.desc}}
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </section>
+                <!--显示分页页码-->
+                <footer>
+                    <page-list @turn-page="turnPage" :page.sync="page" :allPage="allPage" :count.sync="count"></page-list>
+                </footer>
+                <div class="loading" v-show="tableLoading"></div>
+            </div>
+        </section>
+    </div>
+</template>

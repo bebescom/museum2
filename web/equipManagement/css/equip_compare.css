@@ -1,0 +1,100 @@
+div.equipCompare{
+    position: relative;
+}
+
+.timePickContainer{
+    position: absolute;
+    top:9px;
+    right:20px;
+}
+
+section.main{
+    position: relative;
+}
+
+section.main .equipList,section.main .rightContainer{
+    position: absolute;
+    top: 10px;
+    bottom: 0;
+    height:auto;
+    background-color:white;
+    border-radius:5px;
+    box-shadow: -1px 1px 3px 1px #ccc;
+    /*padding: 7px 0 11px 10px;*/
+    z-index:10;
+}
+section.main .equipList{
+    left: 0;
+    width:235px;
+}
+section.main .rightContainer{
+    left: 245px;
+    right: 15px;
+}
+
+section.main .equipList .equipSearch{
+    width:95%;
+    position: relative;
+    margin:5px auto;
+}
+section.main .equipList .equipSearch *{
+    box-sizing: border-box !important;
+}
+section.main .equipList .checkBoxContainer{
+    width:95%;
+    margin:0 auto;
+    overflow: hidden;
+    max-height: calc(100% - 42px - 10px);
+}
+section.main .equipList .checkBoxContainer .ivu-checkbox-wrapper{
+    margin-right: 0;
+}
+section.main .equipList .equipItem{
+    box-sizing: border-box !important;
+    background-color:#cbcbcb;
+    height:40px;
+    line-height:40px;
+    width:100%;
+    padding:0 5px 0 5px;
+}
+section.main .equipList .equipItem.ivu-checkbox-wrapper-disabled{
+    background-color:#e7e8ea;
+}
+section.main .equipList .equipItem.active{
+    background-color:#45c7ad;
+}
+section.main .rightContainer{
+    padding:10px;
+}
+section.main .rightContainer .chartsContainer{
+    position: absolute;
+    top:50px;
+    left:10px;
+    right:10px;
+    bottom:10px;
+}
+section.main .rightContainer .chartsContainer #compareCharts{
+    /*border:1px solid dodgerblue;*/
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+}
+/*取消框架样式*/
+.ivu-checkbox-wrapper{
+    margin-right:0;
+}
+
+/*参数列表样式*/
+section.main .rightContainer .filter_box{
+    height:30px;
+    margin:0 0 10px 0;
+    line-height: 30px;
+}
+section.main .rightContainer .filter_box p.lf{
+    margin-right:10px;
+}
+section.main .rightContainer .filter_box span{
+    top:0;
+}

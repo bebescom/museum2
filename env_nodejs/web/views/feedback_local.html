@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>local feedback </title>
+    <meta charset='utf-8'>
+    <link href="easyui/themes/default/easyui.css" rel="stylesheet" type="text/css"/>
+    <link href="easyui/themes/icon.css" rel="stylesheet" type="text/css"/>
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+
+    <script type="text/javascript" src="js/underscore-min.js"></script>
+
+    <script type="text/javascript" src="js/init.js"></script>
+
+</head>
+
+<body>
+
+<table id='sensorGrid'>
+</table>
+
+<div id="sensorTool">
+
+    <form action="" onsubmit="searchSensor();return false;">
+
+        设备编号No:<input size="10" type="text" name="no" id="no" value=""/>
+        IP:<input size="10" type="text" name="ip" id="ip" value=""/>
+
+        <button type="submit" class="easyui-linkbutton">查询</button>
+
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+    function searchSensor() {
+        var json = {};
+
+        json.no = $('#no').val();
+        json.ip = $('#ip').val();
+
+        grid_init(json);
+
+    }
+
+    $(function () {
+
+        searchSensor();
+
+    });
+
+
+    function grid_init(json) {
+        if (grid_init.init) {
+            $('#sensorGrid').datagrid('load', json);
+            return;
+        }
+
+        $('#sensorGrid').datagrid({
+            url: 'sensor/feedbackList',
+            queryParams: json || {},
+            rownumbers: true,
+            pagination: true,
+            pagePosition: 'top',
+//        fitColumns: true,
+            fit: true,
+            pageSize: 30,
+            pageList: [10, 15, 20, 25, 30, 40, 50, 100, 150, 200, 300, 500, 1000, 2000, 5000, 6000],
+
+            remoteSort: false,
+            columns: [
+                [
+                    {field: 'sensor_no', width: 130, title: '设备编号(No)'},
+                    {field: 'instruct', width: 50, title: '指令'},
+                    {field: 'status', width: 50, title: '状态'},
+
+                    {field: 'ip_port', width: 150, title: 'ip:port'},
+                    {
+                        field: 'feedback_time', width: 130, title: '反馈时间', sortable: true,
+                        formatter: function (value, row, index) {
+                            return new Date(value * 1000).Format('yyyy-MM-dd hh:mm:ss');
+                        }
+                    },
+                    {field: 'feedback_data', title: '反馈数据'},
+                    {
+                        field: 'raw_data', title: '原始数据',
+                        formatter: function (value, row, index) {
+                            if (value) {
+                                return value.replace(/(.{2})/g, "$1 ");
+                            }
+                        }
+                    }
+                ]
+            ],
+            toolbar: '#sensorTool'
+        });
+        grid_init.init = true;
+    }
+    grid_init.init = false;
+
+</script>
+</body>
+</html>

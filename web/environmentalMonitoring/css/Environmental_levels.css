@@ -1,0 +1,96 @@
+.Environmental_levels .table thead td:first-child{
+	background-image: none;
+	cursor: auto;
+}
+.Environmental_levels ._content td:first-child{
+	background: none;
+}
+.Environmental_levels ._content td:first-child span{
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url(../../capsule/images/warning.png) no-repeat;
+}
+.Environmental_levels ._content td:first-child span{
+ 	display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url(../../capsule/images/warning.png) no-repeat;
+    margin-top: 3px;
+}
+.Environmental_levels td:first-child span.cleared{
+    background-position-x: -20px;
+}
+.Environmental_levels table.table._content tbody tr:hover{
+	background: #49c9af;
+}
+.Environmental_levels table.table._content tbody tr:hover td,
+.Environmental_levels table.table._content tbody tr:hover td a{
+	color: #fff;
+}
+
+.Environmental_levels table.table._content tbody tr td:nth-child(4){
+	text-align: center;
+	padding-left:0;
+}
+.Environmental_levels tbody tr:hover td:first-child span{
+	background-position-y: -20px;
+}
+.Environmental_levels .table_count{
+	position: relative;
+}
+.Environmental_levels .table_count .shadow{
+	display: block;
+}
+/*
+ 震动
+ 超标
+ * */
+.Environmental_levels td.vibration{
+	color: #ff6a6a;
+}
+.Environmental_levels td.temperature{
+	color: #3db38c;
+}
+.Environmental_levels td.humidity{
+	color: #2756FF;
+}
+.Environmental_levels td.light{
+	color: #ff9000;
+}
+.Environmental_levels td.uv{
+	color: #ff5fdb;	
+}
+.Environmental_levels td.co2{
+	color: #99351f;
+}
+.Environmental_levels td.voc{
+	color: #ae9a2e;
+}
+.Environmental_levels td.organic{
+	color: #677c0e;
+}
+.Environmental_levels td.inorganic{
+	color: #94b046;	
+}
+.Environmental_levels td.sulfur{
+	color: #b6bf8e;	
+}
+.Environmental_levels td.not_fill{			/*待填写*/
+	color: #b3b6bd;	
+}
+.Environmental_levels .tableBox{
+	padding: 9px 0px 9px 9px;
+}
+.alert.information.left{
+	width:50%;
+	left:0;
+}
+.alert.information.right{
+	width:50%;
+	right:0;
+}
+.alertBox.remove .btnsContainer{
+	width:136px;
+}
+

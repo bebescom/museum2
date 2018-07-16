@@ -1,0 +1,93 @@
+<div id="footer">
+    <div id="footer_score_bg"></div>
+    <ul id="footer_score">
+        <li class="top">
+            <span>综合评分</span>
+            <ol>
+                <li v-for="value in score.global_score"></li>
+            </ol>
+        </li>
+        <li>
+            <span>环境评分</span>
+            <ol>
+                <li v-for="value in score.env_score"></li>
+            </ol>
+        </li>
+        <li>
+            <span>设备评分</span>
+            <ol>
+                <li v-for="value in score.equip_score"></li>
+            </ol>
+        </li>
+        <li>
+            <span>管理评分</span>
+            <ol>
+                <li v-for="value in score.manage_score"></li>
+            </ol>
+        </li>
+    </ul>
+
+    <div id="footer_menu_bg"></div>
+
+    <a id="footer_flip" href="#/data"><p></p></a>
+
+    <div id="footer_toggle" style="display:none">
+        <p>微环境达标率</p>
+        <ul>
+            <li v-on:click="toggle_comp('yesterday')" v-bind:class="{active:toggle_day=='yesterday'}">昨日</li>
+            <li v-on:click="toggle_comp('today')" v-bind:class="{active:toggle_day=='today'}">今日</li>
+        </ul>
+    </div>
+
+
+    <ul id="footer_compliance" style="display:none">
+        <li>
+            <p>温度</p>
+
+            <div>
+                <span></span>
+                <canvas id="temperature_rate" width="48" height="48"></canvas>
+            </div>
+        </li>
+        <li>
+            <p>湿度</p>
+
+            <div>
+                <span></span>
+                <canvas id="humidity_rate" width="48" height="48"></canvas>
+            </div>
+        </li>
+        <li>
+            <p>紫外线</p>
+
+            <div>
+                <span></span>
+                <canvas id="uv_rate" width="48" height="48"></canvas>
+            </div>
+        </li>
+        <li>
+            <p>光照</p>
+
+            <div>
+                <span></span>
+                <canvas id="light_rate" width="48" height="48"></canvas>
+            </div>
+        </li>
+        <li>
+            <p>有机挥发物</p>
+
+            <div>
+                <span></span>
+                <canvas id="voc_rate" width="48" height="48"></canvas>
+            </div>
+        </li>
+        <!-- <li>
+            <p>二氧化碳</p>
+
+            <div>
+                <span></span>
+                <canvas id="co2_rate" width="48" height="48"></canvas>
+            </div>
+        </li> -->
+    </ul>
+</div>

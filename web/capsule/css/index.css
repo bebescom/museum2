@@ -1,0 +1,432 @@
+@charset "UTF-8";
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: content-box !important;
+}
+.ivu-box *{
+    box-sizing: border-box !important;
+}
+.ivu-table-small .ivu-table-cell{
+    padding-left: 8px;
+    padding-right: 8px;
+}
+#app #header{
+    background:#1bbc9b;
+    z-index: 99999;
+}
+#app #header .name{
+    color: #56ebcc;
+}
+#content{
+    margin-top: 83px;
+    margin-left: 94px;
+    font-family: '微软雅黑';
+    background: #ecf1f5;
+    overflow: hidden;
+    padding-left: 15px;
+    position: relative;
+}
+.header{
+    height: 49px;
+    padding: 0 17px 0 15px;
+    margin-left: -15px;
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    line-height: 50px;
+    position: relative;
+    z-index: 12;
+    box-shadow: -1px 1px 3px 1px #ccc;
+}
+.header .ability{
+    float: right;
+    margin-top: 11px;
+}
+/*header*/
+.header>div{
+	float: left;
+}
+/*	title*/
+.title{
+    font-size: 16px;
+    color: #282a33;
+    margin-right: 36px;
+    font-weight: 800;
+}
+
+.pageList li:first-child {
+    background: url('../images/equip_small.png') no-repeat -11px -237px;
+}
+
+.pageList li:last-child {
+    background: url('../images/equip_small.png') no-repeat -11px -276px;
+}
+.ability{
+    float: right;
+    line-height: 28px;
+}
+.ability>div{
+    float: left;
+    margin-left: 17px;
+    height: 28px;
+    color: #6a707f;
+    font-size: 14px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    border: 1px solid #c5c9ce;
+    border-radius: 6px;
+    text-align: center;
+    display: inline-block;
+    padding: 0 14px;
+}
+.ability>div.active{
+    background: #d4eae9;
+    border-color: #d4eae9;
+    color: #31bfa1;
+}
+.ability>div:hover{
+    background: #d4eae9;
+    border-color: #d4eae9;
+    color: #31bfa1;
+}
+.ability .operation{
+    position: absolute;
+    top: 28px;
+    right: -1px;
+    border-radius: 11px;
+    background: #fff;
+    box-shadow: -1px 1px 3px 1px #ccc;
+    left: auto;
+}
+.ability a{
+    color:#6a707f;
+}
+.ability a:hover{
+    color:#31bfa1;
+}
+
+.operationWrap:hover .operation{
+	display: block;
+}
+.dragImg+.operation li{
+    padding-right: 20px;
+}
+.operation{
+    line-height: 30px;
+    color: #414349;
+    font-size: 14px;
+    background: #fff;
+    position: absolute;
+    z-index: 10;
+    border-radius: 11px;
+    box-shadow: -1px 1px 3px 1px #ccc;
+    left: 0;
+    top: 47px;
+    display: none;
+    padding:13px 0 13px 0;
+}
+.operation i{
+	font-style: normal;
+	color: #4fc6aa;
+}
+.operation ul{
+	list-style: none;
+	cursor: pointer;
+}
+
+.operation li{
+    list-style: none;
+    text-align: left;
+    color: #282a33;
+    padding-left: 20px;
+    padding-right: 40px;
+    white-space: nowrap;
+    position: relative;
+    cursor: pointer;
+}
+.operation li:first-child {
+    /*padding-top: 13px;*/
+}
+.operation li.center{
+    text-align: center;
+}
+/*.operation li:last-child{*/
+    /*padding-bottom: 13px;*/
+/*}*/
+.operation li:hover{
+	color: #1bbc9b;
+}
+.operation li span{
+	width: 18px;
+    height: 20px;
+    position: absolute;
+    right: 8px;
+}
+.operation li span.fork{
+    background: url(../images/environment_icon.png) no-repeat 1px 6px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+.operation li span.fork:hover{
+    background-position-x: -16px;
+}
+.operation li.warning{
+	color: red;
+}
+.operation div.start{
+    margin: auto;
+    background: #1bbc9b;
+    color: #fff;
+    border-radius: 15px;
+    position: relative;
+    right: -10px;
+    cursor: pointer;
+}
+.textOver{
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.text-nowrap{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.shadow{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: none;
+    top: 0;
+    z-index: 998;
+    background:rgba(255,255,255,0.6) url(../images/loading.gif) no-repeat center;
+}
+.fixedShadow{
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(0,0,0,0.2);
+    z-index: 99;
+}
+
+/*	类型图标*/
+.type{
+	background: url('../../common/images/newTypeIcon.png') -1000px -1000px no-repeat;
+    width: 35px;
+    height: 35px;
+    display: block;
+    margin: auto;
+}
+/*传感器*/
+.type.temperature_humidity,.type.温湿度监测终端{    /*温湿度传感器*/
+    background-position: 0 -560px;
+}
+.type.withScreen,.type.带屏温湿度监测终端{				/*带屏温湿度传感器*/
+	background-position: -35px -560px;
+}
+.type.light_uv,.type.光照紫外监测终端{             /*光照紫外传感器*/
+    background-position: -70px -560px;
+}
+.type.co2,.type.二氧化碳监测终端{                 /*二氧化碳传感器*/
+    background-position: -105px -560px;
+}
+.type.voc,.type.有机挥发物监测终端{                 /*有机挥发物传感器*/
+    background-position: -140px -560px;
+}
+.type.qcm,.type.空气质量监测终端{                 /*空气质量传感器*/
+    background-position: -175px -560px;
+}
+.type.vibration,.type.震动监测终端{             /*震动传感器*/
+    background-position: -210px -560px;
+}
+.type.broken{                 /*玻破传感器*/
+    background-position: -175px -25px;
+}
+.type.meteorological{                 /*室外气象站*/
+    background-position: -200px -25px;
+}
+.type.气象站{
+    background-position: -282px -560px;
+}
+.type.soil_temperature_and_humidity,.type.土壤温湿度监测终端{                 /*土壤温湿度传感器*/
+    background-position: -315px -560px;
+}
+.type.equip_manage_type.调控材料{
+    background-position: -317px -704px;
+}
+.type.formaldehyde{                					 /*甲醛传感器*/
+    background-position: -175px -75px;
+}
+.type.multidimensional_standing_wave{                 /*多维驻波传感器*/
+    background-position: -200px -75px;
+}
+.type.security_sensors,.type.安防监测终端{                					/*安防传感器*/
+    background-position: -350px -560px;
+}
+.type.cabinet_sensor,.type.智能展柜{                                   /*智能展柜传感器*/
+    background-position: -245px -700px;
+}
+.type.smart_shelves,.type.智能展柜{         /*智能展柜*/
+    background-position: -245px -700px;
+}
+/*手持式传感器*/
+.type.handheld_temperature_humidity,.type.手持式温湿度检测仪{                 /*手持式温湿度检测仪*/
+    background-position: 0 -665px;
+}
+.type.handheld_light_uv,.type.手持式光照紫外检测仪{                 /*手持式光照紫外检测仪*/
+    background-position: -70px -665px;
+}
+.type.handheld_co2,.type.手持式二氧化碳检测仪{                 /*手持式二氧化碳检测仪*/
+    background-position: -105px -665px;
+}
+.type.handheld_voc,.type.手持式有机挥发物检测仪{            		 /*手持式有机挥发物检测仪*/
+    background-position: -140px -665px;
+}
+.type.handheld_formaldehyde,.type.甲醛监测终端,.type.手持式甲醛检测仪{                 /*手持式甲醛检测仪*/
+    background-position: -385px -665px;
+}
+/*网络设备*/
+.type.gateway,.type.网关{                 /*网关*/
+    background-position: 0 -700px;
+}
+.type.relay,.type.中继{                   /*中继*/
+    background-position: -35px -700px;
+}
+
+/*调控设备*/
+.type.wet_machine,.type.调湿机{             /*调湿机*/
+    background-position: -70px -700px;
+}
+.type.wet_agent,.type.调湿剂{         /*调湿剂*/
+    background-position: -105px -700px;
+}
+.type.adsorbent{             /*吸附剂*/
+    background-position: -140px -700px;
+}
+.type.smart_pouch_box,.type.智能囊匣{         /*智能囊匣传感器*/
+    background-position: -175px -700px;
+}
+.type.humidity_cabinet{             /*充氮调湿柜*/
+    background-position: -210px -700px;
+}
+.type.灯光调控终端{  /*灯光调控终端*/
+    background-position: -283px -700px;
+}
+/*最新数据*/
+.data span{
+	width: 110px;
+    margin: 2px 3px;
+    float: left;
+}
+.data span>i,.i-data span>i{
+    background: url("../../common/images/newTypeIcon.png") -924px 0 no-repeat;
+    width: 22px;
+    height: 22px;
+    float: left;
+}
+.i-data span>i{
+    margin-right: 5px;
+}
+.i-data span.table-new-data{
+    display: block;
+    width: 80px;
+    line-height: 23px;
+    float: left;
+}
+.data span.humidity>i,.i-data span.humidity>i{
+    background-position: -808px -242px;
+}
+.data span.temperature>i,.i-data span.temperature>i{
+    background-position:-640px -242px;
+}
+.data span.voc>i,.i-data span.voc>i{
+    background-position: -736px -242px;
+}
+.data span.co2>i,.i-data span.co2>i{
+    background-position: -688px -242px;
+}
+.data span.light>i,.i-data span.light>i{
+    background-position: -448px -242px;
+}
+.data span.uv>i,.i-data span.uv>i{
+    background-position: -591px -242px;
+}
+.data span.organic>i,.i-data span.organic>i{
+    background-position: -568px -242px;
+}
+.data span.inorganic>i,.i-data span.inorganic>i{
+    background-position: -520px -242px;
+}
+.data span.sulfur>i,.i-data span.sulfur>i{
+    background-position: -784px -242px;
+}
+.data span.broken>i,.i-data span.broken>i{
+    background-position: -879px -242px;
+}
+/*震动传感器的三个参数,加速度,速度,位移*/
+.data span.vibration>i,.data span.accel>i,.data span.speed>i,.data span.displacement>i,
+.i-data span.vibration>i,.i-data span.accel>i,.i-data span.speed>i,.i-data span.displacement>i{
+    background-position: -855px -242px;
+}
+.data span.multi_wave>i,.data span.multi_wave>i{
+    background-position: -903px -242px;
+}
+.data span.cascophen>i,.i-data span.cascophen>i{
+    background-position: -928px -242px;
+}
+/*.data span.pm1.0 i{*/
+    /*background-position: -252px 0;*/
+/*}*/
+/*.data span.pm2.5 i{*/
+    /*background-position: -280px 0;*/
+/*}*/
+.data span.lighting i,.i-data span.lighting>i{
+    background-position: -760px -268px;
+}
+.data span.wind_direction i,.i-data span.wind_direction>i{
+    background-position: -760px -242px;
+}
+.data span.wind_speed i,.i-data span.wind_speed>i{
+    background-position: -664px -242px;
+}
+/*.data span.rainfall i{*/
+    /*background-position: -364px 0;*/
+/*}*/
+/*.data span.air_pressure i{*/
+    /*background-position: -392px 0;*/
+/*}*/
+.data span.soil_electrical_conductivity>i,.i-data span.soil_electrical_conductivity>i{
+    background-position: -615px -242px;
+}
+.data span.soil_conductivity>i,.i-data span.soil_conductivity>i{
+	background-position: -615px -242px;
+}
+.data span.soil_humidity>i,.i-data span.soil_humidity>i{
+	background-position: -735px -268px;
+}
+.data span.soil_temperature>i,.i-data span.soil_temperature>i{
+	background-position: -712px -268px;
+}
+a{
+    text-decoration: none !important;
+}
+
+/* 新loading */
+
+.demo-spin-icon-load{
+    animation: ani-demo-spin 1s linear infinite;
+}
+@keyframes ani-demo-spin {
+    from { transform: rotate(0deg);}
+    50%  { transform: rotate(180deg);}
+    to   { transform: rotate(360deg);}
+}
+.demo-spin-col{
+    height: 100px;
+    position: relative;
+    border: 1px solid #eee;
+}

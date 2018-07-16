@@ -1,0 +1,251 @@
+[{
+  "标准": {
+    "temperature": {
+      "standard_reach": -8.31,
+      "cv": 8.31,
+      "average": 0.42,
+      "min": -0.04,
+      "max": 0.07,
+      "extremum_diff": 0.11,
+      "fluctuate": -0.04
+    },
+    "humidity": {
+      "standard_reach": -22.01,
+      "cv": 22.01,
+      "average": 0.05,
+      "min": -0.02,
+      "max": -0.02,
+      "extremum_diff": 0,
+      "fluctuate": 0.41
+    },
+    "voc": {
+      "standard_reach": -14.15,
+      "cv": 14.15,
+      "average": 0.8,
+      "min": 0,
+      "max": 1,
+      "extremum_diff": 1,
+      "fluctuate": 2.2
+    },
+    "co2": {
+      "standard_reach": -14.18,
+      "cv": 14.18,
+      "average": 1.08,
+      "min": 0,
+      "max": 0,
+      "extremum_diff": 0,
+      "fluctuate": -0.6
+    },
+    "light": {
+      "standard_reach": 0,
+      "cv": 0,
+      "average": 2.23,
+      "min": 0,
+      "max": 0,
+      "extremum_diff": 0,
+      "fluctuate": 0.8
+    },
+    "uv": {
+      "standard_reach": -47.41,
+      "cv": 47.41,
+      "average": 0.1,
+      "min": 0.01,
+      "max": -0.04,
+      "extremum_diff": -0.05,
+      "fluctuate": 0.16
+    },
+    "organic": {
+      "standard_reach": 0,
+      "cv": 0,
+      "average": 2.94,
+      "min": -0.13,
+      "max": -0.18,
+      "extremum_diff": -0.05,
+      "fluctuate": 0.62
+    },
+    "inorganic": {
+      "standard_reach": 0,
+      "cv": 0,
+      "average": 2.63,
+      "min": 0.3,
+      "max": -0.02,
+      "extremum_diff": -0.32,
+      "fluctuate": -1.19
+    },
+    "sulfur": {
+      "standard_reach": 0,
+      "cv": 0,
+      "average": -0.59,
+      "min": -0.08,
+      "max": 0.09,
+      "extremum_diff": 0.17,
+      "fluctuate": -0.09
+    }
+  },
+  "6250000001010108": {
+    "temperature": {
+      "standard_reach": 8.31,
+      "cv": 56.2,
+      "average": 50.5,
+      "min": "0.04",
+      "max": "99.85",
+      "extremum_diff": 99.81,
+      "fluctuate": 99.36
+    },
+    "humidity": {
+      "standard_reach": 22.01,
+      "cv": 58.08,
+      "average": 49.19,
+      "min": "0.04",
+      "max": "99.95",
+      "extremum_diff": 99.91,
+      "fluctuate": 99.21
+    },
+    "co2": {
+      "standard_reach": 14.18,
+      "cv": 57.14,
+      "average": 49.67,
+      "min": "1",
+      "max": "100",
+      "extremum_diff": 99,
+      "fluctuate": 98.6
+    },
+    "uv": {
+      "standard_reach": 47.41,
+      "cv": 56.53,
+      "average": 50.45,
+      "min": "0.10",
+      "max": "99.96",
+      "extremum_diff": 99.86,
+      "fluctuate": 98.85
+    },
+    "voc": {
+      "standard_reach": 14.15,
+      "cv": 55.87,
+      "average": 49.29,
+      "min": "1",
+      "max": "99",
+      "extremum_diff": 98,
+      "fluctuate": 96.2
+    },
+    "light": {
+      "standard_reach": 100,
+      "cv": 58.26,
+      "average": 49.09,
+      "min": "1",
+      "max": "100",
+      "extremum_diff": 99,
+      "fluctuate": 97.8
+    },
+    "organic": {
+      "standard_reach": 100,
+      "cv": 57.53,
+      "average": 49.73,
+      "min": "0.18",
+      "max": "99.80",
+      "extremum_diff": 99.62,
+      "fluctuate": 98.15
+    },
+    "inorganic": {
+      "standard_reach": 100,
+      "cv": 58.88,
+      "average": 49.73,
+      "min": "0.18",
+      "max": "99.99",
+      "extremum_diff": 99.81,
+      "fluctuate": 99.2
+    },
+    "sulfur": {
+      "standard_reach": 100,
+      "cv": 56.57,
+      "average": 50.54,
+      "min": "0.47",
+      "max": "99.69",
+      "extremum_diff": 99.22,
+      "fluctuate": 96.61
+    }
+  },
+  "偏差": {
+    "temperature": {
+      "standard_reach": -8.31,
+      "cv": 8.31,
+      "average": 0.42,
+      "min": -0.04,
+      "max": 0.07,
+      "extremum_diff": 0.11,
+      "fluctuate": -0.04
+    },
+    "humidity": {
+      "standard_reach": -22.01,
+      "cv": 22.01,
+      "average": 0.05,
+      "min": -0.02,
+      "max": -0.02,
+      "extremum_diff": 0,
+      "fluctuate": 0.41
+    },
+    "voc": {
+      "standard_reach": -14.15,
+      "cv": 14.15,
+      "average": 0.8,
+      "min": 0,
+      "max": 1,
+      "extremum_diff": 1,
+      "fluctuate": 2.2
+    },
+    "co2": {
+      "standard_reach": -14.18,
+      "cv": 14.18,
+      "average": 1.08,
+      "min": 0,
+      "max": 0,
+      "extremum_diff": 0,
+      "fluctuate": -0.6
+    },
+    "light": {
+      "standard_reach": 0,
+      "cv": 0,
+      "average": 2.23,
+      "min": 0,
+      "max": 0,
+      "extremum_diff": 0,
+      "fluctuate": 0.8
+    },
+    "uv": {
+      "standard_reach": -47.41,
+      "cv": 47.41,
+      "average": 0.1,
+      "min": 0.01,
+      "max": -0.04,
+      "extremum_diff": -0.05,
+      "fluctuate": 0.16
+    },
+    "organic": {
+      "standard_reach": 0,
+      "cv": 0,
+      "average": 2.94,
+      "min": -0.13,
+      "max": -0.18,
+      "extremum_diff": -0.05,
+      "fluctuate": 0.62
+    },
+    "inorganic": {
+      "standard_reach": 0,
+      "cv": 0,
+      "average": 2.63,
+      "min": 0.3,
+      "max": -0.02,
+      "extremum_diff": -0.32,
+      "fluctuate": -1.19
+    },
+    "sulfur": {
+      "standard_reach": 0,
+      "cv": 0,
+      "average": -0.59,
+      "min": -0.08,
+      "max": 0.09,
+      "extremum_diff": 0.17,
+      "fluctuate": -0.09
+    }
+  }
+}]

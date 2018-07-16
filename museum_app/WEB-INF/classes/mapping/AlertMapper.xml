@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.museum.mapper.AlertMapper">
+    <resultMap id="BaseResultMap" type="com.museum.pojo.Alert">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="env_no" jdbcType="VARCHAR" property="envNo"/>
+        <result column="relic_no" jdbcType="VARCHAR" property="relicNo"/>
+        <result column="equip_no" jdbcType="VARCHAR" property="equipNo"/>
+        <result column="alert_type" jdbcType="VARCHAR" property="alertType"/>
+        <result column="level" jdbcType="VARCHAR" property="level"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="alert_time" jdbcType="INTEGER" property="alertTime"/>
+        <result column="clear_time" jdbcType="INTEGER" property="clearTime"/>
+        <result column="alert_count" jdbcType="INTEGER" property="alertCount"/>
+        <result column="alert_param" jdbcType="VARCHAR" property="alertParam"/>
+        <result column="alert_val" jdbcType="VARCHAR" property="alertVal"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+
+    <!-- 获取预警信息的Map -->
+    <resultMap id="AlertInfoMap" type="com.museum.pojo.json.AlertInfo">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="env_no" jdbcType="VARCHAR" property="envNo"/>
+        <result column="clear_time" jdbcType="INTEGER" property="clearTime"/>
+        <result column="humidity" jdbcType="INTEGER" property="humidity"/>
+        <result column="temperature" jdbcType="VARCHAR" property="temperature"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, env_no, relic_no, equip_no, alert_type, `level`, content, alert_time, clear_time,
+        alert_count, alert_param, alert_val, remark
+    </sql>
+
+    <!-- 获取嚢匣预警相关的信息 -->
+    <select id="getAlertInfoByEquipNo" resultMap="BaseResultMap">
+        SELECT
+        id,
+        equip_no,
+        content,
+        alert_param,
+        alert_val,
+        alert_time
+        FROM
+        alert
+        WHERE
+        ISNULL(clear_time)
+        AND equip_no = #{equipNo}
+        AND env_no = #{envNo}
+        AND alert_time = (
+        SELECT
+        MAX(alert_time)
+        FROM
+        alert
+        WHERE
+        ISNULL(clear_time)
+        AND equip_no = #{equipNo}
+        AND env_no = #{envNo}
+        )
+    </select>
+
+    <!-- 获取智能囊匣的预警信息 -->
+    <select id="getAlertInfoByNos" resultMap="BaseResultMap">
+        SELECT
+        id,
+        equip_no,
+        content,
+        alert_param,
+        alert_val,
+        alert_time
+        FROM
+          alert
+        WHERE
+          ISNULL(clear_time)
+        AND equip_no = #{equipNo}
+        AND env_no = #{envNo}
+    </select>
+
+    <!-- 根据设备编号清除所有的囊匣预警信息 -->
+    <update id="clearAlertInfoesByEquipNo" parameterType="com.museum.pojo.Alert">
+        update alert
+        <set>
+            <if test="clearTime != null">
+                clear_time = #{clearTime,jdbcType=INTEGER},
+            </if>
+        </set>
+        where
+        equip_no = #{equipNo,jdbcType=VARCHAR}
+    </update>
+
+    <!-- 根据根据预警消息编号清除指定信息的编号 -->
+    <update id="clearAlertInfoByAlertId" parameterType="com.museum.pojo.Alert">
+        update alert
+        <set>
+            <if test="clearTime != null">
+                clear_time = #{clearTime,jdbcType=INTEGER},
+            </if>
+        </set>
+        where
+        id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!-- 获取嚢匣预警相关的信息 -->
+    <select id="getAlertInfos" resultMap="AlertInfoMap">
+        SELECT
+        alert.id id,
+        alert.env_no env_no,
+        alert.clear_time clear_time,
+        sensor.humidity humidity,
+        sensor.temperature temperature
+        FROM
+        alert alert
+        JOIN data_sensor sensor ON alert.env_no = sensor.env_no
+        AND alert.equip_no = sensor.equip_no
+        AND sensor.equip_time = (
+        SELECT
+        MAX(equip_time)
+        FROM
+        data_sensor data_sensor
+        WHERE
+        alert.env_no = data_sensor.env_no
+        AND alert.equip_no = data_sensor.equip_no
+        )
+        WHERE
+        ISNULL(alert.clear_time)
+        ORDER BY
+        alert.alert_time DESC
+    </select>
+    <!-- 获取预警信息的Map -->
+    <resultMap id="selectBoxAlertsMap" type="com.museum.pojo.json.BoxAlert">
+        <!--<id column="id" jdbcType="INTEGER" property="id"/>-->
+        <result column="env_no" jdbcType="VARCHAR" property="envNo"/>
+        <result column="alert_val" jdbcType="VARCHAR" property="alertVal"/>
+        <result column="alert_time" jdbcType="VARCHAR" property="AlertTime"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="temperature" jdbcType="VARCHAR" property="temp"/>
+        <result column="humidity" jdbcType="VARCHAR" property="hum"/>
+    </resultMap>
+    <!--获取囊匣消息分页查询-->
+    <select id="selectBoxAlerts" resultMap="selectBoxAlertsMap">
+        SELECT
+        alert.env_no,
+        alert.alert_val,
+        alert.alert_time,
+        alert.content,
+        data_sensor.temperature,
+        data_sensor.humidity
+        FROM
+        alert
+        LEFT JOIN data_sensor ON alert.env_no = data_sensor.env_no
+        AND alert.alert_time = data_sensor.server_time
+        WHERE alert.env_no in
+        <foreach collection="envNos" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY alert_time DESC
+        limit #{start},#{row}
+    </select>
+    <resultMap id="selectEnvAlertsMap" type="com.museum.pojo.json.EnvAlert">
+        <result column="env_no" jdbcType="VARCHAR" property="envNo"/>
+        <result column="alert_val" jdbcType="VARCHAR" property="alertVal"/>
+        <result column="alert_time" jdbcType="VARCHAR" property="alertTime"/>
+        <result column="alert_param" jdbcType="VARCHAR" property="param"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="temperature" jdbcType="VARCHAR" property="temp"/>
+        <result column="humidity" jdbcType="VARCHAR" property="hum"/>
+        <result column="temperature_min" jdbcType="VARCHAR" property="tempMin"/>
+        <result column="temperature_max" jdbcType="VARCHAR" property="tempMax"/>
+        <result column="humidity_min" jdbcType="VARCHAR" property="humMin"/>
+        <result column="humidity_max" jdbcType="VARCHAR" property="humMax"/>
+    </resultMap>
+    <!--获取环境预警消息；列表分页查询-->
+    <select id="selectEnvAlerts" resultMap="selectEnvAlertsMap">
+        SELECT
+        alert.env_no,
+        alert.alert_val,
+        alert.alert_time,
+        alert.alert_param,
+        alert.content,
+        data_sensor.temperature,
+        data_sensor.humidity,
+        threshold.temperature_min,
+        threshold.temperature_max,
+        threshold.humidity_min,
+        threshold.humidity_max
+        FROM
+        alert
+        LEFT JOIN data_sensor ON alert.env_no = data_sensor.env_no
+        AND alert.alert_time = data_sensor.server_time
+        LEFT JOIN threshold ON alert.env_no = threshold.`no`
+        WHERE
+        alert.env_no NOT IN
+        <foreach collection="envNos" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY
+        alert_time DESC
+        limit #{start},#{row}
+    </select>
+    <!--获取囊匣消息总数-->
+    <select id="selectBoxAlertsCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(id)
+        FROM
+        alert
+        WHERE alert.env_no in
+        <foreach collection="envNos" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <!--获取环境预警消息总数-->
+    <select id="selectEnvAlertsCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(alert.id)
+        FROM
+        alert
+        LEFT JOIN data_sensor ON alert.env_no = data_sensor.env_no
+        AND alert.alert_time = data_sensor.server_time
+        LEFT JOIN threshold ON alert.env_no = threshold.`no`
+        WHERE
+        alert.env_no NOT IN
+        <foreach collection="envNos" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from alert
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from alert
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" parameterType="com.museum.pojo.Alert">
+        insert into alert (id, env_no, relic_no,
+        equip_no, alert_type, level,
+        content, alert_time, clear_time,
+        alert_count, alert_param, alert_val,
+        remark)
+        values (#{id,jdbcType=INTEGER}, #{envNo,jdbcType=VARCHAR}, #{relicNo,jdbcType=VARCHAR},
+        #{equipNo,jdbcType=VARCHAR}, #{alertType,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR},
+        #{content,jdbcType=VARCHAR}, #{alertTime,jdbcType=INTEGER}, #{clearTime,jdbcType=INTEGER},
+        #{alertCount,jdbcType=INTEGER}, #{alertParam,jdbcType=VARCHAR}, #{alertVal,jdbcType=VARCHAR},
+        #{remark,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" parameterType="com.museum.pojo.Alert">
+        insert into alert
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="envNo != null">
+                env_no,
+            </if>
+            <if test="relicNo != null">
+                relic_no,
+            </if>
+            <if test="equipNo != null">
+                equip_no,
+            </if>
+            <if test="alertType != null">
+                alert_type,
+            </if>
+            <if test="level != null">
+                level,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="alertTime != null">
+                alert_time,
+            </if>
+            <if test="clearTime != null">
+                clear_time,
+            </if>
+            <if test="alertCount != null">
+                alert_count,
+            </if>
+            <if test="alertParam != null">
+                alert_param,
+            </if>
+            <if test="alertVal != null">
+                alert_val,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="envNo != null">
+                #{envNo,jdbcType=VARCHAR},
+            </if>
+            <if test="relicNo != null">
+                #{relicNo,jdbcType=VARCHAR},
+            </if>
+            <if test="equipNo != null">
+                #{equipNo,jdbcType=VARCHAR},
+            </if>
+            <if test="alertType != null">
+                #{alertType,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null">
+                #{level,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="alertTime != null">
+                #{alertTime,jdbcType=INTEGER},
+            </if>
+            <if test="clearTime != null">
+                #{clearTime,jdbcType=INTEGER},
+            </if>
+            <if test="alertCount != null">
+                #{alertCount,jdbcType=INTEGER},
+            </if>
+            <if test="alertParam != null">
+                #{alertParam,jdbcType=VARCHAR},
+            </if>
+            <if test="alertVal != null">
+                #{alertVal,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.museum.pojo.Alert">
+        update alert
+        <set>
+            <if test="envNo != null">
+                env_no = #{envNo,jdbcType=VARCHAR},
+            </if>
+            <if test="relicNo != null">
+                relic_no = #{relicNo,jdbcType=VARCHAR},
+            </if>
+            <if test="equipNo != null">
+                equip_no = #{equipNo,jdbcType=VARCHAR},
+            </if>
+            <if test="alertType != null">
+                alert_type = #{alertType,jdbcType=VARCHAR},
+            </if>
+            <if test="level != null">
+                level = #{level,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="alertTime != null">
+                alert_time = #{alertTime,jdbcType=INTEGER},
+            </if>
+            <if test="clearTime != null">
+                clear_time = #{clearTime,jdbcType=INTEGER},
+            </if>
+            <if test="alertCount != null">
+                alert_count = #{alertCount,jdbcType=INTEGER},
+            </if>
+            <if test="alertParam != null">
+                alert_param = #{alertParam,jdbcType=VARCHAR},
+            </if>
+            <if test="alertVal != null">
+                alert_val = #{alertVal,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.museum.pojo.Alert">
+        update alert
+        set env_no = #{envNo,jdbcType=VARCHAR},
+        relic_no = #{relicNo,jdbcType=VARCHAR},
+        equip_no = #{equipNo,jdbcType=VARCHAR},
+        alert_type = #{alertType,jdbcType=VARCHAR},
+        level = #{level,jdbcType=VARCHAR},
+        content = #{content,jdbcType=VARCHAR},
+        alert_time = #{alertTime,jdbcType=INTEGER},
+        clear_time = #{clearTime,jdbcType=INTEGER},
+        alert_count = #{alertCount,jdbcType=INTEGER},
+        alert_param = #{alertParam,jdbcType=VARCHAR},
+        alert_val = #{alertVal,jdbcType=VARCHAR},
+        remark = #{remark,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

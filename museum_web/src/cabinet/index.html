@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>博物馆综合管理平台</title>
+</head>
+<body v-cloak>
+
+__inline("/common/header.html")
+__inline("/common/left.html")
+<div id="nav" class="nav_box detail">
+    <dl>
+
+    </dl>
+    <a href="javascript:history.back()" class="back">返回</a>
+</div>
+
+<div id="relicName">
+    <span v-text="cabinet.name"></span>
+    <div class="star"></div>
+</div>
+
+<!--当前信息-->
+<div id="contentBox">
+    
+        __inline("left.html")
+    
+        __inline("right.html")
+</div>
+
+
+<script type="text/javascript">
+    require('cabinet');
+</script>
+</body>
+</html>

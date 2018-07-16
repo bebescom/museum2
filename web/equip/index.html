@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>博物馆综合管理平台</title>
+  <link rel="stylesheet" href="../js/iview/iview.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/css/header.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/nav/nav.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/detail/common.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/css/left.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../common/css/font.css?v=2.2.05_P001" />
+  <link rel="stylesheet" href="../components.css?v=2.2.05_P001" />
+</head>
+<body>
+
+<div id="header" v-cloak>
+
+    <a class="logo" href="../capsule">
+        <div v-text="web_config.app_name"></div>
+    </a>
+
+    <div class="right_top_box">
+
+
+        <header-down v-ref:down></header-down>
+
+        <div class="warning_logo">
+            <Badge :count="all_num" overflow-count="99">
+                    <img src="../common/images/warning_logo.png" width="24" height="24" alt="" @click="warningList" />
+            </Badge>
+        </div>
+
+        <!--<div class="feedback">-->
+            <!--<a href="http://wpa.qq.com/msgrd?v=3&uin=3356346419&site=qq&menu=yes" target="_blank"></a>-->
+        <!--</div>-->
+
+        <!--<div class="user_logo">-->
+            <!--<img src="../common/images/man.png">-->
+
+        <!--</div>-->
+
+        <div class="user_drop">
+            <Dropdown placement="bottom-end">
+                <div class="user_name" v-text="web_config.user.real_name"></div>
+                <Dropdown-menu slot="list">
+
+                    <Dropdown placement="left-start" class="hide">
+                        <Dropdown-item class="view">
+                            切换视图
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item>地图视图</Dropdown-item>
+                            <Dropdown-item>数据视图</Dropdown-item>
+                            <Dropdown-item>工作视图</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="user_set hide">账户设置</Dropdown-item>
+                    <Dropdown-item class="system_set hide">系统设置</Dropdown-item>
+                    <Dropdown-item class="help hide">帮助中心</Dropdown-item>
+                    <Dropdown-item class="paramSetting" @click="paramSetting">平台参数设置</Dropdown-item>
+                    <Dropdown-item class="user_set permissionHidden" @click="userManagement(user)"
+                                   v-permission="{name:'用户管理'}">用户管理
+                    </Dropdown-item>
+                    <Dropdown placement="left-start">
+                        <Dropdown-item class="view">
+                            切换语言
+                        </Dropdown-item>
+                        <Dropdown-menu slot="list">
+                            <Dropdown-item @click="change_language('chinese')">汉语</Dropdown-item>
+                            <Dropdown-item @click="change_language('tibetan')">藏语</Dropdown-item>
+                            <Dropdown-item @click="change_language('english')">英语</Dropdown-item>
+                        </Dropdown-menu>
+                    </Dropdown>
+                    <Dropdown-item class="logout" @click.stop="exit">退出登录</Dropdown-item>
+
+                </Dropdown-menu>
+            </Dropdown>
+        </div>
+    </div>
+</div>
+
+<template id="header_down">
+    <div class="equip_down" >
+
+        <Dropdown trigger="custom" :visible="show_list_key">
+            <Badge :count="downLoadingLen">
+                <img src="../common/images/loading_img.png" alt="下载loading" @click.stop="show_list">
+            </Badge>
+            <!--<i class="loadingNumber" v-text="downLoadingLen"></i>-->
+            <Dropdown-menu slot="list" style="width: 350px;">
+                <li class="loading_div" v-for="(index,item) in downLoadList">
+                    <div class="singleDown" :classno="item.noClass">
+                        <i :class="item.down_status"></i>
+                        <Poptip trigger="hover" :content="item.file_name">
+                            <span v-text="item.file_name"></span>
+                        </Poptip>
+                        <Icon v-show="item.url" type="ios-download-outline" @click.stop="down_file(item.url)"
+                              class="download_file" data-title="下载文件" size="24"></Icon>
+                        <i class="reloading" @click.stop="re_down(item.msg_id)"
+                           v-show="item.down_status === 'singleDown_reloading'"></i>
+                        <i class="singleDown_clear" @click.stop="del_down(item.msg_id)"></i>
+                    </div>
+                </li>
+
+            </Dropdown-menu>
+        </Dropdown>
+
+        <Progress :percent="45" :stroke-width="5" status="active" v-show="downLoadingLen" hide-info></Progress>
+
+    </div>
+
+</template>
+<script type="text/javascript" src="../js/mod.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/socket.io.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/underscore-min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/jquery-1.10.2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/vue.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/iview/iview.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/tooltip.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/store2.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/socket.io.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/permission.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/header.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/echarts.min.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../js/laydate/laydate.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/left.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/router.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/detail/common.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="../common/nav/nav.js?v=2.2.05_P001" ></script>
+<script type="text/javascript" src="equip.js?v=2.2.05_P001" ></script>
+<script type="text/javascript">
+    Vue.component('header-down', {
+        template: '#header_down',
+        data: function () {
+            return {
+                show_loading_key: true,//是否显示下载
+                show_list_key: false,//是否显示下拉列表
+                downLoadList: {},//设备下载传输数据
+            }
+        },
+        computed: {
+            downLoadListLength: function () {
+                return _.size(this.downLoadList);
+            },
+            downLoadingLen: function () {
+                var _len = 0;
+                for (var i in this.downLoadList) {
+                    if (this.downLoadList[i].down_status === 'singleDown_status_change') {
+                        ++_len;
+                    }
+                }
+                return _len;
+            }
+        },
+        ready: function () {
+            var _this = this;
+            _this.downLoadList = my_store('downloadEquipData') || {};
+            if (_this.downLoadListLength) {
+                _this.show_loading_key = true;
+            }
+            //下载完成后的通知
+            window.socket.on("downEquipDataEnd", function (json) {
+                console.log(json);
+                setTimeout(function () {
+                    if (_this.downLoadList[json.msg_id]) {
+                        window.socket.emit("downEquipDataAck", json);//确认收到消息
+                        _this.end_down(json);//下载完成
+                    }
+                }, 0);
+            });
+
+            window.new_down = _this.new_down;//新建下载队列
+
+        },
+        methods: {
+            show_list: function () {
+                // console.log(this.downLoadingLen)
+                // if(!this.downLoadingLen){//当下载数据为0时，不执行下载
+                //     return
+                // }
+                this.show_list_key = !this.show_list_key;
+            },
+            re_down: function (msg_id) {//重新下载
+                var _this = this;
+                if (!msg_id || !_this.downLoadList[msg_id]) {
+                    return;
+                }
+                setTimeout(function () {
+                    _this.new_down(_this.downLoadList[msg_id]);
+                }, 0);
+            },
+            del_down: function (item_id) {//删除某个下载任务
+                console.log('del_down', item_id);
+                var _this = this;
+                var _list = my_store('downloadEquipData') || {};
+                delete _list[item_id];
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _this.downLoadList);
+
+                if (_this.downLoadListLength === 0) {
+                    _this.show_loading_key = false;
+                    _this.show_list_key = false;
+                }
+            },
+            down_file: function (url) {//下载文件
+                if (url) {
+                    window.location.href = ('/2.2.05_P001/base_api' + url.slice(1));
+                }
+            },
+            new_down: function (msg) {//新建下载任务
+                var _this = this;
+                msg.msg_id = msg.msg_id || 'down_' + new Date().getTime() + '_' + Math.random();
+                msg.down_status = 'singleDown_status_change';
+                msg.access_token = window.web_config.token;
+                var _list = my_store('downloadEquipData') || {};
+                _list[msg.msg_id] = msg;
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _this.downLoadList);
+                _this.show_loading_key = true;
+                window.socket.emit('downEquipData', msg);
+
+            },
+            end_down: function (json) {//下载队列完成
+                var _this = this;
+                if (!json.result) {
+                    _this.$Message.error('下载失败');
+                }
+                var _list = my_store('downloadEquipData') || {};
+                _list[json.msg_id].down_status = json.result ? 'singleDown_status' : 'singleDown_reloading';
+                if (json.url) {
+                    _list[json.msg_id].url = json.url;
+                }
+                _this.downLoadList = _list;
+                my_store('downloadEquipData', _list);
+                setTimeout(function () {
+                    _this.show_list_key = true;
+                    if (json.result && json.url) {
+                        var url = json.url.slice(1);
+                        var a = window.open('/2.2.05_P001/base_api' + url);
+                        console.log(a);
+                    }
+                }, 200);
+            }
+        },
+        events: {
+            hideOverlay: function () {
+                if (this.show_loading_key) {
+                    this.show_loading_key = false;
+                }
+            }
+        }
+    });
+</script>
+
+
+
+<div id="left">
+    <ul>
+    	<li class="integrated permissionHidden" v-permission="{name:'综合管理'}">
+			<a href="../capsule/#!/integrated">
+				<span></span>
+				<span v-text="language.left_integrated"></span>
+			</a>
+		</li>
+		<li class="capsule permissionHidden"  v-if="capsule=='1'" v-permission="{name:'智能囊匣'}">
+			<a href="../capsule/#!capsule">
+				<span></span>
+				智能囊匣
+			</a>
+		</li>
+		<li class="monitoring permissionHidden" v-permission="{name:'环境监控'}">
+			<a href="../capsule/#!/environment">
+				<span></span>
+				<span v-text="language.left_environmentalMonitor"></span>
+			</a>
+		</li>
+		<li class="vibration permissionHidden" v-if="vibration=='1'" v-permission="{name:'震动监测'}">
+            <a href="../vibration">
+                <span></span>
+                震动监测
+            </a>
+        </li>
+		<li class="relic_ permissionHidden" v-permission="{name:'文物管理'}">
+			<a href="../capsule/#!/relic">
+				<span></span>
+				<span v-text="language.left_relicManagement"></span>
+			</a>
+		</li>
+		<li class="equipment permissionHidden" v-permission="{name:'设备管理'}">
+			<a href="../equipManage">
+				<span></span>
+				<span v-text="language.left_equipManagement"></span>
+			</a>
+		</li>
+    </ul>
+</div>
+
+
+<div id="nav" class="nav_box detail">
+    <dl></dl>
+    <a href="javascript:history.back()" class="back">返回</a>
+</div>
+
+<div id="relicName">
+    <span v-text="equip.equip_type+'-'+equip.name"></span>
+    <div class="star"></div>
+</div>
+
+<!--当前信息-->
+<div id="contentBox">
+    <div class="left">
+    <div class="overview">
+        <div class="title">设备概况
+            <span class="status " v-bind:class="['status',equip.status=='正常'?'normal':'abnormal']"
+                  v-text="equip.status"></span>
+        </div>
+        <div class="new">最新数据<i></i></div>
+        <ul class="surround">
+            <li v-for="item in param_list" v-bind:class="item">
+                <span v-text="equip[item]"></span>
+                <span v-text="param_unit[item]"></span>
+            </li>
+        </ul>
+        <div class="wrapper">
+            <table width="100%">
+                <tr>
+                    <td width="100">设&nbsp;备&nbsp;ID&nbsp; :</td>
+                    <td v-text="equip.equip_no"></td>
+                </tr>
+                <tr>
+                    <td>设备类型 :</td>
+                    <td v-text="equip.equip_type"></td>
+                </tr>
+                <tr>
+                    <td>数据发送间隔 :</td>
+                    <td v-text="equip.sleep&&equip.sleep / 60+'分钟'"></td>
+                </tr>
+                <tr>
+                    <td>电&nbsp;压&nbsp;值&nbsp; :</td>
+                    <td>
+                        <span class="num first" v-text="equip.voltage||'-'+'v'"></span>
+                        <p class="battery"></p>
+                        <p class="caveat"></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>信号质量 :</td>
+                    <td>
+                        <span class="num last" v-text="equip.rssi||'-'+'db'"></span>
+                        <div class="signal"></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+<!-- <div class="basic"><span></span></div> -->
+
+
+
+
+<div class="relic_equip one">
+    <div class="title">同柜文物</div>
+    <form>
+        <div class="parent_box">
+            <input type="text" placeholder="请输入你要查找的设备" @click.stop="" @keydown.enter.stop.prevent="search('relic')" v-model="relic_searchTxt">
+            <i class="icon iconfont" @click.stop="show($event)">&#xe614;</i>
+        </div>
+        <div class="parent_box">
+            <div class="filter" style="width:150px;">
+                <div class="font">材质
+                    <ul>
+                        <li v-for="name in relic.material" v-text="name" @click.stop="addChooce('material',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+                <div class="font">年代
+                    <ul>
+                        <li v-for="name in relic.age" v-text="name" @click.stop="addChooce('age',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+                <div class="font">类别
+                    <ul>
+                        <li v-for="name in relic.category" v-text="name" @click.stop="addChooce('category',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+            </div>
+            <i class="icon iconfont" @click.stop="show($event)">&#xe650;</i>
+        </div>
+    </form>
+    <p class="fliter_box">
+        <template v-for="(type,val) in relic_condition" track-by="$index">
+            <span v-for="name in val" v-text="name" @click="removeChooce(type,name)" track-by="$index"></span>
+        </template>
+    </p>
+    <div class="relic_menu">
+        <a v-for="item in relic_list" href="../relic?relic_no={{item.relic_no}}" :data-title="item.name" v-text="item.name" track-by="$index"></a>
+    </div>
+    <div class="drag"></div>
+    <div class="shadow"></div>
+</div>
+<div class="relic_equip two">
+    <div class="title">同柜设备<font class="totle"></font></div>
+    <form>
+        <div class="parent_box">
+            <input type="text" placeholder="请输入你要查找的设备" @click.stop="" @keydown.enter.stop.prevent="search('equip')" v-model="equip_searchTxt">
+            <i class="icon iconfont" @click.stop="show($event)">&#xe614;</i>
+        </div>
+        <div class="parent_box">
+            <div class="filter" style="width:120px;">
+                <div class="font">传感器
+                    <ul>
+                        <li v-for="name in equip.sensor" v-text="name" @click.stop="addChooce('sensor',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+                <div class="font">调控器
+                    <ul>
+                        <li v-for="name in equip.controller" v-text="name" @click.stop="addChooce('controller',name)" track-by="$index"></li>
+                    </ul>
+                </div>
+            </div>
+            <i class="icon iconfont" @click.stop="show($event)">&#xe650;</i>
+        </div>
+    </form>
+    <p class="fliter_box">
+        <template v-for="(type,val) in equip_condition" track-by="$index">
+            <span v-for="name in val" v-text="name" @click="removeChooce(type,name)" track-by="$index"></span>
+        </template>
+    </p>
+    <div class="equip_menu">
+        <h4>调控器</h4>
+        <a v-for="item in controller" href="../equip?equip_no={{item.equip_no}}" :data-title="item.name" v-text="item.name" track-by="$index"></a>
+    </div>
+    <div class="equip_menu sensor">
+        <h4>传感器</h4>
+        <a v-for="item in sensor" href="../equip?equip_no={{item.equip_no}}" :data-title="item.name" v-text="item.name" track-by="$index"></a>
+    </div>
+
+    <div class="position">
+        <div class="title">展柜位置图</div>
+        <div class="shadow"></div>
+    </div>
+
+    <div class="roomView">
+        <div class="title">展柜内部位置图</div>
+        <div class="barnar"></div>
+        <i class="iconfont leftNav">&#xe732;</i>
+        <i class="iconfont rightNav">&#xe731;</i>
+    </div>
+</div>
+</div>
+
+    
+    <div class="right">
+    <div class="monitor equip">
+        <div class="title">设备监测数据</div>
+        <div class="gray chooceTime">
+            时间选择：
+            <span class="ower" data-time="24h">24小时</span>
+            <span data-time="yesterday">昨天</span>
+            <span data-time="today">今天</span>
+            <span data-time="week">本周</span>
+            <span data-time="month">本月</span>
+            <span class="diy" data-time="diy">自定义</span>
+
+            <div class="diy_date">
+                自定义
+                <input onclick="laydate()" id="start_date" type="text" value=""/>
+                至
+                <input onclick="laydate()" id="end_date" type="text" value=""/>
+                <button type="button">确定</button>
+            </div>
+        </div>
+
+        <div class="wrapper inline">
+            <div class="view"></div>
+            <div class="inline">
+            	<div class="message">暂无数据</div>
+                <div class="echartsArea"></div>
+            </div>
+        </div>
+
+        <div id="monitor_table" class="inline" v-if="monitor_thead.length">
+            <table class="monitor_table">
+                <thead>
+                <tr>
+                    <td width="160">采集时间</td>
+                    <td width="78" v-for="item in monitor_thead">
+                        <i v-text="item.name"></i>
+                        <br><span>(<i v-text="param_unit[item.key]"></i>)</span>
+                    </td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in monitor_list">
+                    <td v-text="item.equip_time"></td>
+                    <td v-for="item2 in monitor_thead" v-text="item[item2.key]"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    
+<div class="monitor equip" v-if="sensor_list.length!=0">
+    <div class="title">同柜监测设备</div>
+    <table>
+        <thead v-show="sensor_list.length!=0">
+        <tr>
+            <td>设备名称</td>
+            <td>状态</td>
+            <td>采集时间</td>
+            <td>温度<br><span>(<i v-text="param_unit['temperature']"></i>)</span></td>
+            <td>湿度<br><span>(<i v-text="param_unit['humidity']"></i>)</span></td>
+            <td>VOC<br><span>(<i v-text="param_unit['voc']"></i>)</span></td>
+            <td>CO₂<br><span>(<i v-text="param_unit['co2']"></i>)</span></td>
+            <td>累计光照<br><span>(<i v-text="param_unit['light']"></i>)</span></td>
+            <td>紫外<br><span>(<i v-text="param_unit['uv']"></i>)</span></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in sensor_list">
+            <td><a href="../equip?equip_no={{item.equip_no}}">{{item.equip_type}}-{{item.name}}</a></td>
+            <td v-text="item.status" v-bind:class="[(item.status=='正常')?'status':'noStatus']"></td>
+            <td v-text="item.equip_time"></td>
+            <td v-text="item.temperature"></td>
+            <td v-text="item.humidity"></td>
+            <td v-text="item.voc"></td>
+            <td v-text="item.co2"></td>
+            <td v-text="item.light"></td>
+            <td v-text="item.uv"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div class="regulation equip" v-if="control_list.length!=0">
+    <div class="title">同柜调控设备</div>
+    <table>
+        <thead v-show="control_list.length!=0">
+        <tr>
+            <td>设备名称</td>
+            <td>状态</td>
+            <td>采集时间</td>
+            <td>调控参数</td>
+            <td>实际值</td>
+            <td>目标值</td>
+            <td>计划更换日期</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in control_list">
+            <td><a href="../equip?equip_no={{item.equip_no}}">{{item.equip_type}}-{{item.name}}</a></td>
+            <td v-text="item.status" v-bind:class="[(item.status=='正常')?'status':'noStatus']"></td>
+            <td v-text="item.equip_time"></td>
+            <td v-text="item.param"></td>
+            <td v-text="item.humidity"></td>
+            <td v-text="item.target"></td>
+            <td v-text="item.replace_time"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</div>
+
+    
+</div>
+
+
+<script type="text/javascript">
+    require('equip');
+</script>
+</body>
+</html>
