@@ -263,5 +263,5 @@ sudo service docker restart
 sudo vim /etc/sysconfig/docker
 
 other_args="--registry-mirror=https://ng0d7s68.mirror.aliyuncs.com --graph=/usr/local/docker"
-~~~
+~~
 
