@@ -375,7 +375,7 @@ sudo ./stop.sh  #停止
 sudo vim /etc/rc.local #添加自启动
 /usr/local/ampps/env_nodejs/bin/start.sh
 
-~~~
+~~~~
 
 ### 3.创建web连接
 
